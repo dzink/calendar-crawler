@@ -36,3 +36,8 @@ class CalendarParser:
 
     def getEventsList(self):
         return EventList(self.events)
+
+    def pipesForWhitespaces(self, text):
+        text = re.sub('(^\s+)|(\s+$)', '', text)
+        text = re.sub('((\s){2,})|\n', ' | ', text)
+        return text

@@ -8,6 +8,7 @@ from GoogleCalendarBuilder import GoogleCalendarBuilder
 from CalendarSource import CalendarSource
 from CalendarParser import CalendarParser
 from ShowPlaceParser import ShowPlaceParser
+from OttobarParser import OttobarParser
 from WithFriendsParser import WithFriendsParser
 
 from time import sleep
@@ -75,6 +76,18 @@ def showPlace():
 
     events.addBoilerplateToDescriptions('End times are approximate. Thanks to the ShowPlace folks for this event. See https://baltshowplace.tumblr.com/ for more')
     events.setAbsoluteEndDateTime(23, 59)
+
+    return events
+
+def ottobar():
+    source = CalendarSource('https://theottobar.com/calendar/', 'ottobar')
+    # html = source.getRemoteHtml()
+    html = source.getLocalHtml()
+
+    parser = OttobarParser(html, 'Ottobar')
+    events = parser.parse().getEventsList()
+    events.prefixDescriptionsWithLinks()
+    events.addBoilerplateToDescriptions('End time is approximate. Imported from https://theottobar.com/calendar/')
 
     return events
 
