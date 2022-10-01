@@ -42,7 +42,7 @@ def redEmmas():
     events.prefixLinks('https://withfriends.co')
     events.prefixDescriptionsWithLinks()
     events.setAbsoluteEndDateTime(22, 00)
-    events.setLocationAddress('Red Emma\'s - 3128 Greenmount Ave, Baltimore, MD 21218')
+    events.setLocationAddress('Red Emma\'s')
 
     return events
 
@@ -55,10 +55,10 @@ def currentSpace():
     events = parser.parse().getEventsList()
 
     events.addBoilerplateToDescriptions('End time is approximate, events end by 10:30. Imported from https://withfriends.co/current_space/events')
-    # events.prefixDescriptions('https://withfriends.co')
     events.prefixLinks('https://withfriends.co')
+    events.prefixDescriptionsWithLinks()
     events.setAbsoluteEndDateTime(22, 30)
-    events.setLocationAddress('Current Space - 421 N Howard St, Baltimore, MD 21201')
+    events.setLocationAddress('Current Space')
 
     return events
 
@@ -67,11 +67,13 @@ def showPlace():
     # html = showplaceSource.getRemoteHtml()
     html = showplaceSource.getLocalHtml()
 
-    parser = ShowPlaceParser(html)
+    parser = ShowPlaceParser(html, 'ShowPlace')
     events = parser.parse().getEventsList()
-    # parser.rejectEvents({'location': '\\s*Current Space\\s*'})
-    # parser.rejectEvents({'location': '\\s*Red Emma\'s\\s*'})
-    events.addBoilerplateToDescriptions('Thanks to the ShowPlace folks for this event. See https://baltshowplace.tumblr.com/ for more')
+
+    # Reject events that come from other sources
+    events.rejectEvents({'location': '(Ottobar|Red Emma\'s|Current Space)'})
+
+    events.addBoilerplateToDescriptions('End times are approximate. Thanks to the ShowPlace folks for this event. See https://baltshowplace.tumblr.com/ for more')
     events.setAbsoluteEndDateTime(23, 59)
 
     return events

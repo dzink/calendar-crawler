@@ -57,12 +57,7 @@ class EventList:
     def rejectEvents(self, criteria):
         filteredEvents = []
         for event in self.events:
-            add = True
-            for property, pattern in criteria.items():
-                matches = re.search(pattern, event[property], re.IGNORECASE)
-                if (matches != None):
-                    add = False
-            if (add):
+            if (not event.matches(criteria)):
                 filteredEvents.append(event)
         self.events = filteredEvents
         return self

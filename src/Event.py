@@ -132,7 +132,7 @@ class Event:
         "summary": "\\s*Bad Band I don't want to see\\s*",
     }
     """
-    def match(self, criteria):
+    def matches(self, criteria):
         event = self.__dict__
         for property, pattern in criteria.items():
             matches = re.search(pattern, event[property], re.IGNORECASE)
