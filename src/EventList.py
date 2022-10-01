@@ -31,7 +31,9 @@ class EventList:
             event.setLocation(''.join([event.location or '', address]))
             # event['location'] = ''.join([event['location'], address])
 
-
+    def prefixDescriptionsWithLinks(self):
+        for event in self.events:
+            event.setDescription('\n\n'.join([event.link, event.description or '']))
 
     def deduplicate(self):
         for event in self.events:

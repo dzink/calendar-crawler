@@ -6,9 +6,10 @@ from EventList import EventList
 
 class CalendarParser:
 
-    def __init__(self, html):
+    def __init__(self, html, sourceTitle):
         self.events = []
         self.html = html
+        self.sourceTitle = sourceTitle
 
     def parse(self, settings = []):
         self.parseEvents()
@@ -23,6 +24,8 @@ class CalendarParser:
         return self
 
     def addEvent(self, event):
+        if (not event.sourceTitle):
+            event.setSourceTitle(self.sourceTitle)
         self.events.append(event)
 
     def removeScripts(self, element):
@@ -31,5 +34,5 @@ class CalendarParser:
             script.extract()
         return element
 
-    def getEvents(self):
+    def getEventsList(self):
         return EventList(self.events)

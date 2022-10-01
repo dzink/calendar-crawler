@@ -18,6 +18,7 @@ class Event:
         self.calendarId = None
         self.id = None
         self.link = None
+        self.sourceTitle = None
         self.skipSync = None
         self.buildId()
 
@@ -42,6 +43,10 @@ class Event:
 
     def setLink(self, link):
         self.link = link
+        return self
+
+    def setSourceTitle(self, sourceTitle):
+        self.sourceTitle = sourceTitle
         return self
 
     def setCalendarId(self, calendarId):
@@ -95,6 +100,7 @@ class Event:
             'description': self.description,
             'calendarId': self.calendarId,
             'link': self.link,
+            'sourceTitle': self.sourceTitle,
             'start': self.startToString(),
             'end': self.endToString(),
         }
@@ -110,6 +116,7 @@ class Event:
         self.setLocation(data['location'] or self.location)
         self.setDescription(data['description'] or self.description)
         self.setLink(data['link'] or self.link)
+        self.setCalendarId(data['sourceTitle'] or self.sourceTitle)
         self.setCalendarId(data['calendarId'] or self.calendarId)
         self.setStartString(data['start'] or self.startToString())
         self.setEndString(data['end'] or self.endToString())
@@ -173,5 +180,5 @@ class Event:
         self.setCalendarId(data['calendarId'] or self.calendarId)
 
     def __str__(self):
-        string = "ID: %s\nSummary: %s\nStart: %s\nEnd: %s\nLocation: %s\nDescription: %s\nLink: %s\ncalendarId: %s" %(self.id, self.summary, self.startToString(), self.endToString(), self.location, self.description, self.link, self.calendarId)
+        string = "ID: %s\nSummary: %s\nStart: %s\nEnd: %s\nLocation: %s\nDescription: %s\nLink: %s\nSource: %s\ncalendarId: %s" %(self.id, self.summary, self.startToString(), self.endToString(), self.location, self.description, self.link, self.sourceTitle, self.calendarId)
         return string

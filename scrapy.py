@@ -35,12 +35,12 @@ def redEmmas():
     # html = source.getRemoteHtml()
     html = source.getLocalHtml()
 
-    parser = WithFriendsParser(html)
-    events = parser.parse().getEvents()
+    parser = WithFriendsParser(html, 'Red Emma\'s')
+    events = parser.parse().getEventsList()
 
     events.addBoilerplateToDescriptions('End time is approximate. Imported from https://withfriends.co/red_emmas/events')
-    # events.prefixDescriptions('https://withfriends.co')
     events.prefixLinks('https://withfriends.co')
+    events.prefixDescriptionsWithLinks()
     events.setAbsoluteEndDateTime(22, 00)
     events.setLocationAddress('Red Emma\'s - 3128 Greenmount Ave, Baltimore, MD 21218')
 
@@ -52,7 +52,7 @@ def currentSpace():
     html = source.getLocalHtml()
 
     parser = WithFriendsParser(html)
-    events = parser.parse().getEvents()
+    events = parser.parse().getEventsList()
 
     events.addBoilerplateToDescriptions('End time is approximate, events end by 10:30. Imported from https://withfriends.co/current_space/events')
     # events.prefixDescriptions('https://withfriends.co')
@@ -68,7 +68,7 @@ def showPlace():
     html = showplaceSource.getLocalHtml()
 
     parser = ShowPlaceParser(html)
-    events = parser.parse().getEvents()
+    events = parser.parse().getEventsList()
     # parser.rejectEvents({'location': '\\s*Current Space\\s*'})
     # parser.rejectEvents({'location': '\\s*Red Emma\'s\\s*'})
     events.addBoilerplateToDescriptions('Thanks to the ShowPlace folks for this event. See https://baltshowplace.tumblr.com/ for more')

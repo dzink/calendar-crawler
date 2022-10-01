@@ -66,6 +66,7 @@ class GoogleCalendarBuilder:
         eventData['description'] = event.description or ''
         eventData['location'] = event.location or ''
         eventData['source.url'] = event.link or ''
+        eventData['source.title'] = event.sourceTitle or ''
         eventData['start'] = {'dateTime': event.startToString()}
         eventData['end'] = {'dateTime': event.endToString()}
         # if (event.startDate.tzinfo != None):
