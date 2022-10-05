@@ -1,6 +1,8 @@
 import sys
 sys.path.append('./src')
 
+remote = True
+
 from EventDb import EventDb
 from Event import Event
 from EventList import EventList
@@ -45,9 +47,8 @@ def main():
     # event.write()
 
 def redEmmas():
-    source = CalendarSource('https://withfriends.co/red_emmas/events', 'red_emmas')
-    # html = source.getRemoteHtml()
-    html = source.getLocalHtml()
+    source = CalendarSource('https://withfriends.co/red_emmas/events', 'red_emmas', remote)
+    html = source.getHtml()
 
     parser = WithFriendsParser(html, 'Red Emma\'s')
     events = parser.parse().getEventsList()
@@ -61,9 +62,8 @@ def redEmmas():
     return events
 
 def currentSpace():
-    source = CalendarSource('https://withfriends.co/current_space/events', 'current_space')
-    # html = source.getRemoteHtml()
-    html = source.getLocalHtml()
+    source = CalendarSource('https://withfriends.co/current_space/events', 'current_space', remote)
+    html = source.getHtml()
 
     parser = WithFriendsParser(html, 'Current Space')
     events = parser.parse().getEventsList()
@@ -77,9 +77,8 @@ def currentSpace():
     return events
 
 def showPlace():
-    showplaceSource = CalendarSource('https://baltshowplace.tumblr.com/', 'showplace')
-    # html = showplaceSource.getRemoteHtml()
-    html = showplaceSource.getLocalHtml()
+    showplaceSource = CalendarSource('https://baltshowplace.tumblr.com/', 'showplace', remote)
+    html = showplaceSource.getHtml()
 
     parser = ShowPlaceParser(html, 'ShowPlace')
     events = parser.parse().getEventsList()
@@ -93,9 +92,8 @@ def showPlace():
     return events
 
 def ottobar():
-    source = CalendarSource('https://theottobar.com/calendar/', 'ottobar')
-    # html = source.getRemoteHtml()
-    html = source.getLocalHtml()
+    source = CalendarSource('https://theottobar.com/calendar/', 'ottobar', remote)
+    html = source.getHtml()
 
     parser = OttobarParser(html, 'Ottobar')
     events = parser.parse().getEventsList()

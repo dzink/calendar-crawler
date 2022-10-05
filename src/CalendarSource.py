@@ -11,16 +11,23 @@ class CalendarSource:
     events = []
     driver = None
 
-    def __init__(self, url, id = ''):
+    def __init__(self, url, id = '', remote = True):
         self.url = url
         if (id == ''):
             id = url
         self.id = id
+        self.remote = remote
 
     def getDriver(self):
         if (self.driver == None):
             self.driver=webdriver.Chrome(service=Service(ChromeDriverManager().install()))
         return self.driver
+
+    def getHtml(self):
+        if (self.remote):
+            return self.getRemoteHtml()
+        else:
+            return self.getLocalHtml()
 
     def getRemoteHtml(self):
         driver = self.getDriver()
