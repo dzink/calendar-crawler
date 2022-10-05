@@ -27,30 +27,13 @@ class ShowPlaceParser(CalendarParser):
                         event = Event()
                         event.setSummary(parsed[0][0])
                         event.setLocation(parsed[0][8])
-                        event.setDescription(text)
+                        event.setDescription(self.pipesForWhitespaces(text))
                         event.setStartString(self.buildStartstamp(date, parsed), '%A, %B %d, %Y %I:%M%p')
                         event.setEndString(self.buildEndstamp(date), '%A, %B %d, %Y %I:%M%p')
                         self.addEvent(event)
 
                     else:
                         print('ERROR Could not parse: `' + text + '`')
-                    # try:
-                    #     event = {
-                    #         'summary': parsed[0][0],
-                    #         'start': {
-                    #             'dateTime': self.buildStartstamp(date, parsed),
-                    #             'timeZone': 'US/Eastern',
-                    #         },
-                    #         'end': {
-                    #             'dateTime': self.buildEndstamp(date),
-                    #             'timeZone': 'US/Eastern',
-                    #         },
-                    #         'location': parsed[0][8],
-                    #         'description': text,
-                    #     }
-                    #     self.addEvent(event)
-                    # except:
-                    #     print('ERROR: ' + text)
 
         return self
 

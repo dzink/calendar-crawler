@@ -15,13 +15,26 @@ from time import sleep
 
 def main():
     gcb = GoogleCalendarBuilder()
-    events = showPlace()
-    print(events.events[0])
+    calendarId = gcb.getCalendarIdFromFile('data/testcalendarid.txt')
+    events = []
+
+    events = events + showPlace().events
+    events = events + ottobar().events
+    events = events + redEmmas().events
+    events = events + currentSpace().events
+
+    for event in events:
+        # print(event)
+        event.deduplicate()
+        gcb.syncEvent(event, calendarId)
+        event.write()
+
     # event = events.events[0]
     # event.setSummary('New Summaryyy')
 
     # events.deduplicate()
-    # calendarId = gcb.getCalendarIdFromFile('data/testcalendarid.txt')
+    # for events in events.events:
+    #     event.deduplicate()
     # gcb.syncList(events, calendarId)
     # events.write()
 
@@ -52,7 +65,7 @@ def currentSpace():
     # html = source.getRemoteHtml()
     html = source.getLocalHtml()
 
-    parser = WithFriendsParser(html)
+    parser = WithFriendsParser(html, 'Current Space')
     events = parser.parse().getEventsList()
 
     events.addBoilerplateToDescriptions('End time is approximate, events end by 10:30. Imported from https://withfriends.co/current_space/events')

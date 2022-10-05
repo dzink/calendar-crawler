@@ -159,13 +159,19 @@ class Event:
             self.fromDuplicate(dupe)
             data['id'] = dupe['id']
             data['calendarId'] = dupe['calendarId']
-            if (data == dupe):
+            if (self.needsToUpdate(data, dupe)):
                 print('does not need to update')
                 self.skipSync = True
             else:
                 print('needs to update')
                 print([data, dupe])
         return self
+
+    def needsToUpdate(self, data, dupe):
+        for property, value in dupe.items():
+            if (data[property] != value):
+                return True
+        return False
 
     def setAbsoluteEndDateTime(self, hour = 23, minute = 59):
         dt = copy(self.startDate)
