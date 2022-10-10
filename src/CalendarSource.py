@@ -5,6 +5,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from time import sleep
+from CalendarLogger import logger
 
 import os.path
 
@@ -33,9 +34,11 @@ class CalendarSource:
             chromeOptions.add_argument("--headless")
             chromeOptions.add_argument("--window-size=1920x1080")
             self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), chrome_options = chromeOptions)
+            logger.debug('built chrome driver')
         return self.driver
 
     def getHtml(self):
+        logger.info('retrieving ' + self.url)
         if (self.remote):
             return self.getRemoteHtml()
         else:

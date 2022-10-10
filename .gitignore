@@ -4,6 +4,7 @@ data/events-db.json
 data/*calendarid.txt
 data/credentials.json
 data/token.json
+data/*.log
 
 __pycache__
 src/__pycache__

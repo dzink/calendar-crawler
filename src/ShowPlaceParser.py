@@ -4,6 +4,7 @@ import pytz
 from datetime import datetime
 from Event import Event
 from CalendarParser import CalendarParser
+from CalendarLogger import logger
 
 class ShowPlaceParser(CalendarParser):
 
@@ -42,7 +43,7 @@ class ShowPlaceParser(CalendarParser):
                         self.addEvent(event)
 
                     else:
-                        print('ERROR Could not parse: `' + text + '`')
+                        logger.warning('Could not parse: `' + text + '` for ' + date)
 
         return self
 

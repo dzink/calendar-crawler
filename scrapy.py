@@ -15,48 +15,48 @@ from OttobarParser import OttobarParser
 from WithFriendsParser import WithFriendsParser
 
 from time import sleep
+from CalendarLogger import logger, addLoggerArgsToParser, buildLogger
 
-remote = None
-forceUpdateIfMatched = None
-dryRun = None
+options = None
 
 def main():
-    parseArguments()
-    print(forceUpdateIfMatched)
-    gcb = GoogleCalendarBuilder()
-    calendarId = gcb.getCalendarIdFromFile('data/calendarid.txt')
+    try:
+        global options
+        options = parseArguments()
+        buildLogger(options)
 
-    events = []
+        gcb = GoogleCalendarBuilder()
+        calendarId = gcb.getCalendarIdFromFile('data/calendarid.txt')
 
-    events = events + showPlace().events
-    events = events + ottobar().events
-    events = events + redEmmas().events
-    events = events + currentSpace().events
+        events = []
 
-    for event in events:
-        event.deduplicate(forceUpdateIfMatched = forceUpdateIfMatched)
-        if (not dryRun):
-            gcb.syncEvent(event, calendarId)
-            event.write()
-        else:
-            gcb.dryRun(event)
+        events = events + showPlace().events
+        events = events + ottobar().events
+        events = events + redEmmas().events
+        events = events + currentSpace().events
+
+        for event in events:
+            event.deduplicate(forceUpdateIfMatched = options.force_update)
+            if (not options.dry_run):
+                gcb.syncEvent(event, calendarId)
+                event.write()
+            else:
+                gcb.dryRun(event)
+
+    except Exception as e:
+        logger.exception("Exception occurred")
 
 def parseArguments():
-    global remote
-    global dryRun
-    global forceUpdateIfMatched
     parser = argparse.ArgumentParser(description='Scrape event pages and add them to a Google calendar')
-    parser.add_argument('-l', '--local', help = 'Whether to use local cached sources instead of re-scraping html.', action = 'store_false', default = True)
+    addLoggerArgsToParser(parser)
+    parser.add_argument('-l', '--local', help = 'Whether to use local cached sources instead of re-scraping html.', action = 'store_false', default = True, dest = 'remote')
     parser.add_argument('-u', '--force-update', help = 'Whether to force Google Calendar updates, even if there\'s nothing to update.', action = 'store_true', default = False)
     parser.add_argument('-d', '--dry-run', help = 'Run the parser but do not write to the calendar or database.', action = 'store_true', default = False)
-    args = parser.parse_args()
-    print(args)
-    remote = args.local
-    forceUpdateIfMatched = args.force_update
-    dryRun = args.dry_run
+
+    return parser.parse_args()
 
 def redEmmas():
-    source = CalendarSource('https://withfriends.co/red_emmas/events', 'red_emmas', remote)
+    source = CalendarSource('https://withfriends.co/red_emmas/events', 'red_emmas', options.remote)
     source.setScrollCount(4)
     html = source.getHtml()
 
@@ -71,7 +71,7 @@ def redEmmas():
     return events
 
 def currentSpace():
-    source = CalendarSource('https://withfriends.co/current_space/events', 'current_space', remote)
+    source = CalendarSource('https://withfriends.co/current_space/events', 'current_space', options.remote)
     source.setScrollCount(4)
     html = source.getHtml()
 
@@ -86,8 +86,8 @@ def currentSpace():
     return events
 
 def showPlace():
-    showplaceSource = CalendarSource('https://baltshowplace.tumblr.com/', 'showplace', remote)
-    html = showplaceSource.getHtml()
+    source = CalendarSource('https://baltshowplace.tumblr.com/', 'showplace', options.remote)
+    html = source.getHtml()
 
     parser = ShowPlaceParser(html, 'ShowPlace')
     parser.setPostOffset(0)
@@ -101,7 +101,7 @@ def showPlace():
     return events
 
 def ottobar():
-    source = CalendarSource('https://theottobar.com/calendar/', 'ottobar', remote)
+    source = CalendarSource('https://theottobar.com/calendar/', 'ottobar', options.remote)
     html = source.getHtml()
 
     parser = OttobarParser(html, 'Ottobar')
