@@ -34,7 +34,7 @@ def main():
     events = events + currentSpace().events
 
     for event in events:
-        event.deduplicate(forceUpdateIfMatched = False)
+        event.deduplicate(forceUpdateIfMatched = forceUpdateIfMatched)
         if (not dryRun):
             gcb.syncEvent(event, calendarId)
             event.write()
