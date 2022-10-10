@@ -24,7 +24,7 @@ def main():
     parseArguments()
     print(forceUpdateIfMatched)
     gcb = GoogleCalendarBuilder()
-    calendarId = gcb.getCalendarIdFromFile('data/testcalendarid.txt')
+    calendarId = gcb.getCalendarIdFromFile('data/calendarid.txt')
 
     events = []
 
