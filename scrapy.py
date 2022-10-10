@@ -1,8 +1,9 @@
+#!/usr/bin/python
+
 import sys
 sys.path.append('./src')
 
-remote = True
-
+import argparse
 from EventDb import EventDb
 from Event import Event
 from EventList import EventList
@@ -15,9 +16,16 @@ from WithFriendsParser import WithFriendsParser
 
 from time import sleep
 
+remote = None
+forceUpdateIfMatched = None
+dryRun = None
+
 def main():
+    parseArguments()
+    print(forceUpdateIfMatched)
     gcb = GoogleCalendarBuilder()
     calendarId = gcb.getCalendarIdFromFile('data/testcalendarid.txt')
+
     events = []
 
     events = events + showPlace().events
@@ -27,8 +35,25 @@ def main():
 
     for event in events:
         event.deduplicate(forceUpdateIfMatched = False)
-        # gcb.syncEvent(event, calendarId)
-        # event.write()
+        if (not dryRun):
+            gcb.syncEvent(event, calendarId)
+            event.write()
+        else:
+            gcb.dryRun(event)
+
+def parseArguments():
+    global remote
+    global dryRun
+    global forceUpdateIfMatched
+    parser = argparse.ArgumentParser(description='Scrape event pages and add them to a Google calendar')
+    parser.add_argument('-l', '--local', help = 'Whether to use local cached sources instead of re-scraping html.', action = 'store_false', default = True)
+    parser.add_argument('-u', '--force-update', help = 'Whether to force Google Calendar updates, even if there\'s nothing to update.', action = 'store_true', default = False)
+    parser.add_argument('-d', '--dry-run', help = 'Run the parser but do not write to the calendar or database.', action = 'store_true', default = False)
+    args = parser.parse_args()
+    print(args)
+    remote = args.local
+    forceUpdateIfMatched = args.force_update
+    dryRun = args.dry_run
 
 def redEmmas():
     source = CalendarSource('https://withfriends.co/red_emmas/events', 'red_emmas', remote)

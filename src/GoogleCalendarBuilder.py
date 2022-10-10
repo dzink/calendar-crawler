@@ -41,17 +41,21 @@ class GoogleCalendarBuilder:
                     event.setCalendarId(gEvent['id'])
                 else:
                     self.service().events().update(calendarId = calendarId, eventId = event.calendarId, body = eventData).execute()
-            else:
-                print('skipped')
         except HttpError as error:
             print('An error occurred: %s' % error)
             return None
+
+    def dryRun(self, event):
+        data = self.getDictionaryFromEvent(event)
+        if (event.skipSync):
+            print(['Dry Run: Skipping', data])
+        else:
+            print(['Dry Run: Syncing', data])
 
     def deleteEvent(self, event, calendarId):
         try:
             self.service().events().delete(calendarId = calendarId, eventId = event.calendarId).execute()
             event.setCalendarId(None)
-            print(['deleted', event])
         except HttpError as error:
             print('An error occurred: %s' % error)
             return None
