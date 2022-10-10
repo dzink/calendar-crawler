@@ -1,3 +1,11 @@
+"""
+CalendarParser
+
+A parser reads the HTML of a page and converts it into events.
+
+This class should be
+"""
+
 from bs4 import BeautifulSoup
 import re
 import pytz

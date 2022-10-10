@@ -17,6 +17,14 @@ class CalendarSource:
             id = url
         self.id = id
         self.remote = remote
+        self.scrollCount = 0
+
+    """
+    Indicate how many times the page should be scrolled.
+    Useful for pages that auto-load more events.
+    """
+    def setScrollCount(self, scrollCount):
+        self.scrollCount = scrollCount
 
     def getDriver(self):
         if (self.driver == None):
@@ -35,9 +43,7 @@ class CalendarSource:
         driver.get(self.url)
         get_url = driver.current_url
         wait.until(EC.url_to_be(self.url))
-        self.scrollPage(driver, 4)
-        # driver.execute_script("window.scrollBy(0, document.body.scrollHeight);")
-        # sleep(2)
+        self.scrollPage(driver)
 
         if get_url == self.url:
             page_source_was = ''
@@ -61,7 +67,8 @@ class CalendarSource:
     def rejectEvents(self):
         rejectCriteria = self.rejectEventsCriteria()
 
-    def scrollPage(self, driver, times = 1, pause = 2):
-        for i in range(times):
-            driver.execute_script("window.scrollBy(0, document.body.scrollHeight);")
-            sleep(pause)
+    def scrollPage(self, driver, pause = 2):
+        if (self.scrollCount):
+            for i in range(self.scrollCount):
+                driver.execute_script("window.scrollBy(0, document.body.scrollHeight);")
+                sleep(pause)

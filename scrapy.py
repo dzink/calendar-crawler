@@ -31,23 +31,9 @@ def main():
         gcb.syncEvent(event, calendarId)
         event.write()
 
-    # event = events.events[0]
-    # event.setSummary('New Summaryyy')
-
-    # events.deduplicate()
-    # for events in events.events:
-    #     event.deduplicate()
-    # gcb.syncList(events, calendarId)
-    # events.write()
-
-
-    # calendarEventId = gcb.syncEvent(event, calendarId)
-    # print(['ceid', calendarEventId])
-    # event.setCalendarId(calendarEventId)
-    # event.write()
-
 def redEmmas():
     source = CalendarSource('https://withfriends.co/red_emmas/events', 'red_emmas', remote)
+    source.setScrollCount(4)
     html = source.getHtml()
 
     parser = WithFriendsParser(html, 'Red Emma\'s')
@@ -63,6 +49,7 @@ def redEmmas():
 
 def currentSpace():
     source = CalendarSource('https://withfriends.co/current_space/events', 'current_space', remote)
+    source.setScrollCount(4)
     html = source.getHtml()
 
     parser = WithFriendsParser(html, 'Current Space')
