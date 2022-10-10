@@ -7,6 +7,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 class GoogleCalendarBuilder:
+    port = 34242
     credentialsFile = 'data/credentials.json'
     tokenFile = 'data/token.json'
     scopes = ['https://www.googleapis.com/auth/calendar.events']
@@ -78,7 +79,8 @@ class GoogleCalendarBuilder:
             else:
                 flow = InstalledAppFlow.from_client_secrets_file(
                     self.credentialsFile, self.scopes)
-                creds = flow.run_local_server(port=34242)
+                creds = flow.run_local_server(port = self.port)
+
             # Save the credentials for the next run
             with open(self.tokenFile, 'w') as token:
                 token.write(creds.to_json())
