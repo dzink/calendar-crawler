@@ -3,6 +3,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
 from time import sleep
 
 import os.path
@@ -28,7 +29,10 @@ class CalendarSource:
 
     def getDriver(self):
         if (self.driver == None):
-            self.driver=webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+            chromeOptions = Options()
+            chromeOptions.add_argument("--headless")
+            chromeOptions.add_argument("--window-size=1920x1080")
+            self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), chrome_options = chromeOptions)
         return self.driver
 
     def getHtml(self):
