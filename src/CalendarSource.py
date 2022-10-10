@@ -59,6 +59,7 @@ class CalendarSource:
         with open(self.pageSourceFilename(), 'w') as token:
             token.write(page_source)
 
+        logger.debug('retrieved remote page source for ' + self.url)
         return page_source
 
     def getLocalHtml(self):
@@ -66,6 +67,7 @@ class CalendarSource:
         with open(self.pageSourceFilename(), 'r') as token:
             page_source = token.read()
             token.close()
+        logger.debug('retrieved local page source for ' + self.url)
         return page_source
 
     def pageSourceFilename(self):

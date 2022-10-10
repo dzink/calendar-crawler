@@ -1,7 +1,4 @@
-from bs4 import BeautifulSoup
 import re
-import pytz
-from datetime import datetime
 from Event import Event
 from CalendarParser import CalendarParser
 from CalendarLogger import logger
@@ -16,9 +13,7 @@ class ShowPlaceParser(CalendarParser):
         self.postOffset = postOffset
 
     def parseEvents(self, settings = {}):
-        soup = BeautifulSoup(self.html, features="html.parser")
-
-        post = soup.find_all('div', class_='post-content')
+        post = self.soup().find_all('div', class_='post-content')
         bodyText = post[self.postOffset].find('div', class_='body-text')
         date = False
 

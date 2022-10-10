@@ -1,7 +1,4 @@
-# from bs4 import BeautifulSoup
 import re
-# import pytz
-# from datetime import datetime
 from CalendarParser import CalendarParser
 from Event import Event
 
@@ -31,8 +28,7 @@ class WithFriendsParser(CalendarParser):
             self.removeScriptsFromElement(eventHtml)
 
             description = eventHtml.get_text()
-            description = re.sub('(^\s+)|(\s+$)', '', description)
-            description = re.sub('((\s){2,})|\n', ' | ', description)
+            description = self.replaceWhitespaceWithPipes(description)
             event.setDescription(description)
 
             self.addEvent(event)

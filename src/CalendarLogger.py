@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 
 def buildLogger(options):
     # Create handlers
-    streamLevel = logging.INFO
+    streamLevel = logging.WARNING
 
     if (options.verbose):
         streamLevel = logging.INFO
@@ -13,7 +13,7 @@ def buildLogger(options):
     c_handler = logging.StreamHandler()
     f_handler = logging.FileHandler(options.log_file)
     logger.setLevel(logging.DEBUG)
-    c_handler.setLevel(logging.INFO)
+    c_handler.setLevel(streamLevel)
     f_handler.setLevel(logging.DEBUG)
 
     # Create formatters and add it to handlers

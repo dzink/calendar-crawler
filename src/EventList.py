@@ -1,5 +1,6 @@
 import pytz
 from datetime import datetime
+from CalendarLogger import logger
 
 class EventList:
 

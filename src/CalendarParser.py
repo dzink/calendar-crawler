@@ -11,6 +11,7 @@ import re
 import pytz
 from datetime import datetime
 from EventList import EventList
+from CalendarLogger import logger
 
 class CalendarParser:
 
@@ -20,7 +21,9 @@ class CalendarParser:
         self.sourceTitle = sourceTitle
 
     def parse(self, settings = {}):
+        logger.info('parsing beginning for ' + self.sourceTitle)
         self.parseEvents(settings)
+        logger.info('parsing completed for ' + self.sourceTitle)
         return self
 
     def soup(self):

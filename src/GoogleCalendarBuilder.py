@@ -6,6 +6,8 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
+from CalendarLogger import logger
+
 class GoogleCalendarBuilder:
     port = 34242
     credentialsFile = 'data/credentials.json'
@@ -18,6 +20,7 @@ class GoogleCalendarBuilder:
     def service(self):
         if (self.serviceObject == None):
             self.serviceObject = build('calendar', 'v3', credentials = self.getCreds())
+            logger.debug('connected to google calendar')
         return self.serviceObject
 
     def setScopes(self, newScopes):
@@ -29,18 +32,27 @@ class GoogleCalendarBuilder:
         with open(file, 'r') as token:
             calendarId = token.read().replace("\n", '')
             token.close()
+            logger.debug('retrieved calendar id from file ' + file)
         return calendarId
 
     def syncEvent(self, event, calendarId):
         try:
+            eventData = self.getDictionaryFromEvent(event)
             if (event.skipSync != True):
                 calendarEventId = None
-                eventData = self.getDictionaryFromEvent(event)
+                logger.debug('syncing event to calendar ' + str(eventData))
+
                 if (event.calendarId == None):
                     gEvent = self.service().events().insert(calendarId = calendarId, body = eventData).execute()
                     event.setCalendarId(gEvent['id'])
+                    logger.debug('new calendar event created with id ' + event.calendarId)
+
                 else:
                     self.service().events().update(calendarId = calendarId, eventId = event.calendarId, body = eventData).execute()
+                    logger.debug('existing calendar event updated with id ' + str(event.calendarId))
+            else:
+                logger.debug('skipping sync of event to calendar ' + str(eventData))
+
         except HttpError as error:
             print('An error occurred: %s' % error)
             return None
@@ -48,9 +60,9 @@ class GoogleCalendarBuilder:
     def dryRun(self, event):
         data = self.getDictionaryFromEvent(event)
         if (event.skipSync):
-            print(['Dry Run: Skipping', data])
+            logger.info('Dry Run: Skipping ' + str(data))
         else:
-            print(['Dry Run: Syncing', data])
+            logger.info('Dry Run: Syncing ' + str(data))
 
     def deleteEvent(self, event, calendarId):
         try:

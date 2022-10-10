@@ -4,6 +4,7 @@ from datetime import datetime
 from EventDb import EventDb
 import random
 from copy import copy
+from CalendarLogger import logger
 
 class Event:
 
@@ -161,8 +162,10 @@ class Event:
     """
     def deduplicate(self, forceUpdateIfMatched = False):
         data = self.toJson()
+        logger.debug('searching for duplicate: ' + str(data))
         dupe = EventDb().findDuplicate(data)
         if (dupe):
+            logger.debug('found duplicate: ' + str(dupe))
             self.updateFromDuplicate(dupe)
             data['id'] = dupe['id']
             data['calendarId'] = dupe['calendarId']

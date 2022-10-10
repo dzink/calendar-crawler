@@ -1,7 +1,4 @@
-# from bs4 import BeautifulSoup
 import re
-# import pytz
-# from datetime import datetime
 from CalendarParser import CalendarParser
 from Event import Event
 
