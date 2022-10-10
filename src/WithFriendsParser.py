@@ -7,12 +7,13 @@ from Event import Event
 
 class WithFriendsParser(CalendarParser):
 
-    def parseEvents(self, postOffset = 0):
+    def parseEvents(self, settings = {}):
         for eventHtml in self.soup().find_all('li', class_='wf-event'):
             event = Event()
 
             link = eventHtml.find('a')
-            event.setLink(link.get('href'))
+            link = ''.join(['https://withfriends.co', link.get('href')])
+            event.setLink(link)
 
             title = eventHtml.find('h4')
             event.setSummary(title.get_text())
@@ -27,7 +28,7 @@ class WithFriendsParser(CalendarParser):
             event.setStartString(date, '%A, %B %d at %I:%M %p %Y')
 
             # Remove scripts
-            self.removeScripts(eventHtml)
+            self.removeScriptsFromElement(eventHtml)
 
             description = eventHtml.get_text()
             description = re.sub('(^\s+)|(\s+$)', '', description)

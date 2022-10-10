@@ -7,13 +7,13 @@ from Event import Event
 
 class OttobarParser(CalendarParser):
 
-    def parseEvents(self, postOffset = 0):
+    def parseEvents(self, settings = {}):
         for eventHtml in self.soup().find_all('div', class_ = 'eventWrapper'):
             primaryButtonHhtml = eventHtml.find_all('a', class_ = 'btn-primary')
             if (primaryButtonHhtml):
                 event = Event()
 
-                event.setDescription(self.pipesForWhitespaces(eventHtml.get_text()))
+                event.setDescription(self.replaceWhitespaceWithPipes(eventHtml.get_text()))
 
                 title = eventHtml.find('h2')
                 event.setSummary(title.get_text())

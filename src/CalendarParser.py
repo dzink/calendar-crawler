@@ -19,15 +19,15 @@ class CalendarParser:
         self.html = html
         self.sourceTitle = sourceTitle
 
-    def parse(self, settings = []):
-        self.parseEvents()
+    def parse(self, settings = {}):
+        self.parseEvents(settings)
         return self
 
     def soup(self):
         self.soup = BeautifulSoup(self.html, features="html.parser")
         return self.soup
 
-    def parseEvents(self, postOffset = 0):
+    def parseEvents(self, settings = {}):
 
         return self
 
@@ -36,16 +36,16 @@ class CalendarParser:
             event.setSourceTitle(self.sourceTitle)
         self.events.append(event)
 
-    def removeScripts(self, element):
+    def getEventsList(self):
+        return EventList(self.events)
+
+    def removeScriptsFromElement(self, element):
         scripts = element.find_all('script')
         for script in scripts:
             script.extract()
         return element
 
-    def getEventsList(self):
-        return EventList(self.events)
-
-    def pipesForWhitespaces(self, text):
+    def replaceWhitespaceWithPipes(self, text):
         text = re.sub('(^\s+)|(\s+$)', '', text)
         text = re.sub('((\s){2,})|\n', ' | ', text)
         return text

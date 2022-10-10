@@ -188,17 +188,23 @@ class Event:
     def needsToUpdate(self, data, dupe):
         return (not self.matches(dupe, data = data, regex = False))
 
-    def setAbsoluteEndDateTime(self, hour = 23, minute = 59):
-        dt = copy(self.startDate)
-        dt = dt.replace(hour = hour, minute = minute)
-        self.setEnd(dt)
-
     """
     Merge the properties that one would want to keep from a dupe.
     """
     def updateFromDuplicate(self, data):
         self.setId(data['id'] or self.id)
         self.setCalendarId(data['calendarId'] or self.calendarId)
+
+    """
+    Sets an absolute end time on the same day as the start time.
+    """
+    def setAbsoluteEndDateTime(self, hour = 23, minute = 59):
+        dt = copy(self.startDate)
+        dt = dt.replace(hour = hour, minute = minute)
+        self.setEnd(dt)
+
+    def prefixDescriptionWithLink(self):
+        self.description = '\n\n'.join([self.link, self.description])
 
     def __str__(self):
         string = "ID: %s\nSummary: %s\nStart: %s\nEnd: %s\nLocation: %s\nDescription: %s\nLink: %s\nSource: %s\ncalendarId: %s" %(self.id, self.summary, self.startToString(), self.endToString(), self.location, self.description, self.link, self.sourceTitle, self.calendarId)

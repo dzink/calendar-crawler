@@ -38,8 +38,7 @@ def redEmmas():
     parser = WithFriendsParser(html, 'Red Emma\'s')
     events = parser.parse().getEventsList()
 
-    events.addBoilerplateToDescriptions('End time is approximate. Imported from https://withfriends.co/red_emmas/events')
-    events.prefixLinks('https://withfriends.co')
+    events.addBoilerplateToDescriptions('End time is approximate. See https://withfriends.co/red_emmas/events for more.')
     events.prefixDescriptionsWithLinks()
     events.setAbsoluteEndDateTime(22, 00)
     events.setLocationAddress('Red Emma\'s')
@@ -54,8 +53,7 @@ def currentSpace():
     parser = WithFriendsParser(html, 'Current Space')
     events = parser.parse().getEventsList()
 
-    events.addBoilerplateToDescriptions('End time is approximate, events end by 10:30. Imported from https://withfriends.co/current_space/events')
-    events.prefixLinks('https://withfriends.co')
+    events.addBoilerplateToDescriptions('End time is approximate. See https://withfriends.co/current_space/events for more.')
     events.prefixDescriptionsWithLinks()
     events.setAbsoluteEndDateTime(22, 30)
     events.setLocationAddress('Current Space')
@@ -67,13 +65,13 @@ def showPlace():
     html = showplaceSource.getHtml()
 
     parser = ShowPlaceParser(html, 'ShowPlace')
+    parser.setPostOffset(0)
     events = parser.parse().getEventsList()
 
-    # Reject events that come from other sources
+    # Reject events that come from other scraped sources
     events.rejectEvents({'location': '(Ottobar|Red Emma\'s|Current Space)'})
 
-    events.addBoilerplateToDescriptions('End times are approximate. Thanks to the ShowPlace folks for this event. See https://baltshowplace.tumblr.com/ for more')
-    events.setAbsoluteEndDateTime(23, 59)
+    events.addBoilerplateToDescriptions('End times are approximate. See https://baltshowplace.tumblr.com/ for more.')
 
     return events
 
@@ -84,7 +82,7 @@ def ottobar():
     parser = OttobarParser(html, 'Ottobar')
     events = parser.parse().getEventsList()
     events.prefixDescriptionsWithLinks()
-    events.addBoilerplateToDescriptions('End time is approximate. Imported from https://theottobar.com/calendar/')
+    events.addBoilerplateToDescriptions('End time is approximate. See https://theottobar.com/calendar/ for more.')
 
     return events
 

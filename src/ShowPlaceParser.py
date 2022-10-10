@@ -7,12 +7,21 @@ from CalendarParser import CalendarParser
 
 class ShowPlaceParser(CalendarParser):
 
-    def parseEvents(self, postOffset = 0):
+    """
+    Set the post offset to select which post to parse. 0 parses the latest, 1
+    the second latest, etc.
+    """
+    def setPostOffset(self, postOffset):
+        self.postOffset = postOffset
+
+    def parseEvents(self, settings = {}):
         soup = BeautifulSoup(self.html, features="html.parser")
 
         post = soup.find_all('div', class_='post-content')
-        bodyText = post[postOffset].find('div', class_='body-text')
+        bodyText = post[self.postOffset].find('div', class_='body-text')
         date = False
+
+
 
         for element in bodyText.findChildren():
             if (element.name == 'h2'):
@@ -27,7 +36,7 @@ class ShowPlaceParser(CalendarParser):
                         event = Event()
                         event.setSummary(parsed[0][0])
                         event.setLocation(parsed[0][8])
-                        event.setDescription(self.pipesForWhitespaces(text))
+                        event.setDescription(self.replaceWhitespaceWithPipes(text))
                         event.setStartString(self.buildStartstamp(date, parsed), '%A, %B %d, %Y %I:%M%p')
                         event.setEndString(self.buildEndstamp(date), '%A, %B %d, %Y %I:%M%p')
                         self.addEvent(event)
