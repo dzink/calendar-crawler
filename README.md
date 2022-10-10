@@ -1,6 +1,20 @@
 # A Calendar Scraper
 
-## Setup
+Scrape event pages and add them to a Google calendar
+
+```
+optional arguments:
+  -h, --help           show this help message and exit
+  -v, --verbose        Verbose output.
+  --log-file LOG_FILE
+  -l, --local          Whether to use local cached sources instead of re-scraping html.
+  -u, --force-update   Whether to force Google Calendar updates, even if there's nothing to update.
+  -d, --dry-run        Run the parser but do not write to the calendar or database.
+```
+
+## Install
+This app runs on python 3.
+
 You'll at least want the BeautifulSoup and tinyDb python modules. Perhaps more.
 
 You'll need your Google Calendar credentials file, saved in `./data/credentials.json`
