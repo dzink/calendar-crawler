@@ -131,14 +131,25 @@ class Event:
         "location": "\\s*Horrible venue\\s*",
         "summary": "\\s*Bad Band I don't want to see\\s*",
     }
+
+    @param data is a hash, in case we don't need to regenerate the data.
     """
-    def matches(self, criteria):
-        event = self.__dict__
+    def matches(self, criteria, data = None, regex = True):
+        if (not data):
+            data = self.toJson()
         for property, pattern in criteria.items():
-            matches = re.search(pattern, event[property], re.IGNORECASE)
-            if (matches != None):
-                return True
-        return False
+            print(['search', property, pattern, data[property]])
+            if (regex and isinstance(pattern, str)):
+                matches = re.search(pattern, data[property], re.IGNORECASE)
+                if (matches == None):
+                    print('Regex unmatched property: ' + property)
+                    return False
+            else:
+                if (pattern != data[property]):
+                    print('Simple unmatched property: ' + property)
+                    return False
+        print('All properties matched')
+        return True
 
     def write(self):
         EventDb().upsert(self)
@@ -156,18 +167,18 @@ class Event:
         data = self.toJson()
         dupe = EventDb().findDuplicate(data)
         if (dupe):
-            self.fromDuplicate(dupe)
+            self.updateFromDuplicate(dupe)
             data['id'] = dupe['id']
             data['calendarId'] = dupe['calendarId']
             if (self.needsToUpdate(data, dupe)):
+                print('needs to update')
+                print([data, dupe])
+            else:
                 print('does not need to update')
                 if (forceUpdateIfMatched):
                     print('...but will update anyway')
-
-                self.skipSync = True
-            else:
-                print('needs to update')
-                print([data, dupe])
+                else:
+                    self.skipSync = True
         return self
 
     """
@@ -175,11 +186,7 @@ class Event:
     be updated.
     """
     def needsToUpdate(self, data, dupe):
-        for property, value in dupe.items():
-            print([property, value, data[property]])
-            if (data[property] != value):
-                return True
-        return False
+        return (not self.matches(dupe, data = data, regex = False))
 
     def setAbsoluteEndDateTime(self, hour = 23, minute = 59):
         dt = copy(self.startDate)
@@ -189,7 +196,7 @@ class Event:
     """
     Merge the properties that one would want to keep from a dupe.
     """
-    def fromDuplicate(self, data):
+    def updateFromDuplicate(self, data):
         self.setId(data['id'] or self.id)
         self.setCalendarId(data['calendarId'] or self.calendarId)
 

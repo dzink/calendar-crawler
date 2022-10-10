@@ -26,10 +26,9 @@ def main():
     events = events + currentSpace().events
 
     for event in events:
-        # print(event)
-        event.deduplicate(forceUpdateIfMatched = True)
-        gcb.syncEvent(event, calendarId)
-        event.write()
+        event.deduplicate(forceUpdateIfMatched = False)
+        # gcb.syncEvent(event, calendarId)
+        # event.write()
 
 def redEmmas():
     source = CalendarSource('https://withfriends.co/red_emmas/events', 'red_emmas', remote)
