@@ -34,7 +34,7 @@ class GoogleCalendarBuilder:
         try:
             if (event.skipSync != True):
                 calendarEventId = None
-                eventData = self.convertEvent(event)
+                eventData = self.getDictionaryFromEvent(event)
                 if (event.calendarId == None):
                     gEvent = self.service().events().insert(calendarId = calendarId, body = eventData).execute()
                     event.setCalendarId(gEvent['id'])
@@ -55,12 +55,7 @@ class GoogleCalendarBuilder:
             print('An error occurred: %s' % error)
             return None
 
-
-    def syncList(self, list, calendarId):
-        for event in list.events:
-            self.syncEvent(event, calendarId)
-
-    def convertEvent(self, event):
+    def getDictionaryFromEvent(self, event):
         eventData = {}
         eventData['summary'] = event.summary or 'Event'
         eventData['description'] = event.description or ''
@@ -69,10 +64,6 @@ class GoogleCalendarBuilder:
         eventData['source.title'] = event.sourceTitle or ''
         eventData['start'] = {'dateTime': event.startToString()}
         eventData['end'] = {'dateTime': event.endToString()}
-        # if (event.startDate.tzinfo != None):
-        #     eventData['start']['timeZone'] = event.startDate.tzname()
-        # if (event.endDate.tzinfo != None):
-        #     eventData['end']['timeZone'] = event.endDate.tzname()
         return eventData
 
     def getCreds(self):

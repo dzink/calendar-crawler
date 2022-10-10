@@ -27,7 +27,7 @@ def main():
 
     for event in events:
         # print(event)
-        event.deduplicate()
+        event.deduplicate(forceUpdateIfMatched = True)
         gcb.syncEvent(event, calendarId)
         event.write()
 

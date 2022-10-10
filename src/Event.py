@@ -152,7 +152,7 @@ class Event:
     If there are any duplicates in the database, find them and take their
     id and calendarId.
     """
-    def deduplicate(self):
+    def deduplicate(self, forceUpdateIfMatched = False):
         data = self.toJson()
         dupe = EventDb().findDuplicate(data)
         if (dupe):
@@ -161,14 +161,22 @@ class Event:
             data['calendarId'] = dupe['calendarId']
             if (self.needsToUpdate(data, dupe)):
                 print('does not need to update')
+                if (forceUpdateIfMatched):
+                    print('...but will update anyway')
+
                 self.skipSync = True
             else:
                 print('needs to update')
                 print([data, dupe])
         return self
 
+    """
+    Takes data and a potential duplicate, and determines whether they need to
+    be updated.
+    """
     def needsToUpdate(self, data, dupe):
         for property, value in dupe.items():
+            print([property, value, data[property]])
             if (data[property] != value):
                 return True
         return False
