@@ -34,20 +34,17 @@ class EventDb:
         #Match link
         results = table.search((where('link') == data['link']) & (where('link') != None) & (where('id') != data['id']))
         if (results):
-            print('matched link')
             return results[0]
 
         # Match location and datetime
         results = table.search((where('location') == data['location']) & (where('start') == data['start']) & (where('id') != data['id']))
         if (results):
-            print('matched venue and datetime')
             return results[0]
 
         # Match event and day
         datePatten = '^' + data['start'][0:10]
         results = table.search((where('summary') == data['summary']) & (where('start').matches(datePatten)) & (where('id') != data['id']))
         if (results):
-            print('matched event and day')
             return results[0]
 
         return None

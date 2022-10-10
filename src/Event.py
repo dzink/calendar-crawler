@@ -138,17 +138,13 @@ class Event:
         if (not data):
             data = self.toJson()
         for property, pattern in criteria.items():
-            print(['search', property, pattern, data[property]])
             if (regex and isinstance(pattern, str)):
                 matches = re.search(pattern, data[property], re.IGNORECASE)
                 if (matches == None):
-                    print('Regex unmatched property: ' + property)
                     return False
             else:
                 if (pattern != data[property]):
-                    print('Simple unmatched property: ' + property)
                     return False
-        print('All properties matched')
         return True
 
     def write(self):
@@ -170,14 +166,8 @@ class Event:
             self.updateFromDuplicate(dupe)
             data['id'] = dupe['id']
             data['calendarId'] = dupe['calendarId']
-            if (self.needsToUpdate(data, dupe)):
-                print('needs to update')
-                print([data, dupe])
-            else:
-                print('does not need to update')
-                if (forceUpdateIfMatched):
-                    print('...but will update anyway')
-                else:
+            if (not self.needsToUpdate(data, dupe)):
+                if (not forceUpdateIfMatched):
                     self.skipSync = True
         return self
 
