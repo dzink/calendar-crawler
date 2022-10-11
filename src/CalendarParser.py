@@ -49,6 +49,9 @@ class CalendarParser:
         return element
 
     def replaceWhitespaceWithPipes(self, text):
+        return self.replaceWhitespace(text, ' | ')
+
+    def replaceWhitespace(self, text, replace = ' | '):
         text = re.sub('(^\s+)|(\s+$)', '', text)
-        text = re.sub('((\s){2,})|\n', ' | ', text)
+        text = re.sub('((\s){2,})|\n', replace, text)
         return text
