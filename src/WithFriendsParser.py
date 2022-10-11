@@ -20,9 +20,8 @@ class WithFriendsParser(CalendarParser):
                 'data-kind': 'Item',
             })
             date = dateTime.get_text()
-            # @TODO - get last year, this year, next year, choose whichever is closest to now
-            date = date + ' 2022'
-            event.setStartString(date, '%A, %B %d at %I:%M %p %Y')
+            date = date + str(event.getNearestYear(date, '%A, %B %d at %I:%M %p'))
+            event.setStartString(date, '%A, %B %d at %I:%M %p%Y')
 
             # Remove scripts
             self.removeScriptsFromElement(eventHtml)

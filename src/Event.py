@@ -85,10 +85,30 @@ class Event:
 
     def parseDateString(self, date, pattern = '%Y-%m-%dT%H:%M:%S%z'):
         dt = datetime.strptime(date, pattern)
-        if (dt.tzinfo == None):
+        return self.localizeDate(dt)
+
+    def localizeDate(self, date):
+        if (date.tzinfo == None):
             tz = pytz.timezone(self.timeZone)
-            dt = tz.localize(dt)
-        return dt
+            date = tz.localize(date)
+        return date
+
+    def getNearestYear(self, date, pattern = '%A %B %d'):
+
+        dateCandidates = []
+        pattern = pattern + ' %Y'
+        now = self.localizeDate(datetime.now())
+        years = [now.year - 1, now.year, now.year + 1]
+        shortestYear = None
+        shortestDifference = None
+        for year in years:
+            testDate = self.parseDateString(' '.join([date, str(year)]), pattern)
+            difference = abs((now - testDate).total_seconds())
+            if (shortestDifference == None or (difference < shortestDifference)):
+                shortestYear = year
+                shortestDifference = difference
+
+        return shortestYear
 
     """
     Create a JSON object from this event.
