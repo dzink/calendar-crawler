@@ -10,6 +10,7 @@ from EventList import EventList
 from GoogleCalendarBuilder import GoogleCalendarBuilder
 from CalendarSource import CalendarSource
 from CalendarParser import CalendarParser
+from BlackCatParser import BlackCatParser
 from ShowPlaceParser import ShowPlaceParser
 from OttobarParser import OttobarParser
 from WithFriendsParser import WithFriendsParser
@@ -34,6 +35,7 @@ def main():
         events = events + ottobar().events
         events = events + redEmmas().events
         events = events + currentSpace().events
+        events = events + blackCat().events
 
         for event in events:
             event.deduplicate(forceUpdateIfMatched = options.force_update)
@@ -108,6 +110,17 @@ def ottobar():
     events = parser.parse().getEventsList()
     events.prefixDescriptionsWithLinks()
     events.addBoilerplateToDescriptions('End time is approximate. See https://theottobar.com/calendar/ for more.')
+
+    return events
+
+def blackCat():
+    source = CalendarSource('https://www.blackcatdc.com/schedule.html', 'black_cat', options.remote)
+    html = source.getHtml()
+
+    parser = BlackCatParser(html, 'Black Cat')
+    events = parser.parse().getEventsList()
+    events.prefixDescriptionsWithLinks()
+    events.addBoilerplateToDescriptions('End time is approximate. See https://www.blackcatdc.com/schedule.html for more.')
 
     return events
 
