@@ -35,6 +35,10 @@ class EventList:
         for event in self.events:
             event.prefixDescriptionWithLink()
 
+    def setColors(self, color):
+        for event in self.events:
+            event.setColor(color)
+
     def deduplicate(self):
         for event in self.events:
             event.deduplicate()

@@ -14,6 +14,21 @@ class GoogleCalendarBuilder:
     tokenFile = 'data/token.json'
     scopes = ['https://www.googleapis.com/auth/calendar.events']
 
+    colorIds = {
+        'default': 0,
+        'lavender': 1,
+        'sage': 2,
+        'grape': 3,
+        'flamingo': 4,
+        'banana': 5,
+        'tangerine': 6,
+        'peacock': 7,
+        'graphite': 8,
+        'blueberry': 9,
+        'basil': 10,
+        'tomato': 11,
+    }
+
     def __init__(self):
         self.serviceObject = None
 
@@ -81,6 +96,9 @@ class GoogleCalendarBuilder:
         eventData['source.title'] = event.sourceTitle or ''
         eventData['start'] = {'dateTime': event.startToString()}
         eventData['end'] = {'dateTime': event.endToString()}
+        if (event.color != None):
+            eventData['colorId'] = self.mapColor(event.color) or 0
+
         return eventData
 
     def getCreds(self):
@@ -103,3 +121,7 @@ class GoogleCalendarBuilder:
                 token.close()
 
         return creds
+
+    def mapColor(self, color):
+        lowerColor = str(color).lower()
+        return self.colorIds.get(lowerColor)

@@ -21,6 +21,7 @@ class Event:
         self.link = None
         self.sourceTitle = None
         self.skipSync = None
+        self.color = 'default'
         self.buildId()
 
     def buildId(self):
@@ -52,6 +53,10 @@ class Event:
 
     def setCalendarId(self, calendarId):
         self.calendarId = calendarId
+        return self
+
+    def setColor(self, color):
+        self.color = color
         return self
 
     def setStart(self, startDate):
@@ -120,6 +125,7 @@ class Event:
             'location': self.location,
             'description': self.description,
             'calendarId': self.calendarId,
+            'color': self.color,
             'link': self.link,
             'sourceTitle': self.sourceTitle,
             'start': self.startToString(),
@@ -139,6 +145,7 @@ class Event:
         self.setLink(data['link'] or self.link)
         self.setCalendarId(data['sourceTitle'] or self.sourceTitle)
         self.setCalendarId(data['calendarId'] or self.calendarId)
+        self.setCalendarId(data['color'] or self.color)
         self.setStartString(data['start'] or self.startToString())
         self.setEndString(data['end'] or self.endToString())
 

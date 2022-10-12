@@ -69,6 +69,7 @@ def redEmmas():
     events.prefixDescriptionsWithLinks()
     events.setAbsoluteEndDateTime(22, 00)
     events.setLocationAddress('Red Emma\'s')
+    events.setColors('tomato')
 
     return events
 
@@ -84,6 +85,7 @@ def currentSpace():
     events.prefixDescriptionsWithLinks()
     events.setAbsoluteEndDateTime(22, 30)
     events.setLocationAddress('Current Space')
+    events.setColors('banana')
 
     return events
 
@@ -99,6 +101,7 @@ def showPlace():
     events.rejectEvents({'location': '(Ottobar|Red Emma\'s|Current Space)'})
 
     events.addBoilerplateToDescriptions('End times are approximate. See https://baltshowplace.tumblr.com/ for more.')
+    events.setColors('sage')
 
     return events
 
@@ -110,6 +113,7 @@ def ottobar():
     events = parser.parse().getEventsList()
     events.prefixDescriptionsWithLinks()
     events.addBoilerplateToDescriptions('End time is approximate. See https://theottobar.com/calendar/ for more.')
+    events.setColors('grape')
 
     return events
 
@@ -121,6 +125,7 @@ def blackCat():
     events = parser.parse().getEventsList()
     events.prefixDescriptionsWithLinks()
     events.addBoilerplateToDescriptions('End time is approximate. See https://www.blackcatdc.com/schedule.html for more.')
+    events.setColors('flamingo')
 
     return events
 
