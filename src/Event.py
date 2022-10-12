@@ -138,16 +138,17 @@ class Event:
     overwritten.
     """
     def fromJson(self, data):
-        self.setId(data['id'] or self.id)
-        self.setSummary(data['summary'] or self.summary)
-        self.setLocation(data['location'] or self.location)
-        self.setDescription(data['description'] or self.description)
-        self.setLink(data['link'] or self.link)
-        self.setCalendarId(data['sourceTitle'] or self.sourceTitle)
-        self.setCalendarId(data['calendarId'] or self.calendarId)
-        self.setCalendarId(data['color'] or self.color)
-        self.setStartString(data['start'] or self.startToString())
-        self.setEndString(data['end'] or self.endToString())
+        self.setId(data.get('id') or self.id)
+        self.setSummary(data.get('summary') or self.summary)
+        self.setLocation(data.get('location') or self.location)
+        self.setDescription(data.get('description') or self.description)
+        self.setLink(data.get('link') or self.link)
+        self.setCalendarId(data.get('sourceTitle') or self.sourceTitle)
+        self.setCalendarId(data.get('calendarId') or self.calendarId)
+        self.setColor(data.get('color') or self.color)
+        self.setStartString(data.get('start') or self.startToString())
+        self.setEndString(data.get('end') or self.endToString())
+        return self
 
     """
     Determines whether this event matches a pattern. The criteria is an object
@@ -227,5 +228,5 @@ class Event:
         self.description = '\n\n'.join([self.link, self.description])
 
     def __str__(self):
-        string = "ID: %s\nSummary: %s\nStart: %s\nEnd: %s\nLocation: %s\nDescription: %s\nLink: %s\nSource: %s\ncalendarId: %s" %(self.id, self.summary, self.startToString(), self.endToString(), self.location, self.description, self.link, self.sourceTitle, self.calendarId)
+        string = "ID: %s\n\tSummary: %s\n\tStart: %s\n\tEnd: %s\n\tLocation: %s\n\tDescription: %s\n\tLink: %s\n\tSource: %s\n\tcalendarId: %s\n\tcolor: %s" %(self.id, self.summary, self.startToString(), self.endToString(), self.location, self.description, self.link, self.sourceTitle, self.calendarId, self.color)
         return string
