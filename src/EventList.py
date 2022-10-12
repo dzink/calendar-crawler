@@ -1,11 +1,17 @@
 import pytz
 from datetime import datetime
+from Event import Event
+from EventDb import EventDb
 from CalendarLogger import logger
 
 class EventList:
 
-    def __init__(self, events):
+    def __init__(self, events = []):
         self.events = events
+
+
+    def add(self, event):
+        self.events.append(event)
 
     """
     Creates an endtime element on all events, where the date is the same, but
@@ -64,4 +70,13 @@ class EventList:
             if (not event.matches(criteria)):
                 filteredEvents.append(event)
         self.events = filteredEvents
+        return self
+
+    def find(self, parameters = {}):
+        db = EventDb()
+        results = db.find(parameters)
+        if (results):
+            for result in results:
+                event = Event().fromJson(result)
+                self.add(event)
         return self

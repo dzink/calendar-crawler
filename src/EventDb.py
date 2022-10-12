@@ -1,5 +1,6 @@
-from tinydb import TinyDB, where
+from tinydb import TinyDB, where, Query
 from CalendarLogger import logger
+import re
 
 class EventDb:
     db = None
@@ -57,3 +58,42 @@ class EventDb:
     """
     def rotateOut(self):
         pass
+    def find(self, parameters):
+
+
+        query = (where('id') != None)
+        q = Query()
+        if 'summary' in parameters:
+            query = query & self.queryMatches('summary', parameters['summary'])
+        if 'description' in parameters:
+            query = query & self.queryMatches('description', parameters['description'])
+        if 'location' in parameters:
+            query = query & self.queryMatches('location', parameters['location'])
+
+        if 'date' in parameters:
+            query = query & where('start').matches(parameters['date'])
+        if 'upcoming' in parameters:
+            query = query & (where('start') >= self.expandSearchDateString(parameters['upcoming']))
+        if 'past' in parameters:
+            query = query & where('start') < self.expandSearchDateString(parameters['past'])
+        if 'after' in parameters:
+            query = query & where('start') >= self.expandSearchDateString(parameters['after'])
+
+        results = EventDb.table.search(query)
+        # logger.info(results)
+        return results
+
+    def queryMatches(self, parameter, match):
+        return where(parameter).matches('.*' + match, flags=re.IGNORECASE)
+
+    """
+    For incomplete date strings, add some default days/times/etc
+    """
+    def expandSearchDateString(self, date):
+        dateLen = len(date)
+        print(['date to convert', date])
+        if (dateLen < 18):
+            defaultDate = '2022-01-01T00:00:00'
+            date = date + defaultDate[(dateLen):]
+        print(['date converted', date])
+        return date
