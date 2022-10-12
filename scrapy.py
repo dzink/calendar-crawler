@@ -13,6 +13,7 @@ from CalendarParser import CalendarParser
 from BlackCatParser import BlackCatParser
 from ShowPlaceParser import ShowPlaceParser
 from OttobarParser import OttobarParser
+from Space2640Parser import Space2640Parser
 from WithFriendsParser import WithFriendsParser
 
 from time import sleep
@@ -36,6 +37,7 @@ def main():
         events = events + redEmmas().events
         events = events + currentSpace().events
         events = events + blackCat().events
+        events = events + space2640().events
 
         for event in events:
             event.deduplicate(forceUpdateIfMatched = options.force_update)
@@ -126,6 +128,19 @@ def blackCat():
     events.prefixDescriptionsWithLinks()
     events.addBoilerplateToDescriptions('End time is approximate. See https://www.blackcatdc.com/schedule.html for more.')
     events.setColors('flamingo')
+
+    return events
+
+def space2640():
+    source = CalendarSource('https://www.2640space.net/events', '2640_space', options.remote)
+    html = source.getHtml()
+
+    parser = Space2640Parser(html, '2640 Space')
+    events = parser.parse().getEventsList()
+    events.prefixLinks('https://www.2640space.net')
+    events.prefixDescriptionsWithLinks()
+    events.addBoilerplateToDescriptions('End time is approximate. See https://www.2640space.net/ for more.')
+    events.setColors('blueberry')
 
     return events
 

@@ -42,12 +42,15 @@ class CalendarParser:
     def getEventsList(self):
         return EventList(self.events)
 
-    def removeScriptsFromElement(self, element):
-        scripts = element.find_all('script')
+    def removeTagFromElement(self, element, tag):
+        scripts = element.find_all(tag)
         for script in scripts:
             script.extract()
         return element
 
+    def removeScriptsFromElement(self, element):
+        return self.removeTagFromElement(element, 'script')
+        
     def replaceWhitespaceWithPipes(self, text):
         return self.replaceWhitespace(text, ' | ')
 
