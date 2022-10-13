@@ -101,7 +101,7 @@ def showPlace():
     events = parser.parse().getEventsList()
 
     # Reject events that come from other scraped sources
-    events.rejectEvents({'location': '(Ottobar|Red Emma\'s|Current Space)'})
+    events = events.rejectEvents({'location': '(Ottobar|Red Emma\'s|Current Space|2640)'})
 
     events.addBoilerplateToDescriptions('End times are approximate. See https://baltshowplace.tumblr.com/ for more.')
     events.setColors('sage')
@@ -114,6 +114,7 @@ def ottobar():
 
     parser = OttobarParser(html, 'Ottobar')
     events = parser.parse().getEventsList()
+    events = events.rejectEvents({'location': '(Joe Squared|Current Space)'})
     events.prefixDescriptionsWithLinks()
     events.addBoilerplateToDescriptions('End time is approximate. See https://theottobar.com/calendar/ for more.')
     events.setColors('grape')

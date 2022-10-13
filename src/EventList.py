@@ -54,23 +54,27 @@ class EventList:
             event.write()
 
     """
-    Removes any events that match a pattern. The criteria is an object where any
-    property is a property on the event to search. The pattern should be a
-    regex pattern.
+    Filters to only leave any events that match a pattern. The criteria is an
+    object where any property is a property on the event to search. The pattern
+    should be a regex pattern.
 
     Sample criteria:
     {
-        "location": "\\s*Horrible venue\\s*",
-        "summary": "\\s*Bad Band I don't want to see\\s*",
+        "location": "Cool venue",
+        "summary": "Nice band",
     }
     """
-    def rejectEvents(self, criteria):
-        filteredEvents = []
+    def selectEvents(self, criteria, regex = True, negate = False):
+        selected = EventList()
         for event in self.events:
-            if (not event.matches(criteria)):
-                filteredEvents.append(event)
-        self.events = filteredEvents
-        return self
+            match = event.matches(criteria, regex = regex)
+            if ((not negate and match) or (negate and not match)):
+                selected.add(event)
+        return selected
+
+    def rejectEvents(self, criteria, regex = True):
+        return self.selectEvents(criteria, regex, negate = True)
+
 
     def find(self, parameters = {}):
         db = EventDb()
