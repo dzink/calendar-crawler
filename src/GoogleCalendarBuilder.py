@@ -58,11 +58,13 @@ class GoogleCalendarBuilder:
                 logger.debug('syncing event to calendar ' + str(eventData))
 
                 if (event.calendarId == None):
+                    logger.info('Inserting event: ' + event.summary)
                     gEvent = self.service().events().insert(calendarId = calendarId, body = eventData).execute()
                     event.setCalendarId(gEvent['id'])
                     logger.debug('new calendar event created with id ' + event.calendarId)
 
                 else:
+                    logger.info('Updating event: ' + event.summary)
                     self.service().events().update(calendarId = calendarId, eventId = event.calendarId, body = eventData).execute()
                     logger.debug('existing calendar event updated with id ' + str(event.calendarId))
             else:

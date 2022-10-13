@@ -82,7 +82,6 @@ class EventDb:
             query = query & where('start') >= self.expandSearchDateString(parameters['after'])
 
         results = EventDb.table.search(query)
-        # logger.info(results)
         return results
 
     def queryMatches(self, parameter, match):
@@ -93,9 +92,7 @@ class EventDb:
     """
     def expandSearchDateString(self, date):
         dateLen = len(date)
-        print(['date to convert', date])
         if (dateLen < 18):
             defaultDate = '2022-01-01T00:00:00'
             date = date + defaultDate[(dateLen):]
-        print(['date converted', date])
         return date
