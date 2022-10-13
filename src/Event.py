@@ -140,10 +140,10 @@ class Event:
     def fromJson(self, data):
         self.setId(data.get('id') or self.id)
         self.setSummary(data.get('summary') or self.summary)
+        self.setSourceTitle(data.get('sourceTitle') or self.sourceTitle)
         self.setLocation(data.get('location') or self.location)
         self.setDescription(data.get('description') or self.description)
         self.setLink(data.get('link') or self.link)
-        self.setCalendarId(data.get('sourceTitle') or self.sourceTitle)
         self.setCalendarId(data.get('calendarId') or self.calendarId)
         self.setColor(data.get('color') or self.color)
         self.setStartString(data.get('start') or self.startToString())

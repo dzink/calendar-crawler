@@ -24,6 +24,8 @@ def main():
 
         if (options.summary):
             parameters['summary'] = options.summary
+        if (options.source):
+            parameters['sourceTitle'] = options.source
         if (options.description):
             parameters['description'] = options.description
         if (options.location):
@@ -53,6 +55,7 @@ def parseArguments():
     addLoggerArgsToParser(parser)
     parser.add_argument('-l', '--location', help = 'Search by location/venue', default = False)
     parser.add_argument('-s', '--summary', help = 'Search by title/artist/etc', default = False)
+    parser.add_argument('-o', '--source', help = 'Search by import source', default = False)
     parser.add_argument('-d', '--date', help = 'Search by date in the format YYYY-MM-DD', default = False)
     parser.add_argument('-a', '--after', help = 'Search after a date in the format YYYY-MM-DD', default = False)
     parser.add_argument('-t', '--today', action = 'store_true', help = 'Search for events today', default = False)

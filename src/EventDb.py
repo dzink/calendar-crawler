@@ -65,6 +65,8 @@ class EventDb:
         q = Query()
         if 'summary' in parameters:
             query = query & self.queryMatches('summary', parameters['summary'])
+        if 'sourceTitle' in parameters:
+            query = query & self.queryMatches('sourceTitle', parameters['sourceTitle'])
         if 'description' in parameters:
             query = query & self.queryMatches('description', parameters['description'])
         if 'location' in parameters:
