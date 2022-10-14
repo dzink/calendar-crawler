@@ -6,51 +6,56 @@ from CalendarLogger import logger
 
 class EventList:
 
-    def __init__(self, events = []):
-        self.events = events
+    def __init__(self, events = None):
+        self.events = events or []
 
 
     def add(self, event):
         self.events.append(event)
+        return self
+
+    def merge(self, other):
+        self.events = self.events + other.events
+        return self
 
     """
     Creates an endtime element on all events, where the date is the same, but
     the hour and minute are set to an absolute amount.
     """
     def setAbsoluteEndDateTime(self, hour = 23, minute = 59):
-        for event in self.events:
+        for event in self:
             event.setAbsoluteEndDateTime(hour, minute)
 
     def addBoilerplateToDescriptions(self, boilerplate):
-        for event in self.events:
+        for event in self:
             event.setDescription('\n\n'.join([event.description or '', boilerplate]))
 
     def prefixDescriptions(self, prefix):
-        for event in self.events:
+        for event in self:
             event.setDescription(''.join([prefix, event.description or '']))
 
     def prefixLinks(self, prefix):
-        for event in self.events:
+        for event in self:
             event.setLink(''.join([prefix, event.link or '']))
 
     def setLocationAddress(self, address):
-        for event in self.events:
+        for event in self:
             event.setLocation(''.join([event.location or '', address]))
 
     def prefixDescriptionsWithLinks(self):
-        for event in self.events:
+        for event in self:
             event.prefixDescriptionWithLink()
 
     def setColors(self, color):
-        for event in self.events:
+        for event in self:
             event.setColor(color)
 
     def deduplicate(self):
-        for event in self.events:
+        for event in self:
             event.deduplicate()
 
     def write(self):
-        for event in self.events:
+        for event in self:
             event.write()
 
     """
@@ -66,7 +71,7 @@ class EventList:
     """
     def selectEvents(self, criteria, regex = True, negate = False):
         selected = EventList()
-        for event in self.events:
+        for event in self:
             match = event.matches(criteria, regex = regex)
             if ((not negate and match) or (negate and not match)):
                 selected.add(event)
@@ -84,3 +89,6 @@ class EventList:
                 event = Event().fromJson(result)
                 self.add(event)
         return self
+
+    def __iter__(self):
+        return self.events.__iter__()

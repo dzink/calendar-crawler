@@ -31,15 +31,18 @@ def main():
         gcb = GoogleCalendarBuilder()
         calendarId = gcb.getCalendarIdFromFile('data/calendarid.txt')
 
-        events = []
+        events = EventList()
 
-        events = events + showPlace().events
-        events = events + ottobar().events
-        events = events + redEmmas().events
-        events = events + currentSpace().events
-        events = events + blackCat().events
-        events = events + space2640().events
-        events = events + joeSquared().events
+        # events = events.merge(showPlace())
+        # events = events.merge(ottobar())
+        # events = events.merge(redEmmas())
+        # events = events.merge(currentSpace())
+        # events = events.merge(blackCat())
+        # events = events.merge(space2640())
+        # events = events.merge(joeSquared())
+        events = events.merge(rhizome())
+
+
 
         for event in events:
             event.deduplicate(forceUpdateIfMatched = options.force_update)
@@ -67,7 +70,7 @@ def redEmmas():
     html = source.getHtml()
 
     parser = WithFriendsParser(html, 'Red Emma\'s')
-    events = parser.parse().getEventsList()
+    events = parser.parse().events
 
     events.addBoilerplateToDescriptions('End time is approximate. See https://withfriends.co/red_emmas/events for more.')
     events.prefixDescriptionsWithLinks()
@@ -83,7 +86,7 @@ def currentSpace():
     html = source.getHtml()
 
     parser = WithFriendsParser(html, 'Current Space')
-    events = parser.parse().getEventsList()
+    events = parser.parse().events
 
     events.addBoilerplateToDescriptions('End time is approximate. See https://withfriends.co/current_space/events for more.')
     events.prefixDescriptionsWithLinks()
@@ -99,7 +102,7 @@ def showPlace():
 
     parser = ShowPlaceParser(html, 'ShowPlace')
     parser.setPostOffset(0)
-    events = parser.parse().getEventsList()
+    events = parser.parse().events
 
     # Reject events that come from other scraped sources
     events = events.rejectEvents({'location': '(Ottobar|Red Emma\'s|Current Space|2640)'})
@@ -114,7 +117,7 @@ def ottobar():
     html = source.getHtml()
 
     parser = OttobarParser(html, 'Ottobar')
-    events = parser.parse().getEventsList()
+    events = parser.parse().events
     events = events.rejectEvents({'location': '(Joe Squared|Current Space)'})
     events.prefixDescriptionsWithLinks()
     events.addBoilerplateToDescriptions('End time is approximate. See https://theottobar.com/calendar/ for more.')
@@ -127,7 +130,7 @@ def blackCat():
     html = source.getHtml()
 
     parser = BlackCatParser(html, 'Black Cat')
-    events = parser.parse().getEventsList()
+    events = parser.parse().events
     events.prefixDescriptionsWithLinks()
     events.addBoilerplateToDescriptions('End time is approximate. See https://www.blackcatdc.com/schedule.html for more.')
     events.setColors('flamingo')
@@ -139,7 +142,7 @@ def space2640():
     html = source.getHtml()
 
     parser = SquareSpaceParser(html, '2640 Space')
-    events = parser.parse().getEventsList()
+    events = parser.parse().events
     events.prefixLinks('https://www.2640space.net')
     events.prefixDescriptionsWithLinks()
     events.addBoilerplateToDescriptions('See https://www.2640space.net/ for more.')
@@ -152,7 +155,7 @@ def joeSquared():
     html = source.getHtml()
 
     parser = SquareSpaceParser(html, 'Joe Squared')
-    events = parser.parse().getEventsList()
+    events = parser.parse().events
     events.prefixLinks('https://www.joesquared.com')
     events.prefixDescriptionsWithLinks()
     events.addBoilerplateToDescriptions('See https://www.joesquared.com/events/ for more.')

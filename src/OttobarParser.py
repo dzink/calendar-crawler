@@ -25,10 +25,10 @@ class OttobarParser(CalendarParser):
                 event.setStartString(self.buildStartstamp(date, time), '\n%a, %b %d, %Y %I:%M%p')
                 event.setAbsoluteEndDateTime(23, 59)
 
-                link = eventHtml.find('a')
-                event.setLink(link.get('href'))
-
-                self.addEvent(event)
+                link = eventHtml.find('a').get('href')
+                event.setLink(link)
+                if (link):
+                    self.addEvent(event)
 
         return self
 

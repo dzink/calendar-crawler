@@ -16,7 +16,7 @@ from CalendarLogger import logger
 class CalendarParser:
 
     def __init__(self, html, sourceTitle):
-        self.events = []
+        self.events = EventList([])
         self.html = html
         self.sourceTitle = sourceTitle
 
@@ -37,10 +37,10 @@ class CalendarParser:
     def addEvent(self, event):
         if (not event.sourceTitle):
             event.setSourceTitle(self.sourceTitle)
-        self.events.append(event)
+        self.events.add(event)
 
     def getEventsList(self):
-        return EventList(self.events)
+        return (self.events)
 
     def removeTagFromElement(self, element, tag):
         scripts = element.find_all(tag)
