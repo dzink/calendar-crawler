@@ -10,7 +10,8 @@ class OttobarParser(CalendarParser):
             if (primaryButtonHhtml):
                 event = Event()
 
-                event.setDescription(self.replaceWhitespaceWithPipes(eventHtml.get_text()))
+                description = self.replaceWhitespaceWithPipes(eventHtml.get_text())
+                event.setDescription(description)
 
                 title = eventHtml.find('h2')
                 event.setSummary(title.get_text())

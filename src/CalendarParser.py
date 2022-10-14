@@ -24,6 +24,8 @@ class CalendarParser:
         logger.info('parsing beginning for ' + self.sourceTitle)
         self.parseEvents(settings)
         logger.info('parsing completed for ' + self.sourceTitle)
+        logger.info('%d events found in %s' % (len(self.events.events), self.sourceTitle))
+
         return self
 
     def soup(self):

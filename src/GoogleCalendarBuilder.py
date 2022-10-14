@@ -58,20 +58,21 @@ class GoogleCalendarBuilder:
                 logger.debug('syncing event to calendar ' + str(eventData))
 
                 if (event.calendarId == None):
-                    logger.info('Inserting event: ' + event.summary)
+                    logger.info('Inserting event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
                     gEvent = self.service().events().insert(calendarId = calendarId, body = eventData).execute()
                     event.setCalendarId(gEvent['id'])
                     logger.debug('new calendar event created with id ' + event.calendarId)
 
                 else:
-                    logger.info('Updating event: ' + event.summary)
+                    logger.info('Updating event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
                     self.service().events().update(calendarId = calendarId, eventId = event.calendarId, body = eventData).execute()
                     logger.debug('existing calendar event updated with id ' + str(event.calendarId))
             else:
                 logger.debug('skipping sync of event to calendar ' + str(eventData))
 
         except HttpError as error:
-            print('An error occurred: %s' % error)
+            logger.exception("Exception occurred")
+            logger.error("The attempted event was: " + str(eventData))
             return None
 
     def dryRun(self, event):

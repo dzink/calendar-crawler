@@ -17,7 +17,6 @@ class BlackCatParser(CalendarParser):
 
                 link = link.get('href')
 
-                # title = ''
                 titles = eventHtml.find_all(['h1', 'h2'])
                 title = self.getTitle(titles)
 
@@ -26,7 +25,6 @@ class BlackCatParser(CalendarParser):
                 year = event.getNearestYear(date, '%A %B %d')
 
                 time = re.findall('(\d+)(:\d\d)', description)[0]
-
 
                 event.setSummary(title)
                 event.setLocation(self.location)
