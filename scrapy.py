@@ -15,6 +15,7 @@ from ShowPlaceParser import ShowPlaceParser
 from OttobarParser import OttobarParser
 from SquareSpaceParser import SquareSpaceParser
 from WithFriendsParser import WithFriendsParser
+from RhizomeParser import RhizomeParser
 
 from time import sleep
 from CalendarLogger import logger, addLoggerArgsToParser, buildLogger
@@ -156,6 +157,19 @@ def joeSquared():
     events.prefixDescriptionsWithLinks()
     events.addBoilerplateToDescriptions('See https://www.joesquared.com/events/ for more.')
     events.setColors('tangerine')
+
+    return events
+
+def rhizome():
+    source = CalendarSource('https://www.rhizomedc.org/', 'rhizome', options.remote)
+    html = source.getHtml()
+
+    parser = RhizomeParser(html, 'Rhizome')
+    events = parser.parse().events
+    events.prefixLinks('https://www.rhizomedc.org')
+    events.prefixDescriptionsWithLinks()
+    events.addBoilerplateToDescriptions('See https://www.rhizomedc.org/ for more.')
+    events.setColors('basil')
 
     return events
 
