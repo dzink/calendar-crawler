@@ -34,16 +34,14 @@ def main():
 
         events = EventList()
 
-        # events = events.merge(showPlace())
-        # events = events.merge(ottobar())
-        # events = events.merge(redEmmas())
-        # events = events.merge(currentSpace())
-        # events = events.merge(blackCat())
-        # events = events.merge(space2640())
-        # events = events.merge(joeSquared())
+        events = events.merge(showPlace())
+        events = events.merge(ottobar())
+        events = events.merge(redEmmas())
+        events = events.merge(currentSpace())
+        events = events.merge(blackCat())
+        events = events.merge(space2640())
+        events = events.merge(joeSquared())
         events = events.merge(rhizome())
-
-
 
         for event in events:
             event.deduplicate(forceUpdateIfMatched = options.force_update)
@@ -106,7 +104,7 @@ def showPlace():
     events = parser.parse().events
 
     # Reject events that come from other scraped sources
-    events = events.rejectEvents({'location': '(Ottobar|Red Emma\'s|Current Space|2640)'})
+    events = events.rejectEvents({'location': '(Ottobar|Red Emma\'s|Current Space|2640|Joe Squared|Black Cat|Rhizome)'})
 
     events.addBoilerplateToDescriptions('End times are approximate. See https://baltshowplace.tumblr.com/ for more.')
     events.setColors('sage')
