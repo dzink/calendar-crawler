@@ -1,3 +1,12 @@
+"""
+EventDb uses a tinydb database to store events that have been scraped.
+
+This is useful for:
+    - Querying shows via findy.py
+    - Determining if an event is a duplicate or not
+    - Updating events using an existing calendarId
+"""
+
 from tinydb import TinyDB, where, Query
 from CalendarLogger import logger
 import re

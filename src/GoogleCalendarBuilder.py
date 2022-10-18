@@ -10,7 +10,7 @@ from CalendarLogger import logger
 
 class GoogleCalendarBuilder:
     port = 34242
-    credentialsFile = 'data/credentials.json'
+    applicationCredentialsFile = 'data/credentials.json'
     tokenFile = 'data/token.json'
     scopes = ['https://www.googleapis.com/auth/calendar.events']
 
@@ -115,7 +115,7 @@ class GoogleCalendarBuilder:
                 creds.refresh(Request())
             else:
                 flow = InstalledAppFlow.from_client_secrets_file(
-                    self.credentialsFile, self.scopes)
+                    self.applicationCredentialsFile, self.scopes)
                 creds = flow.run_local_server(port = self.port)
 
             # Save the credentials for the next run
@@ -125,6 +125,9 @@ class GoogleCalendarBuilder:
 
         return creds
 
+    """
+    Get the colorId from the string color name.
+    """
     def mapColor(self, color):
         lowerColor = str(color).lower()
         return self.colorIds.get(lowerColor)

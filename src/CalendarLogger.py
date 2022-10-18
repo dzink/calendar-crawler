@@ -1,3 +1,8 @@
+"""
+This is a custom logger that logs both to stream and to a logfile.
+Probably overkill, but can be pasted into future scripts.
+"""
+
 import logging
 
 # Create a custom logger

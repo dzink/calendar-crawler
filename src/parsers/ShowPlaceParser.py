@@ -17,14 +17,13 @@ class ShowPlaceParser(CalendarParser):
         bodyText = post[self.postOffset].find('div', class_='body-text')
         date = False
 
-
-
         for element in bodyText.findChildren():
             if (element.name == 'h2'):
                 date = element.text
             if (element.name == 'p'):
                 text = element.text
                 if (text):
+
                     # Scraping magic happens here
                     parsed = re.findall("(.*)(\\.\\s+)((1?\\d)(:\\d\\d)?(AM|PM))?.*?,?\\s+((\\$?.*)\\s+)?\\@\\s+(.*)", text)
 

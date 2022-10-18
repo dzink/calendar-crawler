@@ -17,8 +17,7 @@ class BlackCatParser(CalendarParser):
 
                 link = link.get('href')
 
-                titles = eventHtml.find_all(['h1', 'h2'])
-                title = self.getTitle(titles)
+                title = self.getTitle(eventHtml)
 
                 dateHtml = eventHtml.find('h2', class_ = 'date')
                 date = dateHtml.get_text()
@@ -40,8 +39,9 @@ class BlackCatParser(CalendarParser):
     def buildStartstamp(self, year, date, timePattern):
         return "%s %s %s%sPM" % (date, year, timePattern[0], timePattern[1] or ':00')
 
-    def getTitle(self, titles):
+    def getTitle(self, eventHtml):
         strings = []
+        titles = eventHtml.find_all(['h1', 'h2'])
         for title in titles:
             if (title.name == 'h1'):
                 strings.append(title.get_text())

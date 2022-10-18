@@ -1,5 +1,8 @@
-import pytz
-from datetime import datetime
+"""
+EventList exists instead of db's because it allows the developer to quickly
+update a bunch of events all at once.
+"""
+
 from Event import Event
 from EventDb import EventDb
 from CalendarLogger import logger
@@ -80,7 +83,7 @@ class EventList:
     def rejectEvents(self, criteria, regex = True):
         return self.selectEvents(criteria, regex, negate = True)
 
-
+    # @TODO this should be a class method? Or a method on Event?
     def find(self, parameters = {}):
         db = EventDb()
         results = db.find(parameters)

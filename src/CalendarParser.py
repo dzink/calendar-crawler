@@ -3,13 +3,11 @@ CalendarParser
 
 A parser reads the HTML of a page and converts it into events.
 
-This class should be
+This class should be extended by parsers in src/parsers
 """
 
 from bs4 import BeautifulSoup
 import re
-import pytz
-from datetime import datetime
 from EventList import EventList
 from CalendarLogger import logger
 
@@ -44,6 +42,9 @@ class CalendarParser:
     def getEventsList(self):
         return (self.events)
 
+    """
+    Removes all occurances of a tag inside a bs4 object.
+    """
     def removeTagFromElement(self, element, tag):
         scripts = element.find_all(tag)
         for script in scripts:
@@ -53,13 +54,13 @@ class CalendarParser:
     def removeScriptsFromElement(self, element):
         return self.removeTagFromElement(element, 'script')
 
-    def replaceWhitespaceWithPipes(self, text):
-        return self.replaceWhitespace(text, ' | ')
-
     def replaceWhitespace(self, text, replace = ' | '):
         text = re.sub('(^\s+)|(\s+$)', '', text)
         text = re.sub('((\s){2,})|\n', replace, text)
         return text
+
+    def replaceWhitespaceWithPipes(self, text):
+        return self.replaceWhitespace(text, ' | ')
 
     """
     Convert inconsistent time indications to a common format

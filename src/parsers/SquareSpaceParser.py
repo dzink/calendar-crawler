@@ -1,4 +1,3 @@
-import re
 from CalendarParser import CalendarParser
 from Event import Event
 from CalendarLogger import logger

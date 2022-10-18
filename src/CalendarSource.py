@@ -22,12 +22,9 @@ class CalendarSource:
         self.scrollCount = 0
 
     """
-    Indicate how many times the page should be scrolled.
-    Useful for pages that auto-load more events.
+    Build and return a headless web driver.
+    The driver is a class variable so each source instance will share a driver.
     """
-    def setScrollCount(self, scrollCount):
-        self.scrollCount = scrollCount
-
     def getDriver(self):
         if (self.driver == None):
             chromeOptions = Options()
@@ -73,9 +70,18 @@ class CalendarSource:
     def pageSourceFilename(self):
         return 'source_html/page_source__' + self.id + '.html'
 
-    def rejectEvents(self):
-        rejectCriteria = self.rejectEventsCriteria()
+    """
+    Indicate how many times the page should be scrolled.
+    Useful for pages that auto-load more events.
+    Set this before getting the source.
+    """
+    def setScrollCount(self, scrollCount):
+        self.scrollCount = scrollCount
 
+    """
+    Some sources need to be scrolled to the bottom of the page before they will
+    load all events.
+    """
     def scrollPage(self, driver, pause = 2):
         if (self.scrollCount):
             for i in range(self.scrollCount):

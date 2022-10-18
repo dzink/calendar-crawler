@@ -71,6 +71,9 @@ class Event:
         self.date = date
         return self
 
+    """
+    A few methods for printing out timestamps.
+    """
     def startToString(self, pattern = '%Y-%m-%dT%H:%M:%S%z'):
         return self.dateToString(self.startDate, pattern)
 
@@ -84,6 +87,9 @@ class Event:
         self.startDate = self.parseDateString(date, pattern)
         return self
 
+    """
+    A few methods for converting strings into timestamps.
+    """
     def setEndString(self, date, pattern = '%Y-%m-%dT%H:%M:%S%z'):
         self.endDate = self.parseDateString(date, pattern)
         return self
@@ -98,8 +104,11 @@ class Event:
             date = tz.localize(date)
         return date
 
+    """
+    Some sources don't indicate the year. This will find the nearest possible
+    year for a given date.
+    """
     def getNearestYear(self, date, pattern = '%A %B %d'):
-
         dateCandidates = []
         pattern = pattern + ' %Y'
         now = self.localizeDate(datetime.now())

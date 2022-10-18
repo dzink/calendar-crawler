@@ -1,4 +1,3 @@
-import re
 from CalendarParser import CalendarParser
 from Event import Event
 from CalendarLogger import logger
@@ -29,12 +28,6 @@ class RhizomeParser(CalendarParser):
                 if (endTime):
                     endStamp = '%s %s %s' % (year, date, endTime)
 
-                # time = re.findall('((noon|((\d+?):?(\d\d)?))\s*((am|pm)?\s*(-|to)\s*(\d+?):?(\d\d)?)?\s*(am|pm))', description, re.IGNORECASE)
-                # if (not time):
-                #     time = re.findall('doors at ((((\d?)(:\d\d)?)))\s*(((((fff)))))?(am|pm)?', description, re.IGNORECASE)
-                # startStamp = self.buildStartStamp(date, time[0])
-                # endStamp = self.buildEndStamp(date, time[0])
-                # year = str(event.getNearestYear(startStamp, '%b %d %I:%M%p'))
                 event.setSummary(title)
                 event.setDescription(description)
                 event.setLink(link)
@@ -51,15 +44,3 @@ class RhizomeParser(CalendarParser):
                 logger.exception("Exception occurred in " + title)
 
         return self
-
-    # def buildStartStamp(self, date, timePattern):
-    #     if (timePattern[1] == 'noon'):
-    #         return "%s 12:00pm" % (date)
-    #     else:
-    #         return "%s %s:%s%s" % (date, timePattern[3], timePattern[4] or '00', timePattern[6] or timePattern[10] or 'pm')
-    #
-    # def buildEndStamp(self, date, timePattern):
-    #     if (timePattern[8]):
-    #         return "%s %s:%s%s" % (date, timePattern[8], timePattern[9] or '00', timePattern[10] or 'pm')
-    #     else:
-    #         return None
