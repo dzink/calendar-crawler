@@ -52,7 +52,7 @@ class CalendarParser:
 
     def removeScriptsFromElement(self, element):
         return self.removeTagFromElement(element, 'script')
-        
+
     def replaceWhitespaceWithPipes(self, text):
         return self.replaceWhitespace(text, ' | ')
 
