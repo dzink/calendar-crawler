@@ -27,6 +27,8 @@ class RhizomeParser(CalendarParser):
                 startStamp = '%s %s %s' % (year, date, startTime)
                 if (endTime):
                     endStamp = '%s %s %s' % (year, date, endTime)
+                else:
+                    endStamp = None
 
                 event.setSummary(title)
                 event.setDescription(description)
