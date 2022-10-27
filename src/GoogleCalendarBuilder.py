@@ -10,7 +10,11 @@ from CalendarLogger import logger
 
 class GoogleCalendarBuilder:
     port = 34242
+
+    # This file should be the one you get from Google.
     applicationCredentialsFile = 'data/credentials.json'
+
+    # This is a reusable token
     tokenFile = 'data/token.json'
     scopes = ['https://www.googleapis.com/auth/calendar.events']
 
