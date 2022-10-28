@@ -6,8 +6,8 @@ from CalendarLogger import logger
 
 class OttobarParser(CalendarParser):
 
-    def parseEvents(self, settings = {}):
-        for eventHtml in self.soup().find_all('div', class_ = 'eventWrapper'):
+    def parseEvents(self, html, settings = {}):
+        for eventHtml in self.soup(html).find_all('div', class_ = 'eventWrapper'):
             try:
                 primaryButtonHhtml = eventHtml.find_all('a', class_ = 'btn-primary')
                 if (primaryButtonHhtml):

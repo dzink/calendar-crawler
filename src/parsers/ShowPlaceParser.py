@@ -12,8 +12,8 @@ class ShowPlaceParser(CalendarParser):
     def setPostOffset(self, postOffset):
         self.postOffset = postOffset
 
-    def parseEvents(self, settings = {}):
-        post = self.soup().find_all('div', class_='post-content')
+    def parseEvents(self, html, settings = {}):
+        post = self.soup(html).find_all('div', class_='post-content')
         bodyText = post[self.postOffset].find('div', class_='body-text')
         date = False
 

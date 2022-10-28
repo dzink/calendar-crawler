@@ -71,8 +71,8 @@ def getEvents(sourceConfigKey, sourceConfigs):
     source = factory.source(sourceConfigKey, sourceConfig)
     html = source.getHtml()
 
-    parser = factory.parser(sourceConfigKey, sourceConfig, html)
-    events = parser.parse().events
+    parser = factory.parser(sourceConfigKey, sourceConfig)
+    events = parser.parse(html).events
 
     logger.warning(len(events.events))
     events = factory.postTasks(events, sourceConfig)

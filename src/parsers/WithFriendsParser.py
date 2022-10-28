@@ -3,8 +3,8 @@ from Event import Event
 
 class WithFriendsParser(CalendarParser):
 
-    def parseEvents(self, settings = {}):
-        for eventHtml in self.soup().find_all('li', class_='wf-event'):
+    def parseEvents(self, html, settings = {}):
+        for eventHtml in self.soup(html).find_all('li', class_='wf-event'):
             event = Event()
 
             link = eventHtml.find('a')

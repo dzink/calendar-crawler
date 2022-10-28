@@ -4,8 +4,8 @@ from CalendarLogger import logger
 
 class SquareSpaceParser(CalendarParser):
 
-    def parseEvents(self, settings = {}):
-        for eventHtml in self.soup().find_all('article', class_ = 'eventlist-event--upcoming'):
+    def parseEvents(self, html, settings = {}):
+        for eventHtml in self.soup(html).find_all('article', class_ = 'eventlist-event--upcoming'):
             link = eventHtml.find('a').get('href')
             locationHtml = eventHtml.find('li', class_ = 'eventlist-meta-address')
             location = self.removeTagFromElement(locationHtml, 'a').get_text()

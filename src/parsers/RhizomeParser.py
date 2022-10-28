@@ -4,9 +4,9 @@ from CalendarLogger import logger
 
 class RhizomeParser(CalendarParser):
 
-    def parseEvents(self, settings = {}):
+    def parseEvents(self, html, settings = {}):
         title = 'Unknown event'
-        eventsHtml = self.soup().find('div', class_ = 'summary-block-collection-type-events')
+        eventsHtml = self.soup(html).find('div', class_ = 'summary-block-collection-type-events')
         for eventHtml in eventsHtml.find_all('div', class_ = 'summary-item-record-type-event'):
             try:
                 title = eventHtml.find('div', class_ = 'summary-title').get_text()

@@ -13,24 +13,23 @@ from CalendarLogger import logger
 
 class CalendarParser:
 
-    def __init__(self, html, sourceTitle):
+    def __init__(self, sourceTitle):
         self.events = EventList([])
-        self.html = html
         self.sourceTitle = sourceTitle
 
-    def parse(self, settings = {}):
+    def parse(self, html, settings = {}):
         logger.info('parsing beginning for ' + self.sourceTitle)
-        self.parseEvents(settings)
+        self.parseEvents(html, settings)
         logger.info('parsing completed for ' + self.sourceTitle)
         logger.info('%d events found in %s' % (len(self.events.events), self.sourceTitle))
 
         return self
 
-    def soup(self):
-        self.soup = BeautifulSoup(self.html, features="html.parser")
+    def soup(self, html):
+        self.soup = BeautifulSoup(html, features="html.parser")
         return self.soup
 
-    def parseEvents(self, settings = {}):
+    def parseEvents(self, html, settings = {}):
 
         return self
 

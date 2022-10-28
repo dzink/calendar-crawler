@@ -34,14 +34,14 @@ class CalendarFactory:
 
         return source
 
-    def parser(self, sourceId, config, html):
+    def parser(self, sourceId, config):
         parserConfig = config.get('parser', {})
         name = config.get('name')
         class_ = parserConfig.get('class')
         postOffset = parserConfig.get('postOffset', None)
 
         parserClass = self.getClass(class_)
-        parser = parserClass(html, name)
+        parser = parserClass(name)
 
         if (postOffset != None):
             parser.setPostOffset(postOffset)

@@ -7,8 +7,8 @@ class BlackCatParser(CalendarParser):
 
     location = 'Black Cat DC'
 
-    def parseEvents(self, settings = {}):
-        for eventHtml in self.soup().find_all('div', class_ = 'show'):
+    def parseEvents(self, html, settings = {}):
+        for eventHtml in self.soup(html).find_all('div', class_ = 'show'):
             h1Html = eventHtml.find('h1')
             link = h1Html.find('a')
             if (link):
