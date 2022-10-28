@@ -22,9 +22,9 @@ def main():
         buildLogger(options)
         factory = CalendarFactory(options)
 
-        sourceConfigs = loadConfig('./sources.yml')
+        sourceConfigs = loadConfig('./data/sources.yml')
         secrets = loadConfig('./data/secrets.yml')
-        calendarConfigs = loadConfig('./calendars.yml')
+        calendarConfigs = loadConfig('./data/calendars.yml')
 
         # Iterate through calendars in config
         for calendarKey in calendarConfigs.keys():
