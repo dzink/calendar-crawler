@@ -6,11 +6,11 @@ dzShowCrawler:
     scopes:
       - https://www.googleapis.com/auth/calendar.events
   sources:
-    # - showPlace
-    # - redEmmas
-    # - currentSpace
-    # - ottobar
-    # - blackCat
+    - showPlace
+    - redEmmas
+    - currentSpace
+    - ottobar
+    - blackCat
     - space2640
-    # - joeSquared
-    # - rhizome
+    - joeSquared
+    - rhizome
