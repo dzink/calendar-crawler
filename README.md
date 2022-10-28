@@ -1,4 +1,4 @@
-# calendar-scraper.py - A Calendar Scraper
+# calendar-crawler.py - A Calendar Crawler
 
 Scrape event pages and add them to a Google calendar
 
