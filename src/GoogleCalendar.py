@@ -28,9 +28,7 @@ class GoogleCalendar:
 
     def __init__(self):
         self.serviceObject = None
-        self.credentialsFile = None
         self.calendarId = None
-        self.applicationCredentialsFile = 'data/credentials.json'
         self.tokenFile = 'data/token.json'
         self.scopes = ['https://www.googleapis.com/auth/calendar.events']
         self.applicationCredentials = None

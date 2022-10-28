@@ -14,57 +14,39 @@ from time import sleep
 from CalendarLogger import logger, addLoggerArgsToParser, buildLogger
 
 options = None
+factory = None
 
 def main():
     try:
         global options
+        global factory
+        options = parseArguments()
+        buildLogger(options)
+        factory = CalendarFactory(options)
+
         sourceConfigs = loadConfig('./sources.yml')
         secrets = loadConfig('./data/secrets.yml')
         calendarConfigs = loadConfig('./calendars.yml')
-        options = parseArguments()
-        buildLogger(options)
 
-        logger.warning(secrets)
-
+        # Iterate through calendars in config
         for calendarConfigKey in calendarConfigs.keys():
             calendarConfig = calendarConfigs.get(calendarConfigKey)
 
+            googleCalendar = factory.googleCalendar(calendarConfig, secrets)
             events = EventList()
-            gcb = GoogleCalendar()
-            googleApiConfig = calendarConfig.get('googleApi', {})
-            calendarIdSecretKey = googleApiConfig.get('calendarIdSecretKey')
-            if (calendarIdSecretKey):
-                calendarId = secrets.get(calendarIdSecretKey)
-                gcb.calendarId = calendarId
-                logger.info('Got calendarId from secrets file')
+            sourceKeys = calendarConfig.get('sources', [])
 
-            applicationCredentialsSecretKey = googleApiConfig.get('applicationCredentialsSecretKey')
-            if (applicationCredentialsSecretKey):
-                applicationCredentials = secrets.get(applicationCredentialsSecretKey)
-                gcb.applicationCredentials = applicationCredentials
-                logger.info('Got application credentials from secrets file')
-
-
-            sourceKeys = calendarConfig.get('sources');
-
+            # Iterate through sources in calendar config
             for sourceConfigKey in sourceKeys:
                 events = events.merge(getEvents(sourceConfigKey, sourceConfigs))
 
             for event in events:
                 event.deduplicate(forceUpdateIfMatched = options.force_update)
                 if (not options.dry_run):
-                    gcb.syncEvent(event)
+                    googleCalendar.syncEvent(event)
                     event.write()
                 else:
-                    gcb.dryRun(event)
-
-            # calendarId =  gcb.getCalendarIdFromFile('data/calendarid.txt')
-
-
-        #
-        #
-        # logger.warning(len(events.events))
-        #
+                    googleCalendar.dryRun(event)
 
     except Exception as e:
         logger.exception("Exception occurred")
@@ -84,7 +66,6 @@ def loadConfig(filename):
         return config
 
 def getEvents(sourceConfigKey, sourceConfigs):
-    factory = CalendarFactory(options)
 
     sourceConfig = sourceConfigs.get(sourceConfigKey)
     source = factory.source(sourceConfigKey, sourceConfig)

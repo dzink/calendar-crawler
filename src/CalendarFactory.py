@@ -2,7 +2,7 @@ import sys
 
 sys.path.append('./parsers')
 
-from GoogleCalendarBuilder import GoogleCalendarBuilder
+from GoogleCalendar import GoogleCalendar
 from CalendarSource import CalendarSource
 from CalendarParser import CalendarParser
 from BlackCatParser import BlackCatParser
@@ -94,6 +94,32 @@ class CalendarFactory:
             return events
 
         raise Exception('Unknown postTask type: %s' % (type))
+
+    def googleCalendar(self, calendarConfig, secrets = {}):
+        googleCalendar = GoogleCalendar()
+        googleApiConfig = calendarConfig.get('googleApi', {})
+        calendarIdSecretKey = googleApiConfig.get('calendarIdSecretKey')
+        if (calendarIdSecretKey):
+            calendarId = secrets.get(calendarIdSecretKey)
+            googleCalendar.calendarId = calendarId
+            logger.info('Got calendarId from secrets file')
+
+        applicationCredentialsSecretKey = googleApiConfig.get('applicationCredentialsSecretKey')
+        if (applicationCredentialsSecretKey):
+            applicationCredentials = secrets.get(applicationCredentialsSecretKey)
+            googleCalendar.applicationCredentials = applicationCredentials
+            logger.info('Got application credentials from secrets file')
+
+        scopes = googleApiConfig.get('scopes')
+        if (scopes):
+            googleCalendar.scopes = scopes
+
+        tokenFile = googleApiConfig.get('tokenFile')
+        if (tokenFile):
+            googleCalendar.tokenFile = tokenFile
+
+        return googleCalendar
+
 
     def getClass(self, class_):
         return getattr(sys.modules[__name__], class_)
