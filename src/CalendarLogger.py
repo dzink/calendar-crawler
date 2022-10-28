@@ -14,6 +14,8 @@ def buildLogger(options):
 
     if (options.verbose):
         streamLevel = logging.INFO
+    if (options.debug):
+        streamLevel = logging.DEBUG
 
     c_handler = logging.StreamHandler()
     f_handler = logging.FileHandler(options.log_file)
@@ -33,4 +35,5 @@ def buildLogger(options):
 
 def addLoggerArgsToParser(parser):
     parser.add_argument('-v', '--verbose', help = 'Verbose output.', action = 'store_true', default = False)
+    parser.add_argument('--debug', help = 'Debug output.', action = 'store_true', default = False)
     parser.add_argument('--log-file', default = './data/scrapy.log')

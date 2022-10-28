@@ -182,6 +182,7 @@ class Event:
                     return False
             else:
                 if (pattern != data[property]):
+                    logger.debug('%s not a match: "%s" :: "%s"' % (property, pattern, data[property]))
                     return False
         return True
 
