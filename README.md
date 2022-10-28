@@ -17,9 +17,7 @@ This app runs on python 3.
 
 You'll at least want the BeautifulSoup and tinyDb python modules. Perhaps more.
 
-You'll need your Google Calendar credentials file, saved in `./data/credentials.json`
-
-You'll want the id of a calendar, saved in `./data/calendarid.text`. It should look something like `[long string of text]@group.calendar.google.com`
+In `./data/secrets.yml`, you will need a file that looks like `./data/example.secrets.yml`, only with the real data. The credentials data comes straight from your Google Calendar app json, you can paste it in as-is since json is valid yml. The calendar id comes from the calendar settings.
 
 ## Troubleshooting
 
@@ -38,6 +36,7 @@ Scrape event pages and add them to a Google calendar
 optional arguments:
   -h, --help            show this help message and exit
   -v, --verbose         Verbose output.
+  --debug               Debug output.
   --log-file LOG_FILE
   -l LOCATION, --location LOCATION
                         Search by location/venue
