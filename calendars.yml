@@ -1,0 +1,16 @@
+dzShowCrawler:
+  googleApi:
+    calendarIdSecretKey: dzShowCrawlerCalendarId
+    applicationCredentialsSecretKey: dzShowCrawlerApplicationCredentials
+    tokenFile: data/token.json
+    scopes:
+      - https://www.googleapis.com/auth/calendar.events
+  sources:
+    # - showPlace
+    # - redEmmas
+    # - currentSpace
+    # - ottobar
+    # - blackCat
+    - space2640
+    # - joeSquared
+    # - rhizome

@@ -7,7 +7,7 @@ sys.path.append('./src/parsers')
 import yaml
 import argparse
 from EventList import EventList
-from GoogleCalendarBuilder import GoogleCalendarBuilder
+from GoogleCalendar import GoogleCalendar
 from CalendarFactory import CalendarFactory
 
 from time import sleep
@@ -18,26 +18,53 @@ options = None
 def main():
     try:
         global options
-        sourcesConfig = loadConfig('./sources.yml')
+        sourceConfigs = loadConfig('./sources.yml')
+        secrets = loadConfig('./data/secrets.yml')
+        calendarConfigs = loadConfig('./calendars.yml')
         options = parseArguments()
         buildLogger(options)
 
-        gcb = GoogleCalendarBuilder()
-        calendarId = gcb.getCalendarIdFromFile('data/calendarid.txt')
+        logger.warning(secrets)
 
-        events = EventList()
-        for sourceConfigKey in sourcesConfig.keys():
-            events = events.merge(getEvents(sourceConfigKey, sourcesConfig))
+        for calendarConfigKey in calendarConfigs.keys():
+            calendarConfig = calendarConfigs.get(calendarConfigKey)
 
-        logger.warning(len(events.events))
+            events = EventList()
+            gcb = GoogleCalendar()
+            googleApiConfig = calendarConfig.get('googleApi', {})
+            calendarIdSecretKey = googleApiConfig.get('calendarIdSecretKey')
+            if (calendarIdSecretKey):
+                calendarId = secrets.get(calendarIdSecretKey)
+                gcb.calendarId = calendarId
+                logger.info('Got calendarId from secrets file')
 
-        for event in events:
-            event.deduplicate(forceUpdateIfMatched = options.force_update)
-            if (not options.dry_run):
-                gcb.syncEvent(event, calendarId)
-                event.write()
-            else:
-                gcb.dryRun(event)
+            applicationCredentialsSecretKey = googleApiConfig.get('applicationCredentialsSecretKey')
+            if (applicationCredentialsSecretKey):
+                applicationCredentials = secrets.get(applicationCredentialsSecretKey)
+                gcb.applicationCredentials = applicationCredentials
+                logger.info('Got application credentials from secrets file')
+
+
+            sourceKeys = calendarConfig.get('sources');
+
+            for sourceConfigKey in sourceKeys:
+                events = events.merge(getEvents(sourceConfigKey, sourceConfigs))
+
+            for event in events:
+                event.deduplicate(forceUpdateIfMatched = options.force_update)
+                if (not options.dry_run):
+                    gcb.syncEvent(event)
+                    event.write()
+                else:
+                    gcb.dryRun(event)
+
+            # calendarId =  gcb.getCalendarIdFromFile('data/calendarid.txt')
+
+
+        #
+        #
+        # logger.warning(len(events.events))
+        #
 
     except Exception as e:
         logger.exception("Exception occurred")
@@ -56,10 +83,10 @@ def loadConfig(filename):
         config = yaml.safe_load(file)
         return config
 
-def getEvents(sourceConfigKey, sourcesConfig):
+def getEvents(sourceConfigKey, sourceConfigs):
     factory = CalendarFactory(options)
 
-    sourceConfig = sourcesConfig.get(sourceConfigKey)
+    sourceConfig = sourceConfigs.get(sourceConfigKey)
     source = factory.source(sourceConfigKey, sourceConfig)
     html = source.getHtml()
 

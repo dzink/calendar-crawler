@@ -8,15 +8,8 @@ from googleapiclient.errors import HttpError
 
 from CalendarLogger import logger
 
-class GoogleCalendarBuilder:
+class GoogleCalendar:
     port = 34242
-
-    # This file should be the one you get from Google.
-    applicationCredentialsFile = 'data/credentials.json'
-
-    # This is a reusable token
-    tokenFile = 'data/token.json'
-    scopes = ['https://www.googleapis.com/auth/calendar.events']
 
     colorIds = {
         'default': 0,
@@ -35,6 +28,12 @@ class GoogleCalendarBuilder:
 
     def __init__(self):
         self.serviceObject = None
+        self.credentialsFile = None
+        self.calendarId = None
+        self.applicationCredentialsFile = 'data/credentials.json'
+        self.tokenFile = 'data/token.json'
+        self.scopes = ['https://www.googleapis.com/auth/calendar.events']
+        self.applicationCredentials = None
 
     def service(self):
         if (self.serviceObject == None):
@@ -46,15 +45,7 @@ class GoogleCalendarBuilder:
         this.scopes = newScopes
         return self
 
-    def getCalendarIdFromFile(self, file):
-        calendarId = ''
-        with open(file, 'r') as token:
-            calendarId = token.read().replace("\n", '')
-            token.close()
-            logger.debug('retrieved calendar id from file ' + file)
-        return calendarId
-
-    def syncEvent(self, event, calendarId):
+    def syncEvent(self, event):
         try:
             eventData = self.getDictionaryFromEvent(event)
             if (event.skipSync != True):
@@ -63,13 +54,13 @@ class GoogleCalendarBuilder:
 
                 if (event.calendarId == None):
                     logger.info('Inserting event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
-                    gEvent = self.service().events().insert(calendarId = calendarId, body = eventData).execute()
+                    gEvent = self.service().events().insert(calendarId = self.calendarId, body = eventData).execute()
                     event.setCalendarId(gEvent['id'])
                     logger.debug('new calendar event created with id ' + event.calendarId)
 
                 else:
                     logger.info('Updating event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
-                    self.service().events().update(calendarId = calendarId, eventId = event.calendarId, body = eventData).execute()
+                    self.service().events().update(calendarId = self.calendarId, eventId = event.calendarId, body = eventData).execute()
                     logger.debug('existing calendar event updated with id ' + str(event.calendarId))
             else:
                 logger.debug('skipping sync of event to calendar ' + str(eventData))
@@ -118,8 +109,8 @@ class GoogleCalendarBuilder:
             if creds and creds.expired and creds.refresh_token:
                 creds.refresh(Request())
             else:
-                flow = InstalledAppFlow.from_client_secrets_file(
-                    self.applicationCredentialsFile, self.scopes)
+                flow = InstalledAppFlow.from_client_config(
+                    self.applicationCredentials, self.scopes)
                 creds = flow.run_local_server(port = self.port)
 
             # Save the credentials for the next run
