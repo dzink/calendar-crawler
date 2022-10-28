@@ -7,10 +7,8 @@ sys.path.append('./src/parsers')
 import yaml
 import argparse
 from EventList import EventList
-from GoogleCalendar import GoogleCalendar
 from CalendarFactory import CalendarFactory
 
-from time import sleep
 from CalendarLogger import logger, addLoggerArgsToParser, buildLogger
 
 options = None
@@ -29,16 +27,18 @@ def main():
         calendarConfigs = loadConfig('./calendars.yml')
 
         # Iterate through calendars in config
-        for calendarConfigKey in calendarConfigs.keys():
-            calendarConfig = calendarConfigs.get(calendarConfigKey)
+        for calendarKey in calendarConfigs.keys():
+            calendarConfig = calendarConfigs.get(calendarKey)
 
             googleCalendar = factory.googleCalendar(calendarConfig, secrets)
             events = EventList()
             sourceKeys = calendarConfig.get('sources', [])
 
             # Iterate through sources in calendar config
-            for sourceConfigKey in sourceKeys:
-                events = events.merge(getEvents(sourceConfigKey, sourceConfigs))
+            for sourceKey in sourceKeys:
+                sourceConfig = sourceConfigs.get(sourceKey)
+
+                events = events.merge(getEvents(sourceKey, sourceConfig))
 
             for event in events:
                 event.deduplicate(forceUpdateIfMatched = options.force_update)
@@ -65,18 +65,14 @@ def loadConfig(filename):
         config = yaml.safe_load(file)
         return config
 
-def getEvents(sourceConfigKey, sourceConfigs):
-
-    sourceConfig = sourceConfigs.get(sourceConfigKey)
-    source = factory.source(sourceConfigKey, sourceConfig)
+def getEvents(sourceId, sourceConfig):
+    source = factory.source(sourceId, sourceConfig)
     html = source.getHtml()
 
-    parser = factory.parser(sourceConfigKey, sourceConfig)
+    parser = factory.parser(sourceId, sourceConfig)
     events = parser.parse(html).events
 
-    logger.warning(len(events.events))
     events = factory.postTasks(events, sourceConfig)
-    logger.warning(len(events.events))
 
     return events
 

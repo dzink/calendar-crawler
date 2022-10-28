@@ -68,7 +68,6 @@ class CalendarFactory:
 
         if (type == 'rejectEvents'):
             pattern = taskConfig.get('pattern')
-            logger.warning(['rejecting', pattern])
             events = events.rejectEvents(pattern)
             return events
 
