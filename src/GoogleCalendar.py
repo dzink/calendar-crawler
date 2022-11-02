@@ -72,14 +72,14 @@ class GoogleCalendar:
         data = self.getDictionaryFromEvent(event)
         if (event.skipSync):
             if (not skipSkips):
-                logger.info('Skipping event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
+                logger.info('Dry run - Skipping event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
                 logger.debug('Dry Run: Skipping ' + str(data))
         else:
             if (event.calendarId == None):
-                logger.info('Inserting event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
+                logger.info('Dry run - Inserting event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
                 logger.debug('Dry Run: Inserting ' + str(data))
             else:
-                logger.info('Updating event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
+                logger.info('Dry run - Updating event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
                 logger.debug('Dry Run: Updating ' + str(data))
 
     def deleteEvent(self, event, calendarId):

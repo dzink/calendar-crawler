@@ -46,7 +46,7 @@ def main():
                     googleCalendar.syncEvent(event)
                     event.write()
                 else:
-                    googleCalendar.dryRun(event)
+                    googleCalendar.dryRun(event, options.show_skips)
 
     except Exception as e:
         logger.exception("Exception occurred")
@@ -57,6 +57,7 @@ def parseArguments():
     parser.add_argument('-l', '--local', help = 'Whether to use local cached sources instead of re-scraping html.', action = 'store_false', default = True, dest = 'remote')
     parser.add_argument('-u', '--force-update', help = 'Whether to force Google Calendar updates, even if there\'s nothing to update.', action = 'store_true', default = False)
     parser.add_argument('-d', '--dry-run', help = 'Run the parser but do not write to the calendar or database.', action = 'store_true', default = False)
+    parser.add_argument('--show-skips', help = 'In a dry run, ignore the skips.', action = 'store_false', default = True)
 
     return parser.parse_args()
 
