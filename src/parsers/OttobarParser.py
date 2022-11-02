@@ -17,7 +17,8 @@ class OttobarParser(CalendarParser):
                     event.setDescription(description)
 
                     title = eventHtml.find('h2')
-                    event.setSummary(title.get_text())
+                    title = self.replaceWhitespaceWithPipes(title.get_text())
+                    event.setSummary(title)
 
                     locationHtml = eventHtml.find('a', class_ = 'venueLink')
                     event.setLocation(locationHtml.get_text())
