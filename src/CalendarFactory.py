@@ -78,7 +78,7 @@ class CalendarFactory:
 
         if (type == 'prefixLinks'):
             text = taskConfig.get('text')
-            events.setLocationAddress(text)
+            events.prefixLinks(text)
             return events
 
         if (type == 'setColors'):
