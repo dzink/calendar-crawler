@@ -30,7 +30,7 @@ class CalendarSource:
             chromeOptions = Options()
             chromeOptions.add_argument("--headless")
             chromeOptions.add_argument("--window-size=1920x1080")
-            self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), chrome_options = chromeOptions)
+            self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), chrome_options = chromeOptions, executable_path='/usr/bin/google-chrome')
             logger.debug('built chrome driver')
         return self.driver
 
