@@ -15,7 +15,12 @@ optional arguments:
 ## Install
 This app runs on python 3.
 
-You'll at least want the BeautifulSoup and tinyDb python modules. Perhaps more.
+### Requirements
+You'll need a few python libraries, and perhaps Google Chrome as well.
+
+```
+pip install webdriver-manager selenium bs4 tinydb google-api-python-client google-auth-httplib2 google-auth-oauthlib --quiet
+```
 
 In `./data/secrets.yml`, you will need a file that looks like `./data/example.secrets.yml`, only with the real data. The credentials data comes straight from your Google Calendar app json, you can paste it in as-is since json is valid yml. The calendar id comes from the calendar settings.
 
@@ -23,7 +28,7 @@ In `./data/secrets.yml`, you will need a file that looks like `./data/example.se
 
 If you have trouble logging in, make sure you use the localhost domain with the port number in your google app setup.
 
-If you were able to log in but now you can't, delete the file at `.data/token.json`
+If you were able to log in but now you can't refresh, delete the file at `.data/token.json`
 
 
 # event-finder.py - An event finder
