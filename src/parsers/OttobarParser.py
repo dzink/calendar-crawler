@@ -21,7 +21,8 @@ class OttobarParser(CalendarParser):
                     event.setSummary(title)
 
                     locationHtml = eventHtml.find('a', class_ = 'venueLink')
-                    event.setLocation(locationHtml.get_text())
+                    if (locationHtml):
+                        event.setLocation(locationHtml.get_text())
 
                     dateHtml = eventHtml.find('div', class_ = 'singleEventDate')
                     date = dateHtml.get_text()
@@ -44,7 +45,9 @@ class OttobarParser(CalendarParser):
                     if (link):
                         self.addEvent(event)
             except Exception as e:
-                logger.exception("Exception occurred")
+                eventText = self.replaceWhitespaceWithPipes(eventHtml.get_text())
+                logger.exception("Exception occurred in " + eventText)
+
         return self
 
     def buildStartstamp(self, date, timePattern):
