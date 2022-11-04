@@ -176,8 +176,9 @@ class Event:
         if (not data):
             data = self.toJson()
         for property, pattern in criteria.items():
-            if (regex and isinstance(pattern, str)):
-                matches = re.search(pattern, data[property], re.IGNORECASE)
+            value = data[property]
+            if (regex and isinstance(value, str)):
+                matches = re.search(pattern, value or '', re.IGNORECASE)
                 if (matches == None):
                     return False
             else:
