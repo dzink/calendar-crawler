@@ -43,6 +43,7 @@ class RhizomeParser(CalendarParser):
                 self.addEvent(event)
 
             except Exception as e:
-                logger.exception("Exception occurred in " + title)
+                eventText = self.replaceWhitespaceWithPipes(eventHtml.get_text())
+                logger.exception("Exception occurred in " + eventText)
 
         return self

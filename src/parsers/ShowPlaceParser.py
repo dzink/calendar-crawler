@@ -28,13 +28,17 @@ class ShowPlaceParser(CalendarParser):
                     parsed = re.findall("(.*)(\\.\\s+)((1?\\d)(:\\d\\d)?(AM|PM))?.*?,?\\s+((\\$?.*)\\s+)?\\@\\s+(.*)", text)
 
                     if (parsed):
-                        event = Event()
-                        event.setSummary(parsed[0][0])
-                        event.setLocation(parsed[0][8])
-                        event.setDescription(self.replaceWhitespaceWithPipes(text))
-                        event.setStartString(self.buildStartstamp(date, parsed), '%A, %B %d, %Y %I:%M%p')
-                        event.setEndString(self.buildEndstamp(date), '%A, %B %d, %Y %I:%M%p')
-                        self.addEvent(event)
+                        try:
+                            event = Event()
+                            event.setSummary(parsed[0][0])
+                            event.setLocation(parsed[0][8])
+                            event.setDescription(self.replaceWhitespaceWithPipes(text))
+                            event.setStartString(self.buildStartstamp(date, parsed), '%A, %B %d, %Y %I:%M%p')
+                            event.setEndString(self.buildEndstamp(date), '%A, %B %d, %Y %I:%M%p')
+                            self.addEvent(event)
+                        except Exception as e:
+                            eventText = self.replaceWhitespaceWithPipes(eventHtml.get_text())
+                            logger.exception("Exception occurred in %s for date %s" % (text, date))
 
                     else:
                         logger.warning('Could not parse: `' + text + '` for ' + date)

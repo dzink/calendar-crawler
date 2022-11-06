@@ -9,30 +9,35 @@ class BlackCatParser(CalendarParser):
 
     def parseEvents(self, html, settings = {}):
         for eventHtml in self.soup(html).find_all('div', class_ = 'show'):
-            h1Html = eventHtml.find('h1')
-            link = h1Html.find('a')
-            if (link):
-                event = Event()
-                description = eventHtml.get_text()
+            try:
+                h1Html = eventHtml.find('h1')
+                link = h1Html.find('a')
+                if (link):
+                    event = Event()
+                    description = eventHtml.get_text()
 
-                link = link.get('href')
+                    link = link.get('href')
 
-                title = self.getTitle(eventHtml)
+                    title = self.getTitle(eventHtml)
 
-                dateHtml = eventHtml.find('h2', class_ = 'date')
-                date = dateHtml.get_text()
-                year = event.getNearestYear(date, '%A %B %d')
+                    dateHtml = eventHtml.find('h2', class_ = 'date')
+                    date = dateHtml.get_text()
+                    year = event.getNearestYear(date, '%A %B %d')
 
-                time = re.findall('(\d+)(:\d\d)', description)[0]
+                    time = re.findall('(\d+)(:\d\d)', description)[0]
 
-                event.setSummary(title)
-                event.setLocation(self.location)
-                event.setLink(link)
-                event.setDescription(self.replaceWhitespaceWithPipes(description))
-                event.setStartString(self.buildStartstamp(year, date, time), '%A %B %d %Y %I:%M%p')
-                event.setAbsoluteEndDateTime(23, 59)
+                    event.setSummary(title)
+                    event.setLocation(self.location)
+                    event.setLink(link)
+                    event.setDescription(self.replaceWhitespaceWithPipes(description))
+                    event.setStartString(self.buildStartstamp(year, date, time), '%A %B %d %Y %I:%M%p')
+                    event.setAbsoluteEndDateTime(23, 59)
 
-                self.addEvent(event)
+                    self.addEvent(event)
+
+            except Exception as e:
+                eventText = self.replaceWhitespaceWithPipes(eventHtml.get_text())
+                logger.exception("Exception occurred in " + eventText)
 
         return self
 

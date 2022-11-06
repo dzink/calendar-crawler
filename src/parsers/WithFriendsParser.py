@@ -5,30 +5,34 @@ class WithFriendsParser(CalendarParser):
 
     def parseEvents(self, html, settings = {}):
         for eventHtml in self.soup(html).find_all('li', class_='wf-event'):
-            event = Event()
+            try:
+                event = Event()
 
-            link = eventHtml.find('a')
-            link = ''.join(['https://withfriends.co', link.get('href')])
-            event.setLink(link)
+                link = eventHtml.find('a')
+                link = ''.join(['https://withfriends.co', link.get('href')])
+                event.setLink(link)
 
-            title = eventHtml.find('h4')
-            event.setSummary(title.get_text())
+                title = eventHtml.find('h4')
+                event.setSummary(title.get_text())
 
-            dateTime = eventHtml.find(attrs={
-                'data-type': 'Date_Time',
-                'data-kind': 'Item',
-            })
-            date = dateTime.get_text()
-            date = date + str(event.getNearestYear(date, '%A, %B %d at %I:%M %p'))
-            event.setStartString(date, '%A, %B %d at %I:%M %p%Y')
+                dateTime = eventHtml.find(attrs={
+                    'data-type': 'Date_Time',
+                    'data-kind': 'Item',
+                })
+                date = dateTime.get_text()
+                date = date + str(event.getNearestYear(date, '%A, %B %d at %I:%M %p'))
+                event.setStartString(date, '%A, %B %d at %I:%M %p%Y')
 
-            # Remove scripts
-            self.removeScriptsFromElement(eventHtml)
+                # Remove scripts
+                self.removeScriptsFromElement(eventHtml)
 
-            description = eventHtml.get_text()
-            description = self.replaceWhitespaceWithPipes(description)
-            event.setDescription(description)
+                description = eventHtml.get_text()
+                description = self.replaceWhitespaceWithPipes(description)
+                event.setDescription(description)
 
-            self.addEvent(event)
+                self.addEvent(event)
+            except Exception as e:
+                eventText = self.replaceWhitespaceWithPipes(eventHtml.get_text())
+                logger.exception("Exception occurred in " + eventText)
 
         return self
