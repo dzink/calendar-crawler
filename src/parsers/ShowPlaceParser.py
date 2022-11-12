@@ -25,7 +25,8 @@ class ShowPlaceParser(CalendarParser):
                 if (text):
 
                     # Scraping magic happens here
-                    parsed = re.findall("(.*)(\\.\\s+)((1?\\d)(:\\d\\d)?(AM|PM))?.*?,?\\s+((\\$?.*)\\s+)?\\@\\s+(.*)", text)
+                    text = self.replaceWhitespace(text, ' ')
+                    parsed = self.parseWaterfall(text)
 
                     if (parsed):
                         try:
@@ -36,8 +37,8 @@ class ShowPlaceParser(CalendarParser):
                             event.setStartString(self.buildStartstamp(date, parsed), '%A, %B %d, %Y %I:%M%p')
                             event.setEndString(self.buildEndstamp(date), '%A, %B %d, %Y %I:%M%p')
                             self.addEvent(event)
+
                         except Exception as e:
-                            eventText = self.replaceWhitespaceWithPipes(eventHtml.get_text())
                             logger.exception("Exception occurred in %s for date %s" % (text, date))
 
                     else:
@@ -67,3 +68,28 @@ class ShowPlaceParser(CalendarParser):
     def buildEndstamp(self, date):
         time = '{date} 11:59PM'.format(date = date)
         return time
+
+    """
+    Parse a number of options for malformed items
+    """
+    def parseWaterfall(self, text):
+        # Default
+        parsed = re.findall("(.*?)(\\.|\\?|!|,)\\s+((1?\\d)(:\\d\\d)?(AM|PM)).*?,?\\s+((\\$?.*?)\\s+)?\\@\\s*(.*)", text)
+
+        if (parsed):
+            return parsed
+
+        # No ending period
+        parsed = re.findall("(.*?)(,)?\\s+((1?\\d)(:\\d\\d)?(AM|PM)).*?,?\\s+((\\$?.*?)\\s+)?\\@\\s*(.*)", text)
+
+        if (parsed):
+            return parsed
+
+        # No @
+        parsed = re.findall("(.*?)(\\.|\\?|!|,)\\s+((1?\\d)(:\\d\\d)?(AM|PM)).*?,?\\s+((\\$?.*?)\\s+)?\\s*(.*)", text)
+
+        if (parsed):
+            return parsed
+
+
+        return None

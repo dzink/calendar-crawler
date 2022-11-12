@@ -12,6 +12,7 @@ class OttobarParser(CalendarParser):
                 primaryButtonHhtml = eventHtml.find_all('a', class_ = 'btn-primary')
                 if (primaryButtonHhtml):
                     event = Event()
+                    time = ('8', ':00', 'pm')
 
                     description = self.replaceWhitespaceWithPipes(eventHtml.get_text())
                     event.setDescription(description)
@@ -24,19 +25,23 @@ class OttobarParser(CalendarParser):
                     if (locationHtml):
                         event.setLocation(locationHtml.get_text())
 
-                    dateHtml = eventHtml.find('div', class_ = 'singleEventDate')
+                    dateHtml = eventHtml.find('div', class_ = 'eventDateList')
                     date = dateHtml.get_text()
+                    date = self.replaceWhitespace(date, '')
+                    date = self.stripMultipleDates(date)
+
                     timeHtml = eventHtml.find('div', class_ = 'eventDoorStartDate')
-                    time = re.findall('(\d+)(:\d\d)?(am|pm)', timeHtml.get_text())[0]
+                    if (timeHtml):
+                        time = re.findall('(\d+)(:\d\d)?(am|pm)', timeHtml.get_text())[0]
 
                     try:
-                        event.setStartString(self.buildStartstamp(date, time), '\n%a, %b %d, %Y %I:%M%p')
+                        event.setStartString(self.buildStartstamp(date, time), '%a, %b %d, %Y %I:%M%p')
                     except:
 
                         # Sometimes the date doesn't have a year
-                        year = event.getNearestYear(date, '\n%a, %b %d')
+                        year = event.getNearestYear(date, '%a, %b %d')
                         date = date + ", " + str(year)
-                        event.setStartString(self.buildStartstamp(date, time), '\n%a, %b %d, %Y %I:%M%p')
+                        event.setStartString(self.buildStartstamp(date, time), '%a, %b %d, %Y %I:%M%p')
 
                     event.setAbsoluteEndDateTime(23, 59)
 
@@ -52,3 +57,7 @@ class OttobarParser(CalendarParser):
 
     def buildStartstamp(self, date, timePattern):
         return "%s %s%s%s" % (date, timePattern[0], timePattern[1] or ':00', timePattern[2])
+
+    def stripMultipleDates(self, date):
+        pattern = re.findall('^(.+?, .+? \d+)(\\s\\-\\s.*)?', date)
+        return pattern[0][0]

@@ -24,7 +24,12 @@ class RhizomeParser(CalendarParser):
                 # The time is always in the first paragraph
                 topLine = descriptionHtml.find('p').get_text()
                 startTime, endTime = self.parseStartAndEndTimesFromFuzzyString(topLine)
-                startStamp = '%s %s %s' % (year, date, startTime)
+
+                if (startTime):
+                    startStamp = '%s %s %s' % (year, date, startTime)
+                else:
+                    startStamp = '%s %s %s' % (year, date, '7:00pm')
+
                 if (endTime):
                     endStamp = '%s %s %s' % (year, date, endTime)
                 else:
