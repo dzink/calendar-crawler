@@ -1,5 +1,7 @@
 from CalendarParser import CalendarParser
 from Event import Event
+from CalendarLogger import logger
+import re
 
 class WithFriendsParser(CalendarParser):
 
@@ -20,8 +22,13 @@ class WithFriendsParser(CalendarParser):
                     'data-kind': 'Item',
                 })
                 date = dateTime.get_text()
-                date = date + str(event.getNearestYear(date, '%A, %B %d at %I:%M %p'))
-                event.setStartString(date, '%A, %B %d at %I:%M %p%Y')
+
+                # Sometimes WithFriends includes a year, sometimes it doesn't.
+                if (re.findall('\d\d\d\d', date)):
+                    event.setStartString(date, '%A, %B %d, %Y at %I:%M %p')
+                else:
+                    date = date + str(event.getNearestYear(date, '%A, %B %d at %I:%M %p'))
+                    event.setStartString(date, '%A, %B %d at %I:%M %p%Y')
 
                 # Remove scripts
                 self.removeScriptsFromElement(eventHtml)
