@@ -31,6 +31,22 @@ If you have trouble logging in, make sure you use the localhost domain with the 
 If you were able to log in but now you can't refresh, delete the file at `.data/token.json`
 
 
+# calendar-cleaner.py - An event deleter for old events.
+
+Currently this is hardcoded to anything older than 32 days.
+
+```
+Clean old events from the calendar
+
+optional arguments:
+  -h, --help           show this help message and exit
+  -v, --verbose        Verbose output.
+  --debug              Debug output.
+  --log-file LOG_FILE
+  -d, --dry-run        Run the cleaner but do not write to the calendar or database.
+```
+
+
 # event-finder.py - An event finder
 
 This tool is mostly for debugging.

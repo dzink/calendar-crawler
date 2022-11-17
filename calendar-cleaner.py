@@ -64,10 +64,9 @@ def main():
 
 
 def parseArguments():
-    parser = argparse.ArgumentParser(description='Scrape event pages and add them to a Google calendar')
+    parser = argparse.ArgumentParser(description='Clean old events from the calendar')
     addLoggerArgsToParser(parser)
-    parser.add_argument('-l', '--local', help = 'Whether to use local cached sources instead of re-scraping html.', action = 'store_false', default = True, dest = 'remote')
-    parser.add_argument('-d', '--dry-run', help = 'Run the parser but do not write to the calendar or database.', action = 'store_true', default = False)
+    parser.add_argument('-d', '--dry-run', help = 'Run the cleaner but do not write to the calendar or database.', action = 'store_true', default = False)
 
     return parser.parse_args()
 
