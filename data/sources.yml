@@ -8,7 +8,7 @@ showPlace:
   postTasks:
     - type: rejectEvents
       pattern:
-        location: (Ottobar|Red Emma's|Current Space|2640|Joe Squared|Black Cat|Rhizome)
+        location: (Ottobar|Red Emma's|Current Space|2640|Joe Squared|Black Cat|Rhizome|Metro)
     - type: addBoilerplateToDescriptions
       text: End times are approximate. See https://baltshowplace.tumblr.com/ for more.
     - type: setColors
@@ -64,6 +64,22 @@ ottobar:
         location: (Current Space|Joe Squared)
     - type: addBoilerplateToDescriptions
       text: End time is approximate. See https://theottobar.com/calendar/ for more.
+    - type: prefixDescriptionsWithLinks
+    - type: setColors
+      color: grape
+
+metroGallery:
+  name: Metro Gallery
+  source:
+    url: https://themetrogallery.net/events/
+  parser:
+    class: OttobarParser
+  postTasks:
+    - type: rejectEvents
+      pattern:
+        location: (Current Space|Joe Squared)
+    - type: addBoilerplateToDescriptions
+      text: End time is approximate. See https://themetrogallery.net/events/ for more.
     - type: prefixDescriptionsWithLinks
     - type: setColors
       color: grape
