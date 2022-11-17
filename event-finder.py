@@ -20,7 +20,9 @@ def main():
 
         print(options)
         parameters = {}
-        today = datetime.now()
+        today = datetime.now().strftime('%Y-%m-%d')
+
+        targetDate = options.date or today
 
         if (options.summary):
             parameters['summary'] = options.summary
@@ -33,9 +35,11 @@ def main():
         if (options.date):
             parameters['date'] = options.date
         if (options.today):
-            parameters['date'] = today.strftime('%Y-%m-%d')
-        if (options.upcoming):
-            parameters['upcoming'] = today.strftime('%Y-%m-%d')
+            parameters['date'] = today
+        if (options.after):
+            parameters['after'] = options.after
+        if (options.before):
+            parameters['before'] = options.before
 
         events = EventList().find(parameters)
 
@@ -57,10 +61,9 @@ def parseArguments():
     parser.add_argument('-s', '--summary', help = 'Search by title/artist/etc', default = False)
     parser.add_argument('-o', '--source', help = 'Search by import source', default = False)
     parser.add_argument('-d', '--date', help = 'Search by date in the format YYYY-MM-DD', default = False)
-    parser.add_argument('-a', '--after', help = 'Search after a date in the format YYYY-MM-DD', default = False)
     parser.add_argument('-t', '--today', action = 'store_true', help = 'Search for events today', default = False)
-    parser.add_argument('-u', '--upcoming', action = 'store_true', help = 'Search for upcoming events', default = False)
-    parser.add_argument('-p', '--past', action = 'store_true', help = 'Search for past events', default = False)
+    parser.add_argument('-a', '--after', help = 'Search for upcoming events', default = False)
+    parser.add_argument('-b', '--before', help = 'Search for past events', default = False)
     parser.add_argument('-e', '--description', help = 'Search by event descriptions', default = False)
     parser.add_argument('-c', '--count', action = 'store_true', help = 'Return the count only', default = False)
 

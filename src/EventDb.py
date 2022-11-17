@@ -83,10 +83,10 @@ class EventDb:
 
         if 'date' in parameters:
             query = query & where('start').matches(parameters['date'])
-        if 'upcoming' in parameters:
-            query = query & (where('start') >= self.expandSearchDateString(parameters['upcoming']))
-        if 'past' in parameters:
-            query = query & where('start') < self.expandSearchDateString(parameters['past'])
+        # if 'after' in parameters:
+        #     query = query & (where('start') >= self.expandSearchDateString(parameters['upcoming']))
+        if 'before' in parameters:
+            query = query & (where('start') < self.expandSearchDateString(parameters['before']))
         if 'after' in parameters:
             query = query & where('start') >= self.expandSearchDateString(parameters['after'])
 
