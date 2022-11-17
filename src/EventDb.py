@@ -32,6 +32,12 @@ class EventDb:
         table = EventDb.table
         table.update(data, where('id') == data['id'])
 
+    def delete(self, event):
+        data = event.toJson()
+        table = EventDb.table
+        table.remove(where('id') == data['id'])
+        logger.info('deleted %s' % data)
+
     """
     Anticipate that events may change on websites.
     Check a few scenarios where we would want to update the event instead of

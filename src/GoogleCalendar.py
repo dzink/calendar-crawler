@@ -79,13 +79,23 @@ class GoogleCalendar:
                 logger.info('Dry run - Inserting event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
                 logger.debug('Dry Run: Inserting ' + str(data))
             else:
-                logger.info('Dry run - Updating event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
+                logger.info('Dry run - Updating event \"%s\" on %s from source \"%s\"' % (event.summary, event.startDate, event.sourceTitle))
                 logger.debug('Dry Run: Updating ' + str(data))
 
-    def deleteEvent(self, event, calendarId):
+    def deleteEvent(self, event):
         try:
-            self.service().events().delete(calendarId = calendarId, eventId = event.calendarId).execute()
+            self.service().events().delete(calendarId = self.calendarId, eventId = event.calendarId).execute()
+            logger.info('Dry run - Deleting event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
             event.setCalendarId(None)
+
+        except HttpError as error:
+            print('An error occurred: %s' % error)
+            return None
+
+    def dryDeleteEvent(self, event):
+        try:
+            logger.info('Dry run - Deleting event \"%s\" on %s from source \"%s\"' % (event.summary, event.startDate, event.sourceTitle))
+
         except HttpError as error:
             print('An error occurred: %s' % error)
             return None

@@ -195,6 +195,10 @@ class Event:
         EventDb().update(self)
         return self
 
+    def delete(self):
+        EventDb().delete(self)
+        return self
+
     """
     If there are any duplicates in the database, find them and take their
     id and calendarId.
