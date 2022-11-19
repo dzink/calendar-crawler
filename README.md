@@ -4,12 +4,18 @@ Scrape event pages and add them to a Google calendar
 
 ```
 optional arguments:
-  -h, --help           show this help message and exit
-  -v, --verbose        Verbose output.
+  -h, --help            show this help message and exit
+  -v, --verbose         Verbose output.
+  --debug               Debug output.
   --log-file LOG_FILE
-  -l, --local          Whether to use local cached sources instead of re-scraping html.
-  -u, --force-update   Whether to force Google Calendar updates, even if there's nothing to update.
-  -d, --dry-run        Run the parser but do not write to the calendar or database.
+  -l, --local           Whether to use local cached sources instead of re-scraping html.
+  -u, --force-update    Whether to force Google Calendar updates, even if there's nothing to
+                        update.
+  -d, --dry-run         Run the parser but do not write to the calendar or database.
+  -s SOURCE, --source SOURCE
+                        Only crawl the given source(s).
+  --show-skips          In a dry run, ignore the skips.
+
 ```
 
 ## Install
