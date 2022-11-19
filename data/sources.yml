@@ -61,7 +61,10 @@ ottobar:
   postTasks:
     - type: rejectEvents
       pattern:
-        location: (Current Space|Joe Squared)
+        location: (Current Space|Joe Squared|Upstairs @ Ottobar)
+    - type: rejectEvents
+      pattern:
+        summary: (Taylor Swift .*|ALL KILLER.*|K-POP.*)
     - type: addBoilerplateToDescriptions
       text: End time is approximate. See https://theottobar.com/calendar/ for more.
     - type: prefixDescriptionsWithLinks
