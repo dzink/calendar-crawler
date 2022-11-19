@@ -85,7 +85,7 @@ class GoogleCalendar:
     def deleteEvent(self, event):
         try:
             self.service().events().delete(calendarId = self.calendarId, eventId = event.calendarId).execute()
-            logger.info('Dry run - Deleting event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
+            logger.info('Deleting event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
             event.setCalendarId(None)
 
         except HttpError as error:

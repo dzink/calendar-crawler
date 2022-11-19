@@ -29,8 +29,11 @@ def main():
         secrets = loadConfig('./data/secrets.yml')
         calendarConfigs = loadConfig('./data/calendars.yml')
 
-        deadline = datetime.now() - relativedelta(days=int(32))
-        deadline = deadline.strftime('%Y-%m-%d')
+        deadline = False
+
+        if (not options.clean_all):
+            deadline = datetime.now() - relativedelta(days=int(31))
+            deadline = deadline.strftime('%Y-%m-%d')
         logger.info(deadline)
 
         # Iterate through calendars in config
@@ -41,6 +44,9 @@ def main():
 
             events = EventList()
             sourceKeys = calendarConfig.get('sources', [])
+            if (options.source):
+                sourceKeys = list(filter(lambda x: x in sourceKeys, options.source))
+
 
             # Iterate through sources in calendar config
             for sourceKey in sourceKeys:
@@ -67,6 +73,9 @@ def parseArguments():
     parser = argparse.ArgumentParser(description='Clean old events from the calendar')
     addLoggerArgsToParser(parser)
     parser.add_argument('-d', '--dry-run', help = 'Run the cleaner but do not write to the calendar or database.', action = 'store_true', default = False)
+    parser.add_argument('--clean-all', help = 'Clean all events', action = 'store_true', default = False)
+    parser.add_argument('-s', '--source', help = 'Only crawl the given source(s).', action = 'append', default = None)
+
 
     return parser.parse_args()
 
@@ -76,9 +85,9 @@ def loadConfig(filename):
         return config
 
 def getExpiredEvents(deadline, sourceConfigName = None):
-    parameters = {
-        'before': deadline,
-        }
+    parameters = {}
+    if (deadline):
+        parameters['before'] = deadline
     if (sourceConfigName):
         parameters['sourceTitle'] = sourceConfigName
     deadEvents = EventList().find(parameters)
