@@ -94,7 +94,7 @@ class EventDb:
         if 'before' in parameters:
             query = query & (where('start') < self.expandSearchDateString(parameters['before']))
         if 'after' in parameters:
-            query = query & where('start') >= self.expandSearchDateString(parameters['after'])
+            query = query & (where('start') > self.expandSearchDateString(parameters['after']))
 
         results = EventDb.table.search(query)
         return results
