@@ -1,11 +1,10 @@
 #!/usr/bin/python
-
+import argparse
 import sys
+import yaml
 sys.path.append('./src')
 sys.path.append('./src/parsers')
 
-import yaml
-import argparse
 from EventList import EventList
 from CalendarFactory import CalendarFactory
 
