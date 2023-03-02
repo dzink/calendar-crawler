@@ -1,3 +1,5 @@
+""" Factory for different calendar objects used in this project. """
+
 import sys
 
 sys.path.append('./parsers')
@@ -21,12 +23,13 @@ class CalendarFactory:
         self.options = options
 
     def source(self, sourceId, config):
+        """ Create and configure a source. """
         sourceConfig = config['source']
         class_ = sourceConfig.get('class',  'CalendarSource')
         scrollCount = sourceConfig.get('scrollCount',  0)
         url = sourceConfig['url']
 
-        sourceClass = self.getClass(class_)
+        sourceClass = self.getClassFromString(class_)
         source = sourceClass(url, sourceId, self.options.remote)
 
         if (scrollCount):
@@ -35,12 +38,13 @@ class CalendarFactory:
         return source
 
     def parser(self, sourceId, config):
+        """ Create and configure a parser. """
         parserConfig = config.get('parser', {})
         name = config.get('name')
         class_ = parserConfig.get('class')
         postOffset = parserConfig.get('postOffset', None)
 
-        parserClass = self.getClass(class_)
+        parserClass = self.getClassFromString(class_)
         parser = parserClass(name)
 
         if (postOffset != None):
@@ -49,12 +53,25 @@ class CalendarFactory:
         return parser
 
     def postTasks(self, events, config):
+        """ Find tasks to run on events.
+
+        These tasks are run on every event in the events list.
+
+        events -- an EventList.
+        """
         postTasksConfig = config.get('postTasks', [])
         for taskConfig in postTasksConfig:
             events = self.postTask(events, taskConfig)
         return events
 
     def postTask(self, events, taskConfig):
+        """ Run a task on events.
+
+        These tasks are run on every event in the events list.
+
+        events -- an EventList.
+        """
+
         type = taskConfig.get('type')
 
         if (type == 'addBoilerplateToDescriptions'):
@@ -95,6 +112,8 @@ class CalendarFactory:
         raise Exception('Unknown postTask type: %s' % (type))
 
     def googleCalendar(self, calendarConfig, secrets = {}):
+        """ Create and configure a parser. """
+
         googleCalendar = GoogleCalendar()
         googleApiConfig = calendarConfig.get('googleApi', {})
         calendarIdSecretKey = googleApiConfig.get('calendarIdSecretKey')
@@ -120,5 +139,6 @@ class CalendarFactory:
         return googleCalendar
 
 
-    def getClass(self, class_):
+    def getClassFromString(self, class_):
+        """ Converts a string into a class """
         return getattr(sys.modules[__name__], class_)
