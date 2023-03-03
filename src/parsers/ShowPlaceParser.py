@@ -5,11 +5,11 @@ from CalendarLogger import logger
 
 class ShowPlaceParser(CalendarParser):
 
-    """
-    Set the post offset to select which post to parse. 0 parses the latest, 1
-    the second latest, etc.
-    """
     def setPostOffset(self, postOffset):
+        """
+        Set the post offset to select which post to parse. 0 parses the latest, 1
+        the second latest, etc.
+        """
         self.postOffset = postOffset
 
     def parseEvents(self, html, settings = {}):

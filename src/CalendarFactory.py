@@ -1,10 +1,14 @@
+""" Factory for different calendar objects used in this project. """
+# Imports are defined by strings and need to be available here.
+# pylint: disable=unused-import
+
 import sys
-
-sys.path.append('./parsers')
-
 from GoogleCalendar import GoogleCalendar
 from CalendarSource import CalendarSource
 from CalendarParser import CalendarParser
+
+sys.path.append('./parsers')
+
 from BlackCatParser import BlackCatParser
 from ShowPlaceParser import ShowPlaceParser
 from OttobarParser import OttobarParser
@@ -21,12 +25,13 @@ class CalendarFactory:
         self.options = options
 
     def source(self, sourceId, config):
+        """ Create and configure a source. """
         sourceConfig = config['source']
         class_ = sourceConfig.get('class',  'CalendarSource')
         scrollCount = sourceConfig.get('scrollCount',  0)
         url = sourceConfig['url']
 
-        sourceClass = self.getClass(class_)
+        sourceClass = self.getClassFromString(class_)
         source = sourceClass(url, sourceId, self.options.remote)
 
         if (scrollCount):
@@ -34,67 +39,84 @@ class CalendarFactory:
 
         return source
 
-    def parser(self, sourceId, config):
+    def parser(self, config):
+        """ Create and configure a parser. """
         parserConfig = config.get('parser', {})
         name = config.get('name')
         class_ = parserConfig.get('class')
         postOffset = parserConfig.get('postOffset', None)
 
-        parserClass = self.getClass(class_)
+        parserClass = self.getClassFromString(class_)
         parser = parserClass(name)
 
-        if (postOffset != None):
+        if (postOffset is None):
             parser.setPostOffset(postOffset)
 
         return parser
 
     def postTasks(self, events, config):
+        """ Find tasks to run on events.
+
+        These tasks are run on every event in the events list.
+
+        events -- an EventList.
+        """
         postTasksConfig = config.get('postTasks', [])
         for taskConfig in postTasksConfig:
             events = self.postTask(events, taskConfig)
         return events
 
     def postTask(self, events, taskConfig):
-        type = taskConfig.get('type')
+        """ Run a task on events.
 
-        if (type == 'addBoilerplateToDescriptions'):
+        These tasks are run on every event in the events list.
+
+        events -- an EventList.
+        """
+        # pylint: disable=too-many-return-statements
+
+        task_id = taskConfig.get('taskId')
+
+        if (task_id == 'addBoilerplateToDescriptions'):
             text = taskConfig.get('text')
             events.addBoilerplateToDescriptions(text)
             return events
 
-        if (type == 'prefixDescriptionsWithLinks'):
+        if (task_id == 'prefixDescriptionsWithLinks'):
             events.prefixDescriptionsWithLinks()
             return events
 
-        if (type == 'rejectEvents'):
+        if (task_id == 'rejectEvents'):
             pattern = taskConfig.get('pattern')
             events = events.rejectEvents(pattern)
             return events
 
-        if (type == 'setLocationAddress'):
+        if (task_id == 'setLocationAddress'):
             text = taskConfig.get('text')
             events.setLocationAddress(text)
             return events
 
-        if (type == 'prefixLinks'):
+        if (task_id == 'prefixLinks'):
             text = taskConfig.get('text')
             events.prefixLinks(text)
             return events
 
-        if (type == 'setColors'):
+        if (task_id == 'setColors'):
             color = taskConfig.get('color')
             events.setColors(color)
             return events
 
-        if (type == 'setAbsoluteEndDateTime'):
+        if (task_id == 'setAbsoluteEndDateTime'):
             hour = int(taskConfig.get('hour', 23))
             minute = int(taskConfig.get('minute', 59))
             events.setAbsoluteEndDateTime(hour, minute)
             return events
 
-        raise Exception('Unknown postTask type: %s' % (type))
+        raise Exception('Unknown postTask task_id: %s' % (task_id))
 
     def googleCalendar(self, calendarConfig, secrets = {}):
+        """ Create and configure a parser. """
+
         googleCalendar = GoogleCalendar()
         googleApiConfig = calendarConfig.get('googleApi', {})
         calendarIdSecretKey = googleApiConfig.get('calendarIdSecretKey')
@@ -120,5 +142,6 @@ class CalendarFactory:
         return googleCalendar
 
 
-    def getClass(self, class_):
+    def getClassFromString(self, class_):
+        """ Converts a string into a class """
         return getattr(sys.modules[__name__], class_)

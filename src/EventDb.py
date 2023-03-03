@@ -7,9 +7,9 @@ This is useful for:
     - Updating events using an existing calendarId
 """
 
-from tinydb import TinyDB, where, Query
-from CalendarLogger import logger
 import re
+from tinydb import TinyDB, where
+from CalendarLogger import logger
 
 class EventDb:
     db = None
@@ -17,67 +17,88 @@ class EventDb:
     path = 'data/events-db.json'
 
     def __init__(self):
-        if (EventDb.db == None):
-            db = TinyDB(self.path)
-            EventDb.db = db
-            EventDb.table = db.table('events')
+        if (EventDb.db is None):
+            database = TinyDB(self.path)
+            EventDb.db = database
+            EventDb.table = database.table('events')
 
     def upsert(self, event):
+        """ Either inserts or updates an event to the db.
+
+        event - an Event.
+        """
         data = event.toJson()
         table = EventDb.table
         table.upsert(data, where('id') == data['id'])
 
     def update(self, event):
+        """ Updates an existing event to the db.
+
+        event - an Event that must have an id that exists in the db.
+        """
         data = event.toJson()
         table = EventDb.table
         table.update(data, where('id') == data['id'])
 
     def delete(self, event):
+        """ Deletes an event from the db.
+
+        event - an Event that must have an id that exists in the db.
+        """
         data = event.toJson()
         table = EventDb.table
         table.remove(where('id') == data['id'])
         logger.info('deleted %s' % data)
 
-    """
-    Anticipate that events may change on websites.
-    Check a few scenarios where we would want to update the event instead of
-    creating a new one.
-    Returns the first match, or None if none.
-    """
     def findDuplicate(self, data):
+        """
+        Anticipate that events may change on websites.
+        Check a few scenarios where we would want to update the event instead of
+        creating a new one.
+        Returns the first match, or None if none.
+        """
         table = EventDb.table
 
         #Match link
-        results = table.search((where('link') == data['link']) & (where('link') != None) & (where('id') != data['id']))
+        results = table.search((where('link') == data['link']) & (where('link') is not None) &
+            (where('id') != data['id']))
         if (results):
             logger.debug('matched via link')
             return results[0]
 
         # Match location and datetime
-        results = table.search((where('location') == data['location']) & (where('start') == data['start']) & (where('id') != data['id']))
+        results = table.search((where('location') == data['location']) &
+            (where('start') == data['start']) & (where('id') != data['id']))
         if (results):
             logger.debug('matched via location and datetime')
             return results[0]
 
         # Match event and day
         datePatten = '^' + data['start'][0:10]
-        results = table.search((where('summary') == data['summary']) & (where('start').matches(datePatten)) & (where('id') != data['id']))
+        results = table.search((where('summary') == data['summary']) &
+            (where('start').matches(datePatten)) & (where('id') != data['id']))
         if (results):
             logger.debug('matched via event and day')
             return results[0]
 
         return None
 
-    """
-    @TODO rotate out old events to keep the tinydb tiny.
-    """
     def rotateOut(self):
+        # pylint: disable=pointless-string-statement, unnecessary-pass
+        """
+        @TODO rotate out old events to keep the tinydb tiny.
+        """
         pass
+
+
     def find(self, parameters):
+        """ Finds events in the database based on a query.
 
+        parameters -- a hash of keys and values.
+        """
 
-        query = (where('id') != None)
-        q = Query()
+        query = (where('id') is not None)
+
         if 'summary' in parameters:
             query = query & self.queryMatches('summary', parameters['summary'])
         if 'sourceTitle' in parameters:
@@ -89,23 +110,22 @@ class EventDb:
 
         if 'date' in parameters:
             query = query & where('start').matches(parameters['date'])
-        # if 'after' in parameters:
-        #     query = query & (where('start') >= self.expandSearchDateString(parameters['upcoming']))
         if 'before' in parameters:
-            query = query & (where('start') < self.expandSearchDateString(parameters['before']))
+            before = self.expandSearchDateString(parameters['before'])
+            query = query & (where('start') < before)
         if 'after' in parameters:
-            query = query & (where('start') > self.expandSearchDateString(parameters['after']))
+            after = self.expandSearchDateString(parameters['after'])
+            query = query & (where('start') > after)
 
         results = EventDb.table.search(query)
         return results
 
     def queryMatches(self, parameter, match):
+        """ Creates a grep-link query condition that matches anywhere in a string. """
         return where(parameter).matches('.*' + match, flags=re.IGNORECASE)
 
-    """
-    For incomplete date strings, add some default days/times/etc
-    """
     def expandSearchDateString(self, date):
+        """ Adds days or times to incomplete date strings."""
         dateLen = len(date)
         if (dateLen < 18):
             defaultDate = '2022-01-01T00:00:00'

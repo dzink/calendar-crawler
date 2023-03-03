@@ -34,73 +34,102 @@ class GoogleCalendar:
         self.applicationCredentials = None
 
     def service(self):
-        if (self.serviceObject == None):
+        """ Build the calendar service. If it already exists just return it. """
+
+        if (self.serviceObject is None):
             self.serviceObject = build('calendar', 'v3', credentials = self.getCreds())
             logger.debug('connected to google calendar')
         return self.serviceObject
 
     def setScopes(self, newScopes):
-        this.scopes = newScopes
+        """ Set requested calendar scopes. @TODO Possibly never needed. """
+
+        self.scopes = newScopes
         return self
 
     def syncEvent(self, event):
+        """ Insert or update a calendar event. """
+
         try:
             eventData = self.getDictionaryFromEvent(event)
-            if (event.skipSync != True):
-                calendarEventId = None
+            if (not event.skipSync):
                 logger.debug('syncing event to calendar ' + str(eventData))
 
-                if (event.calendarId == None):
-                    logger.info('Inserting event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
-                    gEvent = self.service().events().insert(calendarId = self.calendarId, body = eventData).execute()
+                if (event.calendarId is None):
+                    logger.info('Inserting event \"%s\" from source \"%s\"'
+                        % (event.summary, event.sourceTitle))
+
+                    # pylint thinks that Resource has no 'events' member.
+                    # pylint: disable=no-member
+                    gEvent = self.service().events().insert(calendarId = self.calendarId,
+                        body = eventData).execute()
                     event.setCalendarId(gEvent['id'])
                     logger.debug('new calendar event created with id ' + event.calendarId)
 
                 else:
-                    logger.info('Updating event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
-                    self.service().events().update(calendarId = self.calendarId, eventId = event.calendarId, body = eventData).execute()
-                    logger.debug('existing calendar event updated with id ' + str(event.calendarId))
+                    logger.info('Updating event \"%s\" from source \"%s\"'
+                        % (event.summary, event.sourceTitle))
+
+                    # pylint thinks that Resource has no 'events' member.
+                    # pylint: disable=no-member
+                    self.service().events().update(calendarId = self.calendarId,
+                        eventId = event.calendarId, body = eventData).execute()
+                    logger.debug('existing calendar event updated with id '
+                        + str(event.calendarId))
             else:
                 logger.debug('skipping sync of event to calendar ' + str(eventData))
 
-        except HttpError as error:
+        except HttpError:
             logger.exception("Exception occurred")
             logger.error("The attempted event was: " + str(eventData))
-            return None
 
     def dryRun(self, event, skipSkips = True):
+        """ Simulate calendar sync. """
+
         data = self.getDictionaryFromEvent(event)
         if (event.skipSync):
             if (not skipSkips):
-                logger.info('Dry run - Skipping event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
+                logger.info('Dry run - Skipping event \"%s\" from source \"%s\"'
+                    % (event.summary, event.sourceTitle))
                 logger.debug('Dry Run: Skipping ' + str(data))
         else:
-            if (event.calendarId == None):
-                logger.info('Dry run - Inserting event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
+            if (event.calendarId is None):
+                logger.info('Dry run - Inserting event \"%s\" from source \"%s\"'
+                    % (event.summary, event.sourceTitle))
                 logger.debug('Dry Run: Inserting ' + str(data))
             else:
-                logger.info('Dry run - Updating event \"%s\" on %s from source \"%s\"' % (event.summary, event.startDate, event.sourceTitle))
+                logger.info('Dry run - Updating event \"%s\" on %s from source \"%s\"'
+                    % (event.summary, event.startDate, event.sourceTitle))
                 logger.debug('Dry Run: Updating ' + str(data))
 
     def deleteEvent(self, event):
+        """ Delete a calendar event. """
+
         try:
-            self.service().events().delete(calendarId = self.calendarId, eventId = event.calendarId).execute()
-            logger.info('Deleting event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
+            # pylint thinks that Resource has no 'events' member.
+            # pylint: disable=no-member
+            self.service().events().delete(calendarId = self.calendarId,
+                eventId = event.calendarId).execute()
+            logger.info('Deleting event \"%s\" from source \"%s\"'
+                % (event.summary, event.sourceTitle))
             event.setCalendarId(None)
 
         except HttpError as error:
             print('An error occurred: %s' % error)
-            return None
 
     def dryDeleteEvent(self, event):
+        """ Simulate deleting a calendar event. """
+
         try:
-            logger.info('Dry run - Deleting event \"%s\" on %s from source \"%s\"' % (event.summary, event.startDate, event.sourceTitle))
+            logger.info('Dry run - Deleting event \"%s\" on %s from source \"%s\"'
+                % (event.summary, event.startDate, event.sourceTitle))
 
         except HttpError as error:
             print('An error occurred: %s' % error)
-            return None
 
     def getDictionaryFromEvent(self, event):
+        """ Convert an Event into the proper dict type for upload. """
+
         eventData = {}
         eventData['summary'] = event.summary or 'Event'
         eventData['description'] = event.description or ''
@@ -109,16 +138,19 @@ class GoogleCalendar:
         eventData['source.title'] = event.sourceTitle or ''
         eventData['start'] = {'dateTime': event.startToString()}
         eventData['end'] = {'dateTime': event.endToString()}
-        if (event.color != None):
+        if (event.color is not None):
             eventData['colorId'] = self.mapColor(event.color) or 0
 
         return eventData
 
     def getCreds(self):
+        """ Get Google Calendar credentials. """
+
         creds = None
 
         if os.path.exists(self.tokenFile):
             creds = Credentials.from_authorized_user_file(self.tokenFile, self.scopes)
+
         # If there are no (valid) credentials available, let the user log in.
         if not creds or not creds.valid:
             if creds and creds.expired and creds.refresh_token:
@@ -135,9 +167,10 @@ class GoogleCalendar:
 
         return creds
 
-    """
-    Get the colorId from the string color name.
-    """
     def mapColor(self, color):
+        """
+        Get the colorId from the string color name.
+        """
+
         lowerColor = str(color).lower()
         return self.colorIds.get(lowerColor)

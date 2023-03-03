@@ -1,59 +1,68 @@
 #!/usr/bin/python
+"""
+This module scrapes a number of publicly available event listings, parses them, and
+the creates Google Calendar events out of them.
+"""
 
+import argparse
 import sys
+import yaml
 sys.path.append('./src')
 sys.path.append('./src/parsers')
 
-import yaml
-import argparse
-from EventList import EventList
 from CalendarFactory import CalendarFactory
-
 from CalendarLogger import logger, addLoggerArgsToParser, buildLogger
+from EventList import EventList
 
-options = None
-factory = None
+
+OPTIONS = None
+FACTORY = None
 
 def main():
     try:
-        global options
-        global factory
-        options = parseArguments()
-        buildLogger(options)
-        factory = CalendarFactory(options)
+        global OPTIONS # pylint: disable=global-statement
+        global FACTORY # pylint: disable=global-statement
+        OPTIONS = parse_arguments()
+        buildLogger(OPTIONS)
+        FACTORY = CalendarFactory(OPTIONS)
 
-        sourceConfigs = loadConfig('./data/sources.yml')
-        secrets = loadConfig('./data/secrets.yml')
-        calendarConfigs = loadConfig('./data/calendars.yml')
+        source_configs = load_config('./data/sources.yml')
+        secrets = load_config('./data/secrets.yml')
+        calendar_configs = load_config('./data/calendars.yml')
         # Iterate through calendars in config
-        for calendarKey in calendarConfigs.keys():
-            calendarConfig = calendarConfigs.get(calendarKey)
+        for calendar_key in calendar_configs.keys():
+            calendar_config = calendar_configs.get(calendar_key)
 
-            googleCalendar = factory.googleCalendar(calendarConfig, secrets)
+            google_calendar = FACTORY.googleCalendar(calendar_config, secrets)
             events = EventList()
 
-            sourceKeys = calendarConfig.get('sources', [])
-            if (options.source):
-                sourceKeys = list(filter(lambda x: x in sourceKeys, options.source))
+            source_keys = calendar_config.get('sources', [])
+            if (OPTIONS.source):
+                source_keys = list(filter(lambda x: x in source_keys, OPTIONS.source))
 
             # Iterate through sources in calendar config
-            for sourceKey in sourceKeys:
-                sourceConfig = sourceConfigs.get(sourceKey)
+            for source_key in source_keys:
+                source_config = source_configs.get(source_key)
 
-                events = events.merge(getEvents(sourceKey, sourceConfig))
+                events = events.merge(get_events(source_key, source_config))
 
             for event in events:
-                event.deduplicate(forceUpdateIfMatched = options.force_update)
-                if (not options.dry_run):
-                    googleCalendar.syncEvent(event)
+                event.deduplicate(forceUpdateIfMatched = OPTIONS.force_update)
+                if (not OPTIONS.dry_run):
+                    google_calendar.syncEvent(event)
                     event.write()
                 else:
-                    googleCalendar.dryRun(event, options.show_skips)
+                    google_calendar.dryRun(event, OPTIONS.show_skips)
 
-    except Exception as e:
+    # This exception is intentionally broad and will catch anything not caught otherwise
+    # and will send it to the logger
+    # pylint: disable=broad-except
+    except Exception:
         logger.exception("Exception occurred")
 
-def parseArguments():
+def parse_arguments():
+    """Creates a parser and parses command line arguments."""
+    # pylint: disable=line-too-long
     parser = argparse.ArgumentParser(description='Scrape event pages and add them to a Google calendar')
     addLoggerArgsToParser(parser)
     parser.add_argument('-l', '--local', help = 'Whether to use local cached sources instead of re-scraping html.', action = 'store_false', default = True, dest = 'remote')
@@ -64,19 +73,21 @@ def parseArguments():
 
     return parser.parse_args()
 
-def loadConfig(filename):
+def load_config(filename):
+    """Loads a config file."""
     with open(filename, 'r') as file:
         config = yaml.safe_load(file)
         return config
 
-def getEvents(sourceId, sourceConfig):
-    source = factory.source(sourceId, sourceConfig)
+def get_events(source_id, source_config):
+    """Gets events for a given source based on the config passed in."""
+    source = FACTORY.source(source_id, source_config)
     html = source.getHtml()
 
-    parser = factory.parser(sourceId, sourceConfig)
+    parser = FACTORY.parser(source_config)
     events = parser.parse(html).events
 
-    events = factory.postTasks(events, sourceConfig)
+    events = FACTORY.postTasks(events, source_config)
 
     return events
 
