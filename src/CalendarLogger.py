@@ -9,6 +9,8 @@ import logging
 logger = logging.getLogger(__name__)
 
 def buildLogger(options):
+    """ Builds the custom logger. """
+
     # Create handlers
     streamLevel = logging.WARNING
 
@@ -40,6 +42,8 @@ def buildLogger(options):
     logger.addHandler(f_handler)
 
 def addLoggerArgsToParser(parser):
-    parser.add_argument('-v', '--verbose', help = 'Verbose output.', action = 'store_true', default = False)
+    """ Adds logging args to parser. This is so that multiple apps can share the logger. """
+    parser.add_argument('-v', '--verbose', help = 'Verbose output.', action = 'store_true',
+        default = False)
     parser.add_argument('--debug', help = 'Debug output.', action = 'store_true', default = False)
     parser.add_argument('--log-file', default = './data/scrapy.log')

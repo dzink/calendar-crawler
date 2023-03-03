@@ -146,9 +146,13 @@ disable=print-statement,
         global-statement,
         bad-continuation,
         no-self-use,
+        wrong-import-position,
 
         # Temporary
-        invalid-name
+        invalid-name,
+        logging-not-lazy,
+        missing-module-docstring,
+        missing-class-docstring,
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option

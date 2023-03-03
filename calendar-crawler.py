@@ -84,7 +84,7 @@ def get_events(source_id, source_config):
     source = FACTORY.source(source_id, source_config)
     html = source.getHtml()
 
-    parser = FACTORY.parser(source_id, source_config)
+    parser = FACTORY.parser(source_config)
     events = parser.parse(html).events
 
     events = FACTORY.postTasks(events, source_config)
