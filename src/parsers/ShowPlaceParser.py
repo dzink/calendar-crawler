@@ -9,40 +9,45 @@ class ShowPlaceParser(CalendarParser):
     Set the post offset to select which post to parse. 0 parses the latest, 1
     the second latest, etc.
     """
-    def setPostOffset(self, postOffset):
-        self.postOffset = postOffset
+    def setPostOffsets(self, postOffsets):
+        self.postOffsets = postOffsets
 
     def parseEvents(self, html, settings = {}):
         post = self.soup(html).find_all('div', class_='post-content')
-        bodyText = post[self.postOffset].find('div', class_='body-text')
-        date = False
 
-        for element in bodyText.findChildren():
-            if (element.name == 'h2'):
-                date = element.text
-            if (element.name == 'p'):
-                text = element.text
-                if (text):
+        if (self.postOffsets is None):
+            self.postOffsets = [0]
 
-                    # Scraping magic happens here
-                    text = self.replaceWhitespace(text, ' ')
-                    parsed = self.parseWaterfall(text)
+        for offset in self.postOffsets:
+            bodyText = post[offset].find('div', class_='body-text')
+            date = False
+            logger.info('entering post %d' % offset)
+            for element in bodyText.findChildren():
+                if (element.name == 'h2'):
+                    date = element.text
+                if (element.name == 'p'):
+                    text = element.text
+                    if (text):
 
-                    if (parsed):
-                        try:
-                            event = Event()
-                            event.setSummary(parsed[0][0])
-                            event.setLocation(parsed[0][8])
-                            event.setDescription(self.replaceWhitespaceWithPipes(text))
-                            event.setStartString(self.buildStartstamp(date, parsed), '%A, %B %d, %Y %I:%M%p')
-                            event.setEndString(self.buildEndstamp(date), '%A, %B %d, %Y %I:%M%p')
-                            self.addEvent(event)
+                        # Scraping magic happens here
+                        text = self.replaceWhitespace(text, ' ')
+                        parsed = self.parseWaterfall(text)
 
-                        except Exception as e:
-                            logger.exception("Exception occurred in %s for date %s" % (text, date))
+                        if (parsed):
+                            try:
+                                event = Event()
+                                event.setSummary(parsed[0][0])
+                                event.setLocation(parsed[0][8])
+                                event.setDescription(self.replaceWhitespaceWithPipes(text))
+                                event.setStartString(self.buildStartstamp(date, parsed), '%A, %B %d, %Y %I:%M%p')
+                                event.setEndString(self.buildEndstamp(date), '%A, %B %d, %Y %I:%M%p')
+                                self.addEvent(event)
 
-                    else:
-                        logger.warning('Could not parse: `' + text + '` for ' + date)
+                            except Exception as e:
+                                logger.exception("Exception occurred in %s for date %s" % (text, date))
+
+                        else:
+                            logger.warning('Could not parse: `' + text + '` for ' + date)
 
         return self
 

@@ -4,7 +4,9 @@ showPlace:
     url: https://baltshowplace.tumblr.com/
   parser:
     class: ShowPlaceParser
-    postOffset: 0
+    postOffsets:
+    - 0
+    - 1
   postTasks:
     - type: rejectEvents
       pattern:

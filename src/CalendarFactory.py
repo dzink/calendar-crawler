@@ -38,13 +38,13 @@ class CalendarFactory:
         parserConfig = config.get('parser', {})
         name = config.get('name')
         class_ = parserConfig.get('class')
-        postOffset = parserConfig.get('postOffset', None)
+        postOffsets = parserConfig.get('postOffsets', None)
 
         parserClass = self.getClass(class_)
         parser = parserClass(name)
 
-        if (postOffset != None):
-            parser.setPostOffset(postOffset)
+        if (postOffsets != None):
+            parser.setPostOffsets(postOffsets)
 
         return parser
 
