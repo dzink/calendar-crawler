@@ -76,7 +76,7 @@ class GoogleCalendar:
                 logger.debug('Dry Run: Skipping ' + str(data))
         else:
             if (event.calendarId == None):
-                logger.info('Dry run - Inserting event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
+                logger.info('Dry run - Inserting event \"%s\" on %s from source \"%s\"' % (event.summary, event.startDate, event.sourceTitle))
                 logger.debug('Dry Run: Inserting ' + str(data))
             else:
                 logger.info('Dry run - Updating event \"%s\" on %s from source \"%s\"' % (event.summary, event.startDate, event.sourceTitle))
