@@ -10,7 +10,7 @@ showPlace:
   postTasks:
     - type: rejectEvents
       pattern:
-        location: (Ottobar|Red Emma's|Current Space|2640|Joe Squared|Black Cat|Rhizome|Metro)
+        location: ((Ottobar)|(Red Emma)|(Current Space)|(2640)|(Joe Squared)|(Black Cat)|(Rhizome)|(Metro))
     - type: addBoilerplateToDescriptions
       text: End times are approximate. See https://baltshowplace.tumblr.com/ for more.
     - type: setColors
