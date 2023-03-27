@@ -27,6 +27,13 @@ class OttobarParser(CalendarParser):
 
                     dateHtml = eventHtml.find('div', class_ = 'eventDateList')
                     date = dateHtml.get_text()
+
+                    # Need to replace shortened months for parsing purposes.
+                    date = self.replaceDictionary(date, {
+                        'June': 'Jun',
+                        'July': 'Jul',
+                        'Sept': 'Sep',
+                    })
                     date = self.replaceWhitespace(date, '')
                     date = self.stripMultipleDates(date)
 
