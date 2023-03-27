@@ -31,70 +31,51 @@ class ShowPlaceParser(CalendarParser):
 
                         # Scraping magic happens here
                         text = self.replaceWhitespace(text, ' ')
-                        parsed = self.parseWaterfall(text)
-
-                        if (parsed):
-                            try:
-                                event = Event()
-                                event.setSummary(parsed[0][0])
-                                event.setLocation(parsed[0][8])
-                                event.setDescription(self.replaceWhitespaceWithPipes(text))
-                                event.setStartString(self.buildStartstamp(date, parsed), '%A, %B %d, %Y %I:%M%p')
-                                event.setEndString(self.buildEndstamp(date), '%A, %B %d, %Y %I:%M%p')
+                        try:
+                            event = self.parseWaterfall(text, date)
+                            if (event):
                                 self.addEvent(event)
-
-                            except Exception as e:
-                                logger.exception("Exception occurred in %s for date %s" % (text, date))
-
-                        else:
-                            logger.warning('Could not parse: `' + text + '` for ' + date)
+                            else:
+                                logger.warning('Could not parse: `' + text + '` for ' + date)
+                        except Exception as e:
+                            logger.exception("Exception occurred in %s for date %s" % (text, date))
 
         return self
-
-    def buildStartstamp(self, date, parsed):
-        hours = parsed[0][3]
-        minutes = parsed[0][4]
-        pm = parsed[0][5]
-        if (minutes == ''):
-            minutes = ':00'
-
-        if (hours == ''):
-            time = time = '{date} 12:00AM'.format(date = date)
-        else:
-            time = '{date} {hours}{minutes}{pm}'.format(
-                date = date,
-                hours = hours,
-                minutes = minutes,
-                pm = pm,
-            )
-
-        return time
-
-    def buildEndstamp(self, date):
-        time = '{date} 11:59PM'.format(date = date)
-        return time
 
     """
     Parse a number of options for malformed items
     """
-    def parseWaterfall(self, text):
+    def parseWaterfall(self, text, date):
+        event = Event()
+        event.setDescription(self.replaceWhitespaceWithPipes(text))
+
         # Default
-        parsed = re.findall("(.*?)(\\.|\\?|!|,)\\s+((1?\\d)(:\\d\\d)?(AM|PM)).*?,?\\s+((\\$?.*?)\\s+)?\\@\\s*(.*)", text)
+        venueParsed = re.findall("(.*)\s*\\@\s*([^@]*)$", text)
+        if (not venueParsed):
+            return None
+        event.setLocation(venueParsed[0][1])
+        text = venueParsed[0][0]
 
-        if (parsed):
-            return parsed
+        summaryParsed = re.findall("\s*(.*)\.\s*([^.]*)\s*$", text)
+        if (summaryParsed):
+            event.setSummary(summaryParsed[0][0])
+            text = summaryParsed[0][1]
+        else:
+            event.setSummary(text)
 
-        # No ending period
-        parsed = re.findall("(.*?)(,)?\\s+((1?\\d)(:\\d\\d)?(AM|PM)).*?,?\\s+((\\$?.*?)\\s+)?\\@\\s*(.*)", text)
+        time = self.parseStartAndEndTimesFromFuzzyString(text)
+        if (time[0]):
+            start_time = time[0]
+        else:
+            start_time = "7:00pm"
 
-        if (parsed):
-            return parsed
+        event.setStartString('{date} {time}'.format(
+            date = date,
+            time = (time[0] or '7:00pm'),
+        ), '%A, %B %d, %Y %I:%M%p')
+        event.setEndString('{date} {time}'.format(
+            date = date,
+            time = (time[1] or '11:59pm'),
+        ), '%A, %B %d, %Y %I:%M%p')
 
-        # No @
-        parsed = re.findall("(.*?)(\\.|\\?|!|,)\\s+((1?\\d)(:\\d\\d)?(AM|PM)).*?,?\\s+((\\$?.*?)\\s+)?\\s*(.*)", text)
-
-        if (parsed):
-            return parsed
-
-
-        return None
+        return event
