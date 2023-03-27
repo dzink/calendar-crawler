@@ -61,6 +61,11 @@ class CalendarParser:
     def replaceWhitespaceWithPipes(self, text):
         return self.replaceWhitespace(text, ' | ')
 
+    def replaceDictionary(self, text, replacements, maxCount = 20):
+        for search, replace in replacements.items():
+            text = text.replace(search, replace, maxCount)
+        return text
+
     """
     Convert inconsistent time indications to a common format
     A few common fuzzy time strings that this can capture:
