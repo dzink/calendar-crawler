@@ -75,9 +75,11 @@ class EventDb:
         pass
     def find(self, parameters):
 
-
         query = (where('id') != None)
         q = Query()
+        if 'id' in parameters:
+            event_id = int(parameters['id'])
+            query = where('id') == event_id
         if 'summary' in parameters:
             query = query & self.queryMatches('summary', parameters['summary'])
         if 'sourceTitle' in parameters:
