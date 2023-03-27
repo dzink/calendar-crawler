@@ -34,27 +34,17 @@ def main():
         if (not options.clean_all):
             deadline = datetime.now() - relativedelta(days=int(31))
             deadline = deadline.strftime('%Y-%m-%d')
-        logger.info(deadline)
+
+        if (options.id is not None):
+            events = get_events_by_ids(options.id)
+        else:
+            events = get_expired_from_calendars()
+
 
         # Iterate through calendars in config
         for calendarKey in calendarConfigs.keys():
             calendarConfig = calendarConfigs.get(calendarKey)
-
             googleCalendar = factory.googleCalendar(calendarConfig, secrets)
-
-            events = EventList()
-            sourceKeys = calendarConfig.get('sources', [])
-            if (options.source):
-                sourceKeys = list(filter(lambda x: x in sourceKeys, options.source))
-
-
-            # Iterate through sources in calendar config
-            for sourceKey in sourceKeys:
-                sourceConfig = sourceConfigs.get(sourceKey)
-                # logger.info(sourceConfig)
-                deadEvents = getExpiredEvents(deadline, sourceConfig['name'])
-                events = events.merge(deadEvents)
-
 
             for event in events:
                 if (options.dry_run):
@@ -75,6 +65,7 @@ def parseArguments():
     parser.add_argument('-d', '--dry-run', help = 'Run the cleaner but do not write to the calendar or database.', action = 'store_true', default = False)
     parser.add_argument('--clean-all', help = 'Clean all events', action = 'store_true', default = False)
     parser.add_argument('-s', '--source', help = 'Only crawl the given source(s).', action = 'append', default = None)
+    parser.add_argument('-i', '--id', help = 'Delete the given id. Can be added multiple times.', action = 'append', default = None)
 
 
     return parser.parse_args()
@@ -83,6 +74,20 @@ def loadConfig(filename):
     with open(filename, 'r') as file:
         config = yaml.safe_load(file)
         return config
+
+def get_expired_from_calendars(calendarConfig, sourceConfigs):
+    events = EventList()
+    sourceKeys = calendarConfig.get('sources', [])
+
+    if (options.source):
+        sourceKeys = list(filter(lambda x: x in sourceKeys, options.source))
+
+    # Iterate through sources in calendar config
+    for sourceKey in sourceKeys:
+        sourceConfig = sourceConfigs.get(sourceKey)
+        # logger.info(sourceConfig)
+        deadEvents = getExpiredEvents(deadline, sourceConfig['name'])
+        events = events.merge(deadEvents)
 
 def getExpiredEvents(deadline, sourceConfigName = None):
     parameters = {}
@@ -93,6 +98,13 @@ def getExpiredEvents(deadline, sourceConfigName = None):
     deadEvents = EventList().find(parameters)
     logger.info('Found %d expired events for %s' % (len(deadEvents.events), sourceConfigName))
     return deadEvents
+
+def get_events_by_ids(ids):
+    events = EventList()
+    for event_id in ids:
+        matched_events = EventList().find({'id': event_id})
+        events = events.merge(matched_events)
+    return events
 
 if __name__ == '__main__':
     main()
