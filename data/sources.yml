@@ -12,9 +12,9 @@ showPlace:
       pattern:
         location: ((Ottobar)|(Red Emma)|(Current Space)|(2640)|(Joe Squared)|(Black Cat)|(Rhizome)|(Metro))
     - type: addBoilerplateToDescriptions
-      text: End times are approximate. See https://baltshowplace.tumblr.com/ for more.
+      text: End times are approximate. Crawled from https://baltshowplace.tumblr.com/, see https://whomtube.com/shows for more.
     - type: setColors
-      color: sage
+      color: default
 
 redEmmas:
   name: Red Emma's
@@ -25,7 +25,7 @@ redEmmas:
     class: WithFriendsParser
   postTasks:
     - type: addBoilerplateToDescriptions
-      text: End time is approximate. See https://withfriends.co/red_emmas/events for more.
+      text: End time is approximate. Crawled from https://withfriends.co/red_emmas/events, see https://whomtube.com/shows for more.
     - type: prefixDescriptionsWithLinks
     - type: setLocationAddress
       text: Red Emma's
@@ -33,7 +33,7 @@ redEmmas:
       hour: 2
       minute: 00
     - type: setColors
-      color: tomato
+      color: default
 
 currentSpace:
   name: Current Space
@@ -44,7 +44,7 @@ currentSpace:
     class: WithFriendsParser
   postTasks:
     - type: addBoilerplateToDescriptions
-      text: End time is approximate. See https://withfriends.co/current_space/events for more.
+      text: End time is approximate. Crawled from https://withfriends.co/current_space/events, see https://whomtube.com/shows for more.
     - type: prefixDescriptionsWithLinks
     - type: setLocationAddress
       text: Current Space
@@ -52,7 +52,7 @@ currentSpace:
       hour: 22
       minute: 30
     - type: setColors
-      color: banana
+      color: default
 
 ottobar:
   name: Ottobar
@@ -68,10 +68,10 @@ ottobar:
       pattern:
         summary: (Taylor Swift .*|ALL KILLER.*|K-POP.*)
     - type: addBoilerplateToDescriptions
-      text: End time is approximate. See https://theottobar.com/calendar/ for more.
+      text: End time is approximate. Crawled from https://theottobar.com/calendar/, see https://whomtube.com/shows for more.
     - type: prefixDescriptionsWithLinks
     - type: setColors
-      color: grape
+      color: default
 
 metroGallery:
   name: Metro Gallery
@@ -84,10 +84,10 @@ metroGallery:
       pattern:
         location: (Current Space|Joe Squared)
     - type: addBoilerplateToDescriptions
-      text: End time is approximate. See https://themetrogallery.net/events/ for more.
+      text: End time is approximate. Crawled from https://themetrogallery.net/events/, see https://whomtube.com/shows for more.
     - type: prefixDescriptionsWithLinks
     - type: setColors
-      color: grape
+      color: default
 
 blackCat:
   name: Black Cat DC
@@ -97,10 +97,10 @@ blackCat:
     class: BlackCatParser
   postTasks:
     - type: addBoilerplateToDescriptions
-      text: End time is approximate. See https://www.blackcatdc.com/schedule.html for more.
+      text: End time is approximate. Crawled from https://www.blackcatdc.com/schedule.html, see https://whomtube.com/shows for more.
     - type: prefixDescriptionsWithLinks
     - type: setColors
-      color: flamingo
+      color: default
 
 joeSquared:
   name: Joe Squared
@@ -110,12 +110,12 @@ joeSquared:
     class: SquareSpaceParser
   postTasks:
     - type: addBoilerplateToDescriptions
-      text: See https://www.joesquared.com/events/ for more.
+      text: Crawled from https://www.joesquared.com/events/, see https://whomtube.com/shows for more.
     - type: prefixLinks
       text: https://www.joesquared.com
     - type: prefixDescriptionsWithLinks
     - type: setColors
-      color: tangerine
+      color: default
 
 space2640:
   name: 2640 Space
@@ -125,12 +125,12 @@ space2640:
     class: SquareSpaceParser
   postTasks:
     - type: addBoilerplateToDescriptions
-      text: See https://www.2640space.net/ for more.
+      text: Crawled from https://www.2640space.net/, see https://whomtube.com/shows for more.
     - type: prefixLinks
       text: https://www.2640space.net
     - type: prefixDescriptionsWithLinks
     - type: setColors
-      color: blueberry
+      color: default
 
 rhizome:
   name: Rhizome DC
@@ -140,9 +140,9 @@ rhizome:
     class: RhizomeParser
   postTasks:
     - type: addBoilerplateToDescriptions
-      text: See https://www.rhizomedc.org/ for more.
+      text: Crawled from https://www.rhizomedc.org/, see https://whomtube.com/shows for more.
     - type: prefixLinks
       text: https://www.rhizomedc.org
     - type: prefixDescriptionsWithLinks
     - type: setColors
-      color: basil
+      color: default
