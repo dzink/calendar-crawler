@@ -66,6 +66,11 @@ class CalendarParser:
             text = text.replace(search, replace, maxCount)
         return text
 
+    def getTextOrDefault(self, htmlObject, default = ''):
+        if (htmlObject is not None):
+            return htmlObject.get_text()
+        return default
+
     """
     Convert inconsistent time indications to a common format
     A few common fuzzy time strings that this can capture:
