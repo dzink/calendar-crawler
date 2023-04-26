@@ -29,8 +29,8 @@ redEmmas:
     - type: prefixDescriptionsWithLinks
     - type: setLocationAddress
       text: Red Emma's
-    - type: setAbsoluteEndDateTime
-      hour: 22
+    - type: setDefaultTimeLength
+      hour: 2
       minute: 00
     - type: setColors
       color: tomato

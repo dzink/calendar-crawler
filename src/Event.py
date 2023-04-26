@@ -1,6 +1,6 @@
 import re
 import pytz
-from datetime import datetime
+from datetime import datetime, timedelta
 from EventDb import EventDb
 import random
 from copy import copy
@@ -238,6 +238,15 @@ class Event:
         dt = copy(self.startDate)
         dt = dt.replace(hour = hour, minute = minute)
         self.setEnd(dt)
+
+    """
+    Sets an absolute end time on the same day as the start time.
+    """
+    def setDefaultTimeLength(self, hour = 2, minute = 0):
+        if (self.endDate is None):
+            dt = copy(self.startDate)
+            dt = dt + timedelta(hours=hour, minutes=minute)
+            self.setEnd(dt)
 
     def prefixDescriptionWithLink(self):
         self.description = '\n\n'.join([self.link, self.description])

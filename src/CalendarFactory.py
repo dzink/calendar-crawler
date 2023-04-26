@@ -92,6 +92,12 @@ class CalendarFactory:
             events.setAbsoluteEndDateTime(hour, minute)
             return events
 
+        if (type == 'setDefaultTimeLength'):
+            hour = int(taskConfig.get('hour', 2))
+            minute = int(taskConfig.get('minute', 0))
+            events.setDefaultTimeLength(hour, minute)
+            return events
+
         raise Exception('Unknown postTask type: %s' % (type))
 
     def googleCalendar(self, calendarConfig, secrets = {}):

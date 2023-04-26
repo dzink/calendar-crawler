@@ -29,6 +29,10 @@ class EventList:
         for event in self:
             event.setAbsoluteEndDateTime(hour, minute)
 
+    def setDefaultTimeLength(self, hour = 2, minute = 0):
+        for event in self:
+            event.setDefaultTimeLength(hour, minute)
+
     def addBoilerplateToDescriptions(self, boilerplate):
         for event in self:
             event.setDescription('\n\n'.join([event.description or '', boilerplate]))
