@@ -53,13 +53,19 @@ class CalendarParser:
     def removeScriptsFromElement(self, element):
         return self.removeTagFromElement(element, 'script')
 
+
     def replaceWhitespace(self, text, replace = ' | '):
+        if (text is None):
+            return text
         text = re.sub('(^\s+)|(\s+$)', '', text)
         text = re.sub('((\s){2,})|\n', replace, text)
         return text
 
     def replaceWhitespaceWithPipes(self, text):
         return self.replaceWhitespace(text, ' | ')
+
+    def removeWhitespace(self, text):
+        return self.replaceWhitespace(text, '')
 
     def replaceDictionary(self, text, replacements, maxCount = 20):
         for search, replace in replacements.items():
