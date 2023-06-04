@@ -97,13 +97,13 @@ class CalendarParser:
         # If this doesn't match, try a "Doors at ..." search.
         # There are a LOT of trivial parentheses in here, so that the positions match up with the above format
         if (not timeMatch):
-            timeMatch = re.findall('doors (at|@) (((\d?)(:\d\d)?))\s*(((((fff)))))?(am|pm)?', string, re.IGNORECASE)
+            timeMatch = re.findall('doors (at|@) (noon|((\d?)(:\d\d)?))\s*(((((fff)))))?(am|pm)?', string, re.IGNORECASE)
 
         if (timeMatch):
             timeMatch = timeMatch[0]
 
             # Test for noon
-            if (timeMatch[1] == 'noon'):
+            if ((timeMatch[1] == 'noon') or (timeMatch[1] == 'Noon')):
                 startTime = "12:00pm"
             else:
                 startTime = "%s:%s%s" % (timeMatch[3], timeMatch[4] or '00', timeMatch[6] or timeMatch[10] or 'pm')
