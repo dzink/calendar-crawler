@@ -11,6 +11,7 @@ from OttobarParser import OttobarParser
 from SquareSpaceParser import SquareSpaceParser
 from WithFriendsParser import WithFriendsParser
 from RhizomeParser import RhizomeParser
+from GreedyReadsParser import GreedyReadsParser
 from EventList import EventList
 
 from CalendarLogger import logger

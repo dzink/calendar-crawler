@@ -249,7 +249,8 @@ class Event:
             self.setEnd(dt)
 
     def prefixDescriptionWithLink(self):
-        self.description = '\n\n'.join([self.link, self.description])
+        if self.link:
+            self.description = '\n\n'.join([self.link, self.description])
 
     def __str__(self):
         string = "ID: %s\n\tSummary: %s\n\tStart: %s\n\tEnd: %s\n\tLocation: %s\n\tDescription: %s\n\tLink: %s\n\tSource: %s\n\tcalendarId: %s\n\tcolor: %s" %(self.id, self.summary, self.startToString(), self.endToString(), self.location, self.description, self.link, self.sourceTitle, self.calendarId, self.color)

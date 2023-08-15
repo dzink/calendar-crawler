@@ -77,6 +77,19 @@ class CalendarParser:
             return htmlObject.get_text()
         return default
 
+    def cutPatternFromString(self, text, cutPattern):
+        if (text is None):
+            return text
+        text = re.sub(cutPattern, '', text)
+        return text
+
+    def replacePatternInString(self, text, find, replace):
+        if (text is None):
+            return text
+        text = re.sub(find, replace, text)
+        return text
+
+
     """
     Convert inconsistent time indications to a common format
     A few common fuzzy time strings that this can capture:
@@ -114,3 +127,9 @@ class CalendarParser:
 
 
         return [startTime, endTime]
+
+    def removeOrdinalsFromNumbersInString(self, text):
+        matches = re.findall('(.*)(\dst|\dnd|\drd|\dth)(.*)', text)
+        if matches:
+            text = '%s%s%s' % (matches[0][0], matches[0][1][0], matches[0][2])
+        return text

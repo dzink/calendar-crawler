@@ -146,3 +146,23 @@ rhizome:
     - type: prefixDescriptionsWithLinks
     - type: setColors
       color: default
+
+greedyReads:
+  name: Greedy Reads
+  source:
+    url: https://greedyreads.com/events
+    scrollCount: 4
+
+  parser:
+    class: GreedyReadsParser
+  postTasks:
+    - type: addBoilerplateToDescriptions
+      text: End time is approximate. Crawled from https://greedyreads.com/events, see https://whomtube.com/shows for more.
+    - type: setDefaultTimeLength
+      hour: 2
+      minute: 0
+    - type: prefixDescriptionsWithLinks
+    - type: setLocationAddress
+      text: Greedy Reads (see description for store location)
+    - type: setColors
+      color: default
