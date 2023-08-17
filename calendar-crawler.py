@@ -70,15 +70,21 @@ def loadConfig(filename):
         return config
 
 def getEvents(sourceId, sourceConfig):
-    source = factory.source(sourceId, sourceConfig)
-    html = source.getHtml()
+    try:
+        source = factory.source(sourceId, sourceConfig)
+        html = source.getHtml()
 
-    parser = factory.parser(sourceId, sourceConfig)
-    events = parser.parse(html).events
+        parser = factory.parser(sourceId, sourceConfig)
+        events = parser.parse(html).events
 
-    events = factory.postTasks(events, sourceConfig)
+        events = factory.postTasks(events, sourceConfig)
 
-    return events
+        return events
+
+    except Exception as e:
+        logger.exception("Exception occurred in source " + sourceId)
+        logger.exception(e)
+        return EventList()
 
 if __name__ == '__main__':
     main()
