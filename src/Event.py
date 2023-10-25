@@ -75,9 +75,13 @@ class Event:
     A few methods for printing out timestamps.
     """
     def startToString(self, pattern = '%Y-%m-%dT%H:%M:%S%z'):
+        if (self.startDate is None):
+            return 'None'
         return self.dateToString(self.startDate, pattern)
 
     def endToString(self, pattern = '%Y-%m-%dT%H:%M:%S%z'):
+        if (self.endDate is None):
+            return 'None'
         return self.dateToString(self.endDate, pattern)
 
     def dateToString(self, date, pattern = '%Y-%m-%dT%H:%M:%S%z'):
