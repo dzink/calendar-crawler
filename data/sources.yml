@@ -152,7 +152,6 @@ greedyReads:
   source:
     url: https://greedyreads.com/events
     scrollCount: 4
-
   parser:
     class: GreedyReadsParser
   postTasks:
@@ -164,5 +163,24 @@ greedyReads:
     - type: prefixDescriptionsWithLinks
     - type: setLocationAddress
       text: Greedy Reads (see description for store location)
+    - type: setColors
+      color: default
+
+redRoom:
+  name: The Red Room at Normal's
+  source:
+    url: https://www.redroom.org/
+    # scrollCount: 4
+  parser:
+    class: RedRoomParser
+  postTasks:
+    - type: addBoilerplateToDescriptions
+      text: End time is approximate. Crawled from https://redroom.org, see https://whomtube.com/shows for more.
+    - type: setDefaultTimeLength
+      hour: 4
+      minute: 0
+    - type: prefixDescriptionsWithLinks
+    - type: setLocationAddress
+      text: See link for location of Red Room events
     - type: setColors
       color: default
