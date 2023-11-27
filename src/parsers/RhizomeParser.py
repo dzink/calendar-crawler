@@ -40,7 +40,6 @@ class RhizomeParser(CalendarParser):
                 event.setSummary(title)
                 event.setDescription(description)
                 event.setLink(link)
-                event.setLocation("Rhizome - 6950 Maple St. NW, Washington DC")
                 event.setStartString(startStamp, '%Y %b %d %I:%M%p')
                 if (endStamp):
                     event.setEndString(endStamp, '%Y %b %d %I:%M%p')

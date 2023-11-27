@@ -139,6 +139,8 @@ rhizome:
   parser:
     class: RhizomeParser
   postTasks:
+    - type: setLocationAddress
+      text: Rhizome Washington DC
     - type: addBoilerplateToDescriptions
       text: Crawled from https://www.rhizomedc.org/, see https://whomtube.com/shows for more.
     - type: prefixLinks
