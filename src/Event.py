@@ -1,4 +1,5 @@
 import re
+import sys
 import pytz
 from datetime import datetime, timedelta
 from EventDb import EventDb
@@ -120,11 +121,17 @@ class Event:
         shortestYear = None
         shortestDifference = None
         for year in years:
-            testDate = self.parseDateString(' '.join([date, str(year)]), pattern)
-            difference = abs((now - testDate).total_seconds())
-            if (shortestDifference == None or (difference < shortestDifference)):
-                shortestYear = year
-                shortestDifference = difference
+            try:
+                testDate = self.parseDateString(' '.join([date, str(year)]), pattern)
+                difference = abs((now - testDate).total_seconds())
+                if (shortestDifference == None or (difference < shortestDifference)):
+                    shortestYear = year
+                    shortestDifference = difference
+            except:
+                # This is required because Feb 29 messes up certain years.
+                logger.debug('Could not parse the date for the year %d' % (year))
+
+        assert (shortestYear is not None), "Unable to determine the nearest year"
 
         return shortestYear
 
