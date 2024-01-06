@@ -38,8 +38,7 @@ def main():
         if (options.id is not None):
             events = get_events_by_ids(options.id)
         else:
-            events = get_expired_from_calendars()
-
+            events = get_expired_from_calendars(calendarConfigs['dzShowCrawler'], sourceConfigs, deadline)
 
         # Iterate through calendars in config
         for calendarKey in calendarConfigs.keys():
@@ -75,7 +74,7 @@ def loadConfig(filename):
         config = yaml.safe_load(file)
         return config
 
-def get_expired_from_calendars(calendarConfig, sourceConfigs):
+def get_expired_from_calendars(calendarConfig, sourceConfigs, deadline):
     events = EventList()
     sourceKeys = calendarConfig.get('sources', [])
 
@@ -88,6 +87,8 @@ def get_expired_from_calendars(calendarConfig, sourceConfigs):
         # logger.info(sourceConfig)
         deadEvents = getExpiredEvents(deadline, sourceConfig['name'])
         events = events.merge(deadEvents)
+
+    return events
 
 def getExpiredEvents(deadline, sourceConfigName = None):
     parameters = {}
