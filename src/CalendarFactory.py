@@ -19,26 +19,27 @@ from CalendarLogger import logger
 
 class CalendarFactory:
 
-    def __init__(self, options):
+    def __init__(self, options, config):
         self.options = options
+        self.config = config
 
-    def source(self, sourceId, config):
-        sourceConfig = config['source']
+    def source(self, sourceId, sourceConfig):
+        sourceConfig = sourceConfig['source']
         class_ = sourceConfig.get('class',  'CalendarSource')
         scrollCount = sourceConfig.get('scrollCount',  0)
         url = sourceConfig['url']
 
         sourceClass = self.getClass(class_)
-        source = sourceClass(url, sourceId, self.options.remote)
+        source = sourceClass(url, sourceId, self.options.remote, self.config.get('chromeDriverLocation', './chromedriver-linux64/chromedriver'))
 
         if (scrollCount):
             source.setScrollCount(scrollCount)
 
         return source
 
-    def parser(self, sourceId, config):
-        parserConfig = config.get('parser', {})
-        name = config.get('name')
+    def parser(self, sourceId, sourceConfig):
+        parserConfig = sourceConfig.get('parser', {})
+        name = sourceConfig.get('name')
         class_ = parserConfig.get('class')
         postOffsets = parserConfig.get('postOffsets', None)
 
@@ -50,8 +51,8 @@ class CalendarFactory:
 
         return parser
 
-    def postTasks(self, events, config):
-        postTasksConfig = config.get('postTasks', [])
+    def postTasks(self, events, sourceConfig):
+        postTasksConfig = sourceConfig.get('postTasks', [])
         for taskConfig in postTasksConfig:
             events = self.postTask(events, taskConfig)
         return events

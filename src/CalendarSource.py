@@ -12,14 +12,16 @@ import os.path
 class CalendarSource:
     events = []
     driver = None
+    driverLocation = ""
 
-    def __init__(self, url, id = '', remote = True):
+    def __init__(self, url, id = '', remote = True, driverLocation = None):
         self.url = url
         if (id == ''):
             id = url
         self.id = id
         self.remote = remote
         self.scrollCount = 0
+        self.driverLocation = driverLocation
 
     """
     Build and return a headless web driver.
@@ -30,7 +32,7 @@ class CalendarSource:
             chromeOptions = Options()
             chromeOptions.add_argument("--headless")
             chromeOptions.add_argument("--window-size=1920x1080")
-            self.driver = webdriver.Chrome(chrome_options = chromeOptions, executable_path='./chromedriver-linux64/chromedriver')
+            self.driver = webdriver.Chrome(chrome_options = chromeOptions, executable_path=self.driverLocation)
             logger.debug('built chrome driver')
         return self.driver
 

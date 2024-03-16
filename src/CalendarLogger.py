@@ -39,7 +39,7 @@ def buildLogger(options):
     logger.addHandler(last_handler)
     logger.addHandler(f_handler)
 
-def addLoggerArgsToParser(parser):
-    parser.add_argument('-v', '--verbose', help = 'Verbose output.', action = 'store_true', default = False)
-    parser.add_argument('--debug', help = 'Debug output.', action = 'store_true', default = False)
-    parser.add_argument('--log-file', default = './data/scrapy.log')
+def addLoggerArgsToParser(parser, defaults):
+    parser.add_argument('-v', '--verbose', help = 'Verbose output.', action = 'store_true', default = defaults.get('verbose', False))
+    parser.add_argument('--debug', help = 'Debug output.', action = 'store_true', default = defaults.get('debug', False))
+    parser.add_argument('--log-file', default = defaults.get('logLocation', './data/scrapy.log'))
