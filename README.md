@@ -30,6 +30,10 @@ pip install webdriver-manager selenium bs4 tinydb google-api-python-client googl
 
 In `./data/secrets.yml`, you will need a file that looks like `./data/example.secrets.yml`, only with the real data. The credentials data comes straight from your Google Calendar app json, you can paste it in as-is since json is valid yml. The calendar id comes from the calendar settings.
 
+### Chrome Driver
+
+You may need to install a chrome driver. Grab the latest from here https://googlechromelabs.github.io/chrome-for-testing/ , unzip it, and update the value of `chromeDriverLocation` in `data/options.yml` (you may need to create this file from the example version).
+
 ## Troubleshooting
 
 If you have trouble logging in, make sure you use the localhost domain with the port number in your google app setup.
