@@ -66,9 +66,13 @@ def parseArguments(config):
     return parser.parse_args()
 
 def loadConfig(filename):
-    with open(filename, 'r') as file:
-        config = yaml.safe_load(file)
-        return config
+    try:
+      with open(filename, 'r') as file:
+          config = yaml.safe_load(file)
+          return config
+    except FileNotFoundError:
+      return {}
+
 
 def getEvents(sourceId, sourceConfig):
     try:
