@@ -110,13 +110,13 @@ class CalendarFactory:
         if (calendarIdSecretKey):
             calendarId = secrets.get(calendarIdSecretKey)
             googleCalendar.calendarId = calendarId
-            logger.info('Got calendarId from secrets file')
+            logger.debug('Got calendarId from secrets file')
 
         applicationCredentialsSecretKey = googleApiConfig.get('applicationCredentialsSecretKey')
         if (applicationCredentialsSecretKey):
             applicationCredentials = secrets.get(applicationCredentialsSecretKey)
             googleCalendar.applicationCredentials = applicationCredentials
-            logger.info('Got application credentials from secrets file')
+            logger.debug('Got application credentials from secrets file')
 
         scopes = googleApiConfig.get('scopes')
         if (scopes):

@@ -37,7 +37,7 @@ class CalendarSource:
         return self.driver
 
     def getHtml(self):
-        logger.info('retrieving ' + self.url)
+        logger.debug('retrieving ' + self.url)
         if (self.remote):
             return self.getRemoteHtml()
         else:

@@ -18,9 +18,9 @@ class CalendarParser:
         self.sourceTitle = sourceTitle
 
     def parse(self, html, settings = {}):
-        logger.info('parsing beginning for ' + self.sourceTitle)
+        logger.debug('parsing beginning for ' + self.sourceTitle)
         self.parseEvents(html, settings)
-        logger.info('parsing completed for ' + self.sourceTitle)
+        logger.debug('parsing completed for ' + self.sourceTitle)
         logger.info('%d events found in %s' % (len(self.events.events), self.sourceTitle))
 
         return self
