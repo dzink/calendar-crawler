@@ -34,6 +34,8 @@ In `./data/secrets.yml`, you will need a file that looks like `./data/example.se
 
 You may need to install a chrome driver. Grab the latest from here https://googlechromelabs.github.io/chrome-for-testing/ , unzip it, and update the value of `chromeDriverLocation` in `data/options.yml` (you may need to create this file from the example version).
 
+Alternately, you can use the script `./update-chromedriver.sh`.
+
 ## Troubleshooting
 
 If you have trouble logging in, make sure you use the localhost domain with the port number in your google app setup.
