@@ -9,7 +9,7 @@ from CalendarLogger import logger
 
 class Event:
 
-    timeZone = 'US/Eastern'
+    timeZone = 'America/New_York'
 
     def __init__(self):
         self.summary = None
