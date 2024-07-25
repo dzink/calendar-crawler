@@ -40,8 +40,11 @@ class RhizomeParser(CalendarParser):
                 event.setSummary(title)
                 event.setDescription(description)
                 event.setLink(link)
+
+                startStamp = startStamp.replace('::', ':')
                 event.setStartString(startStamp, '%Y %b %d %I:%M%p')
                 if (endStamp):
+                    endStamp = endStamp.replace('::', ':')
                     event.setEndString(endStamp, '%Y %b %d %I:%M%p')
                 else:
                     event.setAbsoluteEndDateTime(22, 0)
