@@ -21,7 +21,7 @@ class ShowPlaceParser(CalendarParser):
         for offset in self.postOffsets:
             bodyText = post[offset].find('div', class_='body-text')
             date = False
-            logger.info('entering post %d' % offset)
+            logger.info('entering post %d in ShowPlace' % offset)
             for element in bodyText.findChildren():
                 if (element.name == 'h2'):
                     date = element.text
@@ -50,13 +50,13 @@ class ShowPlaceParser(CalendarParser):
         event.setDescription(self.replaceWhitespaceWithPipes(text))
 
         # Default
-        venueParsed = re.findall("(.*)\s*\\@\s*([^@]*)$", text)
+        venueParsed = re.findall('(.*)\\s*\\@\\s*([^@]*)$', text)
         if (not venueParsed):
             return None
         event.setLocation(venueParsed[0][1])
         text = venueParsed[0][0]
 
-        summaryParsed = re.findall("\s*(.*)\.\s*([^.]*)\s*$", text)
+        summaryParsed = re.findall('\\s*(.*)\\.\\s*([^.]*)\\s*$', text)
         if (summaryParsed):
             event.setSummary(summaryParsed[0][0])
             text = summaryParsed[0][1]
