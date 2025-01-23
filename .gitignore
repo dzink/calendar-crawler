@@ -7,7 +7,8 @@ data/credentials.json
 data/token.json
 data/*.log
 
-chromedriver-linux64/*
+chromedriver-linux64*
+source_html/*.html
 
 __pycache__
 src/__pycache__
