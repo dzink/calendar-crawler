@@ -20,8 +20,13 @@ class RedRoomParser(CalendarParser):
                 dateHtml = eventHtml.find('h3')
                 date = dateHtml.get_text()
                 dateParsed = re.findall("(.*?)\s*\|\s*(.*?)\s*\|.*", date)
-                date = '%s %s' % (dateParsed[0][0], dateParsed[0][1])
+                day = dateParsed[0][0]
+                time = dateParsed[0][1]
+                if time == '':
+                  time = '8:00 pm'
+                date = '%s %s' % (day, time)
                 event.setStartString(date, '%A %B %d, %Y %I:%M %p')
+
 
                 linkHtml = eventHtml.find('a')
                 if (linkHtml):
