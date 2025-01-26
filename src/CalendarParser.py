@@ -128,6 +128,21 @@ class CalendarParser:
 
         return [startTime, endTime]
 
+    def parseDateFromFuzzyString(self, string):
+        longMonthMatch = re.findall('(\\d\\d?\\s+)?(January|February|March|April|May|June|July|August|September|October|November|December)(\\s+\\d\\d?)?(\\s\\d{4})?', string)
+        if (len(longMonthMatch) > 0):
+          month = longMonthMatch[0][1]
+          day = self.removeWhitespace(longMonthMatch[0][0] + longMonthMatch[0][2])
+          year = self.removeWhitespace(longMonthMatch[0][3])
+          return [year, month, day]
+        shortMonthMatch = re.findall('(\\d\\d?\\s+)?(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)(\\s+\\d\\d?)?(\\s\\d{4})?', string)
+        if (len(shortMonthMatch) > 0):
+          month = shortMonthMatch[0][1]
+          day = self.removeWhitespace(shortMonthMatch[0][0] + shortMonthMatch[0][2])
+          year = self.removeWhitespace(shortMonthMatch[0][3])
+          return [year, month, day]
+        return None
+
     def removeOrdinalsFromNumbersInString(self, text):
         matches = re.findall('(.*)(\\dst|\\dnd|\\drd|\\dth)(.*)', text)
         if matches:
