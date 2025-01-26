@@ -13,6 +13,7 @@ from WithFriendsParser import WithFriendsParser
 from RhizomeParser import RhizomeParser
 from GreedyReadsParser import GreedyReadsParser
 from RedRoomParser import RedRoomParser
+from MetroParser import MetroParser
 from EventList import EventList
 
 from CalendarLogger import logger

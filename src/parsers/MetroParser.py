@@ -5,41 +5,39 @@ from CalendarLogger import logger
 class MetroParser(CalendarParser):
 
     def parseEvents(self, html, settings = {}):
+        # raise Exception()
         title = 'Unknown event'
-        eventsHtml = self.soup(html).find('div', class_ = 'listings-block-list__listing')
-        for eventHtml in eventsHtml.find_all('div', class_ = 'summary-item-record-type-event'):
+        eventsHtml = self.soup(html).find('div', class_ = 'listings-block-listgrid')
+        for eventHtml in eventsHtml.find_all('div', class_ = 'listings-block-list__listing'):
             try:
                 title = eventHtml.find('h3', class_ = 'listing__title').get_text()
                 title = self.replaceWhitespace(title, ' ')
                 event = Event()
-                descriptionHtml = eventHtml.find('div', class_ = 'summary-excerpt')
-                description = self.replaceWhitespaceWithPipes(descriptionHtml.get_text())
-                # print(description)
-                link = eventHtml.find('a', class = 'JS--buyTicketsButton').get('href')
+                tickets_link = eventHtml.find('a', class_ = 'JS--buyTicketsButton').get('href')
+                more_link = eventHtml.find('a', class_ = 'plotButton--secondary').get('href')
 
-                date = eventHtml.find('div', class_ = 'listing-date-time__date').get_text()
-                date = self.replaceWhitespace(date, ' ')
-                year = event.getNearestYear(date, '%b %d')
+                date = eventHtml.find('span', class_ = 'listing-date-time__date').get_text()
+                date_members = self.parseDateFromFuzzyString(date)
+                date_string = '%s %s' % (date_members[1], date_members[2])
+                year = event.getNearestYear(date_string, '%b %d')
 
-                # The time is always in the first paragraph
-                topLine = descriptionHtml.find('p').get_text()
-                topLine = topLine.replace('|', '')
-
-                startTime, endTime = self.parseStartAndEndTimesFromFuzzyString(topLine)
+                startTime, endTime = self.parseStartAndEndTimesFromFuzzyString(date)
 
                 if (startTime):
-                    startStamp = '%s %s %s' % (year, date, startTime)
+                    startStamp = '%s %s %s' % (year, date_string, startTime)
                 else:
-                    startStamp = '%s %s %s' % (year, date, '7:00pm')
+                    startStamp = '%s %s %s' % (year, date_string, '7:00pm')
 
                 if (endTime):
-                    endStamp = '%s %s %s' % (year, date, endTime)
+                    endStamp = '%s %s %s' % (year, date_string, endTime)
                 else:
                     endStamp = None
 
                 event.setSummary(title)
+                description = ' read more: %s , tickets: %s ' % (more_link, tickets_link)
                 event.setDescription(description)
-                event.setLink(link)
+                event.setLocation('Metro Gallery')
+                event.setLink(more_link)
                 event.setStartString(startStamp, '%Y %b %d %I:%M%p')
                 if (endStamp):
                     event.setEndString(endStamp, '%Y %b %d %I:%M%p')
