@@ -24,7 +24,7 @@ class BlackCatParser(CalendarParser):
                     date = dateHtml.get_text()
                     year = event.getNearestYear(date, '%A %B %d')
 
-                    time = re.findall('(\d+)(:\d\d)', description)[0]
+                    time = re.findall('(\\d+)(:\\d\\d)', description)[0]
 
                     event.setSummary(title)
                     event.setLocation(self.location)

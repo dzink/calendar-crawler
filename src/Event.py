@@ -114,7 +114,6 @@ class Event:
     year for a given date.
     """
     def getNearestYear(self, date, pattern = '%A %B %d'):
-        dateCandidates = []
         pattern = pattern + ' %Y'
         now = self.localizeDate(datetime.now())
         years = [now.year - 1, now.year, now.year + 1]

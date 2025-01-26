@@ -5,15 +5,15 @@ sys.path.append('./parsers')
 from GoogleCalendar import GoogleCalendar
 from CalendarSource import CalendarSource
 from CalendarParser import CalendarParser
-from BlackCatParser import BlackCatParser
-from ShowPlaceParser import ShowPlaceParser
-from OttobarParser import OttobarParser
-from SquareSpaceParser import SquareSpaceParser
-from WithFriendsParser import WithFriendsParser
-from RhizomeParser import RhizomeParser
-from GreedyReadsParser import GreedyReadsParser
-from RedRoomParser import RedRoomParser
-from MetroParser import MetroParser
+from parsers.BlackCatParser import BlackCatParser
+from parsers.ShowPlaceParser import ShowPlaceParser
+from parsers.OttobarParser import OttobarParser
+from parsers.SquareSpaceParser import SquareSpaceParser
+from parsers.WithFriendsParser import WithFriendsParser
+from parsers.RhizomeParser import RhizomeParser
+from parsers.GreedyReadsParser import GreedyReadsParser
+from parsers.RedRoomParser import RedRoomParser
+from parsers.MetroParser import MetroParser
 from EventList import EventList
 
 from CalendarLogger import logger
