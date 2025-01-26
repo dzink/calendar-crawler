@@ -76,15 +76,16 @@ ottobar:
 metroGallery:
   name: Metro Gallery
   source:
-    url: https://themetrogallery.net/events/
+    url: https://metrobmore.com/events/
+    scrollCount: 4
   parser:
-    class: OttobarParser
+    class: MetroParser
   postTasks:
     - type: rejectEvents
       pattern:
         location: (Current Space|Joe Squared)
     - type: addBoilerplateToDescriptions
-      text: End time is approximate. Crawled from https://themetrogallery.net/events/, see https://whomtube.com/shows for more.
+      text: End time is approximate. Crawled from https://metrobmore.com/events/, see https://whomtube.com/shows for more.
     - type: prefixDescriptionsWithLinks
     - type: setColors
       color: default
