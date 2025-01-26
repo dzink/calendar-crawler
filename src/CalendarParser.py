@@ -57,8 +57,8 @@ class CalendarParser:
     def replaceWhitespace(self, text, replace = ' | '):
         if (text is None):
             return text
-        text = re.sub('(^\s+)|(\s+$)', '', text)
-        text = re.sub('((\s){2,})|\n', replace, text)
+        text = re.sub('(^\\s+)|(\\s+$)', '', text)
+        text = re.sub('((\\s){2,})|\n', replace, text)
         return text
 
     def replaceWhitespaceWithPipes(self, text):
@@ -105,12 +105,12 @@ class CalendarParser:
         endTime = None
 
         # This captures most of the variants.
-        timeMatch = re.findall('((noon|((\d+?):?(\d\d)?))\s*((am|pm)?\s*(-|to)\s*(\d+?):?(\d\d)?)?\s*(am|pm))', string, re.IGNORECASE)
+        timeMatch = re.findall('((noon|((\\d+?):?(\\d\\d)?))\\s*((am|pm)?\\s*(-|to)\\s*(\\d+?):?(\\d\\d)?)?\\s*(am|pm))', string, re.IGNORECASE)
 
         # If this doesn't match, try a "Doors at ..." search.
         # There are a LOT of trivial parentheses in here, so that the positions match up with the above format
         if (not timeMatch):
-            timeMatch = re.findall('doors (at|@) (noon|((\d?)(:\d\d)?))\s*(((((fff)))))?(am|pm)?', string, re.IGNORECASE)
+            timeMatch = re.findall('doors (at|@) (noon|((\\d?)(:\\d\\d)?))\\s*(((((fff)))))?(am|pm)?', string, re.IGNORECASE)
 
         if (timeMatch):
             timeMatch = timeMatch[0]
@@ -129,7 +129,7 @@ class CalendarParser:
         return [startTime, endTime]
 
     def removeOrdinalsFromNumbersInString(self, text):
-        matches = re.findall('(.*)(\dst|\dnd|\drd|\dth)(.*)', text)
+        matches = re.findall('(.*)(\\dst|\\dnd|\\drd|\\dth)(.*)', text)
         if matches:
             text = '%s%s%s' % (matches[0][0], matches[0][1][0], matches[0][2])
         return text
