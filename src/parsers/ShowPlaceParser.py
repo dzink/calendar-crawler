@@ -21,7 +21,7 @@ class ShowPlaceParser(CalendarParser):
         for offset in self.postOffsets:
             bodyText = post[offset].find('div', class_='body-text')
             date = False
-            logger.info('entering post %d in ShowPlace' % offset)
+            logger.info('Capturing most recent post %d in ShowPlace' % (offset + 1))
             for element in bodyText.findChildren():
                 if (element.name == 'h2'):
                     date = element.text

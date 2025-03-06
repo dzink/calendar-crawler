@@ -8,6 +8,7 @@ import yaml
 import argparse
 from EventList import EventList
 from CalendarFactory import CalendarFactory
+from datetime import datetime
 
 from CalendarLogger import logger, addLoggerArgsToParser, buildLogger
 
@@ -15,6 +16,7 @@ options = None
 factory = None
 
 def main():
+    print ('Running Calendar Crawler at ' + datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
     try:
         global options
         global factory
