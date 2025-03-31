@@ -12,7 +12,8 @@ class OttobarParser(CalendarParser):
                 primaryButtonHhtml = eventHtml.find_all('a', class_ = 'btn-primary')
                 if (primaryButtonHhtml):
                     event = Event()
-                    time = ('8', ':00', 'pm')
+                    time = '8:00pm'
+                    endTime = '11:59pm'
 
                     description = self.replaceWhitespaceWithPipes(eventHtml.get_text())
                     event.setDescription(description)
@@ -34,23 +35,28 @@ class OttobarParser(CalendarParser):
                         'July': 'Jul',
                         'Sept': 'Sep',
                     })
+
                     date = self.replaceWhitespace(date, '')
                     date = self.stripMultipleDates(date)
-
                     timeHtml = eventHtml.find('div', class_ = 'eventDoorStartDate')
+
                     if (timeHtml):
-                        time = re.findall('(\d+)(:\d\d)?(am|pm)', timeHtml.get_text())[0]
+                        fuzzyStartTime, fuzzyEndTime = self.parseStartAndEndTimesFromFuzzyString(timeHtml.get_text())
+                        if (fuzzyStartTime):
+                            time = fuzzyStartTime
+                        if (fuzzyEndTime):
+                            endTime = fuzzyEndTime
 
                     try:
                         event.setStartString(self.buildStartstamp(date, time), '%a, %b %d, %Y %I:%M%p')
-                    except:
+                    except Exception as e:
 
                         # Sometimes the date doesn't have a year
                         year = event.getNearestYear(date, '%a, %b %d')
                         date = date + ", " + str(year)
                         event.setStartString(self.buildStartstamp(date, time), '%a, %b %d, %Y %I:%M%p')
 
-                    event.setAbsoluteEndDateTime(23, 59)
+                    event.setEndString(self.buildStartstamp(date, endTime), '%a, %b %d, %Y %I:%M%p')
 
                     link = eventHtml.find('a').get('href')
                     event.setLink(link)
@@ -62,9 +68,9 @@ class OttobarParser(CalendarParser):
 
         return self
 
-    def buildStartstamp(self, date, timePattern):
-        return "%s %s%s%s" % (date, timePattern[0], timePattern[1] or ':00', timePattern[2])
+    def buildStartstamp(self, date, time):
+        return "%s %s" % (date, time)
 
     def stripMultipleDates(self, date):
-        pattern = re.findall('^(.+?, .+? \d+)(\\s\\-\\s.*)?', date)
+        pattern = re.findall('^(.+?, .+? \\d+)(\\s\\-\\s.*)?', date)
         return pattern[0][0]
