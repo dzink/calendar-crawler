@@ -25,7 +25,7 @@ This app runs on python 3.
 You'll need a few python libraries, and perhaps Google Chrome as well.
 
 ```
-pip install webdriver-manager selenium bs4 tinydb google-api-python-client google-auth-httplib2 google-auth-oauthlib --quiet
+pip install webdriver-manager selenium bs4 tinydb google-api-python-client google-auth-httplib2 google-auth-oauthlib argparse datetime pyyaml python-dateutil --quiet
 ```
 
 In `./data/secrets.yml`, you will need a file that looks like `./data/example.secrets.yml`, only with the real data. The credentials data comes straight from your Google Calendar app json, you can paste it in as-is since json is valid yml. The calendar id comes from the calendar settings.

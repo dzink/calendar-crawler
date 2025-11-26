@@ -29,10 +29,17 @@ class CalendarSource:
     """
     def getDriver(self):
         if (self.driver == None):
+            logger.debug('building chrome driver')
             options = webdriver.ChromeOptions()
             options.add_argument("--headless")
             options.add_argument("--window-size=1920x1080")
+            options.add_argument("--disable-dev-shm-usage")
+            options.add_argument("--no-sandbox")
+            options.add_argument("--remote-debugging-port=9222")
+            logger.debug('installing chrome driver')
+            logger.debug('starting chrome driver service')
             service = Service(executable_path=self.driverLocation)
+            logger.debug('starting chrome driver')
             self.driver = webdriver.Chrome(service=service, options=options)
             logger.debug('built chrome driver')
         return self.driver

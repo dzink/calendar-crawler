@@ -38,13 +38,13 @@ redEmmas:
 currentSpace:
   name: Current Space
   source:
-    url: https://withfriends.co/current_space/events
+    url: https://withfriends.events/o/current_space/upcoming/
     scrollCount: 4
   parser:
     class: WithFriendsParser
   postTasks:
     - type: addBoilerplateToDescriptions
-      text: End time is approximate. Crawled from https://withfriends.co/current_space/events, see https://whomtube.com/shows for more.
+      text: End time is approximate. Crawled from https://withfriends.events/o/current_space/upcoming/, see https://whomtube.com/shows for more.
     - type: prefixDescriptionsWithLinks
     - type: setLocationAddress
       text: Current Space
