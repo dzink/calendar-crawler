@@ -11,6 +11,7 @@ from CalendarFactory import CalendarFactory
 from datetime import datetime
 
 from CalendarLogger import logger, addLoggerArgsToParser, buildLogger
+from CalendarSource import CalendarSource
 
 options = None
 factory = None
@@ -65,10 +66,13 @@ def main():
                 else:
                     googleCalendar.dryRun(event, options.show_skips)
 
-            print('Done. %d inserted, %d updated, %d skipped.' % (inserted, updated, skipped))
+            errors = sum(1 for line in open('./data/current.log') if line.strip())
+            print('Done. %d inserted, %d updated, %d skipped, %d errors.' % (inserted, updated, skipped, errors))
 
     except Exception as e:
         logger.exception("Exception occurred")
+    finally:
+        CalendarSource.quitDriver()
 
 def parseArguments(config):
     parser = argparse.ArgumentParser(description='Scrape event pages and add them to a Google calendar')

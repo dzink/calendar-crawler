@@ -115,6 +115,13 @@ class CalendarSource:
     Some sources need to be scrolled to the bottom of the page before they will
     load all events.
     """
+    @staticmethod
+    def quitDriver():
+        if CalendarSource.driver:
+            logger.debug('quitting chrome driver')
+            CalendarSource.driver.quit()
+            CalendarSource.driver = None
+
     def scrollPage(self, driver, pause = 2):
         if (self.scrollCount):
             for i in range(self.scrollCount):
