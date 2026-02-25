@@ -19,22 +19,62 @@ optional arguments:
 ```
 
 ## Install
-This app runs on python 3.
+This app runs on Python 3.
 
 ### Requirements
-You'll need a few python libraries, and perhaps Google Chrome as well.
+
+Set up a virtual environment and install dependencies:
 
 ```
-pip install webdriver-manager selenium bs4 tinydb google-api-python-client google-auth-httplib2 google-auth-oauthlib argparse datetime pyyaml python-dateutil --quiet
+python3 -m venv .venv
+.venv/bin/pip install -r requirements.txt
 ```
 
-In `./data/secrets.yml`, you will need a file that looks like `./data/example.secrets.yml`, only with the real data. The credentials data comes straight from your Google Calendar app json, you can paste it in as-is since json is valid yml. The calendar id comes from the calendar settings.
+### Configuration
 
-### Chrome Driver
+Copy the example config files in `data/` and fill in real values:
 
-You may need to install a chrome driver. Grab the latest from here https://googlechromelabs.github.io/chrome-for-testing/ , unzip it, and update the value of `chromeDriverLocation` in `data/options.yml` (you may need to create this file from the example version).
+- `data/options.yml` (from `data/example.options.yml`) — Chrome binary path and other options
+- `data/secrets.yml` (from `data/example.secrets.yml`) — Google Calendar API credentials and calendar ID. The credentials data comes straight from your Google Calendar app JSON (paste as-is, since JSON is valid YAML). The calendar ID comes from Google Calendar settings.
 
-Alternately, you can use the script `./update-chromedriver.sh`.
+### Chrome
+
+A headless Chrome or Chromium browser is required for scraping. The recommended approach is to install Google Chrome as a `.deb` package (not Snap or Flatpak, which have sandboxing issues with headless mode):
+
+```
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+sudo dpkg -i google-chrome-stable_current_amd64.deb
+```
+
+Then set the binary path in `data/options.yml`:
+
+```yml
+chromeBinaryLocation: '/usr/bin/google-chrome'
+```
+
+The matching chromedriver is downloaded automatically via `webdriver_manager` and cached in `~/.wdm/`.
+
+If you prefer to manage chromedriver manually, set `chromeDriverLocation` in `data/options.yml` to the path of your chromedriver binary.
+
+### Scheduled runs (systemd)
+
+To run the crawler daily as a systemd user timer:
+
+```
+./install-systemd.sh
+```
+
+This installs a service and timer to `~/.config/systemd/user/` and enables the timer. The crawler will run once a day (with a 30-minute randomized delay), wait for network connectivity, and send desktop notifications on start and finish.
+
+Useful commands:
+
+```
+systemctl --user status calendar-crawler.timer    # check timer status
+journalctl --user -u calendar-crawler.service     # view logs
+systemctl --user start calendar-crawler.service   # run manually
+```
+
+You can customize the schedule by editing `~/.config/systemd/user/calendar-crawler.timer`. See `data/example.calendar-crawler.service` and `data/example.calendar-crawler.timer` for reference.
 
 ## Troubleshooting
 
