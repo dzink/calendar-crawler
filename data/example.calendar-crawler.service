@@ -1,0 +1,7 @@
+[Unit]
+Description=Calendar Crawler - scrape events and sync to Google Calendar
+
+[Service]
+Type=oneshot
+ExecCondition=/usr/bin/nm-online -q -t 30
+ExecStart=/path/to/calendar-crawler/run.sh -v
