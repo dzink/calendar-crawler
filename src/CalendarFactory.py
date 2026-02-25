@@ -31,7 +31,7 @@ class CalendarFactory:
         url = sourceConfig['url']
 
         sourceClass = self.getClass(class_)
-        source = sourceClass(url, sourceId, self.options.remote, self.config.get('chromeDriverLocation', './chromedriver-linux64/chromedriver'))
+        source = sourceClass(url, sourceId, self.options.remote, self.config.get('chromeDriverLocation', None), self.config.get('chromeBinaryLocation', None))
 
         if (scrollCount):
             source.setScrollCount(scrollCount)

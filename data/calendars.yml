@@ -8,7 +8,7 @@ dzShowCrawler:
   sources:
     - showPlace
     - redEmmas
-    - currentSpace
+    # - currentSpace
     - ottobar
     - blackCat
     - space2640

@@ -45,13 +45,27 @@ def main():
 
                 events = events.merge(getEvents(sourceKey, sourceConfig))
 
+            inserted = 0
+            updated = 0
+            skipped = 0
+
             for event in events:
                 event.deduplicate(forceUpdateIfMatched = options.force_update)
+
+                if (event.skipSync):
+                    skipped += 1
+                elif (event.calendarId == None):
+                    inserted += 1
+                else:
+                    updated += 1
+
                 if (not options.dry_run):
                     googleCalendar.syncEvent(event)
                     event.write()
                 else:
                     googleCalendar.dryRun(event, options.show_skips)
+
+            print('Done. %d inserted, %d updated, %d skipped.' % (inserted, updated, skipped))
 
     except Exception as e:
         logger.exception("Exception occurred")

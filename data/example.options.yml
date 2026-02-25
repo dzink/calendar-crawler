@@ -1,1 +1,6 @@
-chromeDriverLocation: './chromedriver-linux64/chromedriver'
+# Path to a chromedriver binary. If omitted, chromedriver is auto-detected
+# via webdriver_manager (cached in ~/.wdm/).
+# chromeDriverLocation: './chromedriver-linux64/chromedriver'
+
+# Path to a Chrome/Chromium binary. Useful with Flatpak Chromium:
+# chromeBinaryLocation: '/var/lib/flatpak/exports/bin/org.chromium.Chromium'

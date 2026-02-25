@@ -8,13 +8,15 @@ from time import sleep
 from CalendarLogger import logger
 
 import os.path
+import subprocess
+import re
 
 class CalendarSource:
     events = []
     driver = None
     driverLocation = ""
 
-    def __init__(self, url, id = '', remote = True, driverLocation = None):
+    def __init__(self, url, id = '', remote = True, driverLocation = None, chromeBinaryLocation = None):
         self.url = url
         if (id == ''):
             id = url
@@ -22,27 +24,48 @@ class CalendarSource:
         self.remote = remote
         self.scrollCount = 0
         self.driverLocation = driverLocation
+        self.chromeBinaryLocation = chromeBinaryLocation
 
     """
     Build and return a headless web driver.
     The driver is a class variable so each source instance will share a driver.
     """
     def getDriver(self):
-        if (self.driver == None):
+        if (CalendarSource.driver == None):
             logger.debug('building chrome driver')
             options = webdriver.ChromeOptions()
             options.add_argument("--headless")
             options.add_argument("--window-size=1920x1080")
             options.add_argument("--disable-dev-shm-usage")
             options.add_argument("--no-sandbox")
-            options.add_argument("--remote-debugging-port=9222")
+            options.add_argument("--disable-gpu")
+            if self.chromeBinaryLocation:
+                logger.debug('setting chrome binary location to ' + self.chromeBinaryLocation)
+                options.binary_location = self.chromeBinaryLocation
             logger.debug('installing chrome driver')
             logger.debug('starting chrome driver service')
-            service = Service(executable_path=self.driverLocation)
+            if self.driverLocation:
+                service = Service(executable_path=self.driverLocation)
+            else:
+                driver_version = self.detectChromeVersion()
+                service = Service(ChromeDriverManager(driver_version=driver_version).install())
             logger.debug('starting chrome driver')
-            self.driver = webdriver.Chrome(service=service, options=options)
+            CalendarSource.driver = webdriver.Chrome(service=service, options=options)
             logger.debug('built chrome driver')
-        return self.driver
+        return CalendarSource.driver
+
+    def detectChromeVersion(self):
+        binary = self.chromeBinaryLocation or 'google-chrome'
+        try:
+            output = subprocess.check_output([binary, '--version'], stderr=subprocess.DEVNULL).decode().strip()
+            match = re.search(r'(\d+\.\d+\.\d+\.\d+)', output)
+            if match:
+                version = match.group(1)
+                logger.debug('detected chrome version: ' + version)
+                return version
+        except Exception as e:
+            logger.debug('could not detect chrome version: ' + str(e))
+        return None
 
     def getHtml(self):
         logger.debug('retrieving ' + self.url)
