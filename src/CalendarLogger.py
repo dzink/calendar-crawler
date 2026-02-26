@@ -4,6 +4,14 @@ Probably overkill, but can be pasted into future scripts.
 """
 
 import logging
+import subprocess
+
+class NotifyHandler(logging.Handler):
+    def emit(self, record):
+        try:
+            subprocess.Popen(['notify-send', 'Calendar Crawler', self.format(record)])
+        except Exception:
+            pass
 
 # Create a custom logger
 logger = logging.getLogger(__name__)
@@ -34,10 +42,16 @@ def buildLogger(options):
     last_handler.setFormatter(last_format)
     f_handler.setFormatter(f_format)
 
+    # Desktop notification handler for errors
+    n_handler = NotifyHandler()
+    n_handler.setLevel(logging.ERROR)
+    n_handler.setFormatter(c_format)
+
     # Add handlers to the logger
     logger.addHandler(c_handler)
     logger.addHandler(last_handler)
     logger.addHandler(f_handler)
+    logger.addHandler(n_handler)
 
 def addLoggerArgsToParser(parser, defaults):
     parser.add_argument('-v', '--verbose', help = 'Verbose output.', action = 'store_true', default = defaults.get('verbose', False))
