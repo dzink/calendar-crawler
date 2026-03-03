@@ -19,7 +19,7 @@ class GreedyReadsParser(CalendarParser):
                 descriptionHtml = lines[1]
 
                 if descriptionHtml:
-                    event.setDescription(descriptionHtml.get_text())
+                    event.setDescription(self.getDescriptionText(descriptionHtml))
                     linkHtml = descriptionHtml.find('a', href=True)
                     if linkHtml:
                         event.setLink(linkHtml['href'])

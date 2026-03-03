@@ -7,6 +7,7 @@ This class should be extended by parsers in src/parsers
 """
 
 from bs4 import BeautifulSoup
+import copy
 import re
 from EventList import EventList
 from CalendarLogger import logger
@@ -76,6 +77,16 @@ class CalendarParser:
         if (htmlObject is not None):
             return htmlObject.get_text()
         return default
+
+    def getDescriptionText(self, element):
+        if element is None:
+            return ''
+        el = copy.copy(element)
+        for tag in el.find_all(['br', 'p']):
+            tag.insert_before('\n')
+        for br in el.find_all('br'):
+            br.decompose()
+        return el.get_text()
 
     def cutPatternFromString(self, text, cutPattern):
         if (text is None):

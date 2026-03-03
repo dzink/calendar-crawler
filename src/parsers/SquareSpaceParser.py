@@ -12,7 +12,7 @@ class SquareSpaceParser(CalendarParser):
                 location = self.removeTagFromElement(locationHtml, 'a').get_text()
                 location = self.replaceWhitespace(location, '')
                 descriptionHtml = eventHtml.find('div', class_ = 'eventlist-description')
-                description = self.getTextOrDefault(descriptionHtml, '')
+                description = self.getDescriptionText(descriptionHtml) if descriptionHtml else ''
                 description = self.replaceWhitespace(description, '')
                 title = eventHtml.find('h1', class_ = 'eventlist-title').get_text()
                 date = eventHtml.find('time', class_ = 'event-date').get_text()

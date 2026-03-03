@@ -34,7 +34,7 @@ class RedRoomParser(CalendarParser):
                     event.setLink(link)
 
                 descriptionHtml = eventHtml.find('p')
-                description = descriptionHtml.get_text()
+                description = self.getDescriptionText(descriptionHtml)
                 description = self.cutPatternFromString(description, '>> MORE')
                 description = self.removeWhitespace(description)
                 description = '%s\n\n%s\n\n%s' % (title, date, description)

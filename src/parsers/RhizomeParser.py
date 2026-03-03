@@ -13,7 +13,7 @@ class RhizomeParser(CalendarParser):
                 title = self.replaceWhitespace(title, ' ')
                 event = Event()
                 descriptionHtml = eventHtml.find('div', class_ = 'summary-excerpt')
-                description = self.replaceWhitespaceWithPipes(descriptionHtml.get_text())
+                description = self.getDescriptionText(descriptionHtml)
                 link = eventHtml.find('a').get('href')
 
                 date = eventHtml.find('div', class_ = 'summary-thumbnail-event-date').get_text()

@@ -14,7 +14,7 @@ class BlackCatParser(CalendarParser):
                 link = h1Html.find('a')
                 if (link):
                     event = Event()
-                    description = eventHtml.get_text()
+                    description = self.getDescriptionText(eventHtml)
 
                     link = link.get('href')
 

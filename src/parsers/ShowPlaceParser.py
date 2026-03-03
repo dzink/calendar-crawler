@@ -26,7 +26,7 @@ class ShowPlaceParser(CalendarParser):
                 if (element.name == 'h2'):
                     date = element.text
                 if (element.name == 'p'):
-                    text = element.text
+                    text = self.getDescriptionText(element)
                     if (text):
 
                         # Scraping magic happens here
