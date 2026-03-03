@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Baltimore Calendar Crawler</title>
+  {{styles}}
+  <link rel="icon" type="image/x-icon" href="./assets/icons/favicon-32x32.png">
+  <meta name="description" content="This calendar lists events in the Baltimore area and provides an integrated calendar.">
+  <meta name="author" content="DZ">
+  <meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=1">
+
+  <!-- Facebook Meta Tags -->
+  <meta property="og:url" content="{{base_url}}">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Baltimore Calendar Crawler">
+  <meta property="og:description" content="This calendar lists events in the Baltimore area and provides an integrated calendar.">
+  <meta property="og:image" content="{{base_url}}/assets/icons/calendarcrawlerpreview.png">
+
+  <!-- Twitter Meta Tags -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="{{base_url}}">
+  <meta name="twitter:title" content="Baltimore Calendar Crawler">
+  <meta name="twitter:description" content="This calendar lists events in the Baltimore area and provides an integrated calendar.">
+  <meta name="twitter:image" content="{{base_url}}/assets/icons/calendarcrawlerpreview.png">
+
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-EJ3EVWMZWD"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-EJ3EVWMZWD');
+  </script>
+
+</head>
+
+
+<body id="top" class="day-view">
+<a class="skip-link" href="#agenda">Skip to events</a>
+<div id='content'>
+  <div id='sections'>
+
+    <section class='content'>
+      <header class='header'>
+        <ul class='navigation main-menu mobile-only' role='toolbar' aria-label='FAQ menu'>
+          <li><a href='#about'>About</a></li>
+          <li><a href='#subscribe' tabindex='-1'>How to subscribe</a></li>
+          <li><a href='#sources' tabindex='-1'>Sources</a></li>
+          <li><a href='#beta' tabindex='-1'>Beta?</a></li>
+          <li><a href='#thanks' tabindex='-1'>Thanks</a></li>
+        </ul>
+        <div class='beta'><a href='#beta'>Beta Version</a></div>
+        <h1>Baltimore Calendar Crawler</h1>
+      </header>
+      <div class='section-inner'>
+        <div class="subheader" role="banner">
+          <p class="subheader-main"><a class="subheader-btn primary-btn" href='{{webcal_ics}}'>+ Subscribe to<br class="mobile-only"> Calendar</a></p>
+          <p class="subheader-desc">Updates automatically. <a href='#google'>BDS-compliant</a>.The preferred way to get these events on your phone or computer. </p>
+          <p class="subheader-alt">Also available for <a target='_blank' rel='noopener' href='{{google_ics}}'>Google Calendar</a>, <a target='_blank' rel='noopener' href='{{outlook_ics}}'>Outlook</a>, <a target='_blank' rel='noopener' href='{{office365_ics}}'>Office 365</a>, or as a <a href='assets/ics/events.ics'>raw ICS file</a>.</p>
+        </div>
+        <div class="agenda-container">
+          <nav class="date-picker" aria-label="Event navigation">
+            <div class="nav-row nav-subscribe">
+              <a class="nav-subscribe-btn primary-btn" href='{{webcal_ics}}'>+ Add to Calendar</a> <span>updates automatically</span>
+            </div>
+            <div class="nav-row">
+              <div class="btnset">
+                <button onclick="go(-1,'day')" aria-label="Previous day">&lt;</button>
+                <button onclick="go(1,'day')" aria-label="Next day">&gt;</button>
+                <button onclick="go(-1,'week')" aria-label="Back one week">&lt; wk</button>
+                <button onclick="go(1,'week')" aria-label="Forward one week">wk &gt;</button>
+                <button onclick="go(-1,'month')" aria-label="Previous month">&lt; mo</button>
+                <button onclick="go(1,'month')" aria-label="Next month">mo &gt;</button>
+              </div>
+              <button id="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">☽</button>
+
+            </div>
+            <div class="nav-row">
+              <input type="text" id="event-filter" aria-label="Filter events" placeholder="filter (comma-separated phrases)" oninput="filterEvents(this.value)">
+              <!-- <button id="view-toggle" onclick="toggleView()" aria-label="Toggle week/day view">day</button> -->
+              <input type="date" id="datepicker" aria-label="Jump to date" onchange="goToDate(this.value)">
+            </div>
+          </nav>
+          <div id="agenda" role="region" aria-label="Event listings" tabindex="0">
+            {{content}}
+          </div>
+        </div>
+      </div>
+      <aside class='sidebar'>
+      <div class='section-inner'>
+        <h2>Frequently Asked Questions</h2>
+        <details id='about'>
+          <summary><h3>What Is This?</h3></summary>
+          <div class="details">
+            <p>This is a website that embeds a google calendar, the calendar lists diy events in the baltimore area. The aggregator runs daily-ish and crawls a few different public sites and converts their listings of events into calendar events.</p>
+            <p>The crawler makes an effort to update when shows are cancelled or moved, but it's not perfect. Often the end times are a guess. Use yr common sense before going to any of these shows, and please be kind in diy and performance spaces.</p>
+            <p class="back-to-top"><a href="#top">Back to top</a></p>
+          </div>
+        </details>
+        <details id='subscribe'>
+          <summary><h3>How Do I Subscribe to This Calendar?</h3></summary>
+          <div class="details">
+            <p>Add this calendar to your phone or computer — it updates automatically. Nothing tracks you, I have no way of sending you ads or anything, it's really just another source for your devices' calendars to pull from. It's a very full calendar, so I recommend turning it on and off as needed; most applications support this:</p>
+            <ul class="ics-sources subscribe-list">
+              <li><a target='_blank' rel='noopener' href='{{webcal_ics}}'><strong>Add to Calendar</strong> <span>Works with Apple, KDE, Linux, iCal, and most calendar apps</span></a></li>
+              <li><a target='_blank' rel='noopener' href='{{google_ics}}'><strong>Google Calendar</strong> <span>Add to Google Calendar</span></a></li>
+              <li><a target='_blank' rel='noopener' href='{{outlook_ics}}'><strong>Outlook</strong> <span>Personal Outlook account</span></a></li>
+              <li><a target='_blank' rel='noopener' href='{{office365_ics}}'><strong>Office 365</strong> <span>Work or school account</span></a></li>
+              <li><a href='assets/ics/events.ics'><strong>Download ICS</strong> <span>Raw ICS file for manual import</span></a></li>
+            </ul>
+            <p><a href='https://calendar.google.com/calendar/u/0?cid=cWo4bHB1bGg0MTg1cWRwdDQyZTU4ZDk4bnNAZ3JvdXAuY2FsZW5kYXIuZ29vZ2xlLmNvbQ' target='_blank' rel='noopener'>Add the legacy Google Calendar version</a>.</p>
+            <p class='mobile-only'><i><strong>Mobile users note:</strong> I had a few reports of the one-click link not working on iPhones. if you click on the above button and it takes you to a weird old google calendar app from 2010, then click "Desktop" at the bottom of the page and you should be able to use it. If it STILL doesn't work... you have to subscribe from a desktop or laptop computer, sorry. Once you do, events will still show up on yr spacephone. I'm not sure why Google is serving calendar software from 2010 and i don't think i can support it, sorry.</i></p>
+            <p class="back-to-top"><a href="#top">Back to top</a></p>
+          </div>
+        </details>
+        <details id='sources'>
+          <summary><h3>What Sources Do the Events Come From?</h3></summary>
+          <div class="details">
+            <p>This calendar draws from a number of public sources, all of whom have given the crawler permission to crawl their data:</p>
+            <ul>
+              <li><a target='_blank' rel='noopener' href='https://baltshowplace.tumblr.com/'>Showplace</a></li>
+              <li><a target='_blank' rel='noopener' href='https://www.2640space.net/events'>2640 Space</a></li>
+              <li><a target='_blank' rel='noopener' href='https://www.blackcatdc.com/schedule.html'>Black Cat DC</a></li>
+              <li><a target='_blank' rel='noopener' href='https://withfriends.co/current_space/events'>Current Space</a></li>
+              <li><a target='_blank' rel='noopener' href='https://greedyreads.com/events'>Greedy Reads</a></li>
+              <li><a target='_blank' rel='noopener' href='https://themetrogallery.net/events/'>Metro Gallery</a></li>
+              <li><a target='_blank' rel='noopener' href='https://theottobar.com/calendar/'>Ottobar</a></li>
+              <li><a target='_blank' rel='noopener' href='https://withfriends.co/red_emmas/events'>Red Emma's</a></li>
+              <li><a target='_blank' rel='noopener' href='https://www.redroom.org'>The Red Room at Normal's</a></li>
+              <li><a target='_blank' rel='noopener' href='https://www.rhizomedc.org/'>Rhizome DC</a></li>
+            </ul>
+            <p>You can also subscribe to individual sources - please note, the de-duplicator removes some events from some calendars so they don't show up twice, so each calendar may not reflect what is on the source website. This feature is experimental and may never be as reliable as the full list:</p>
+            <ul>
+              {{source_ics_links}}
+            </ul>
+            <p class="back-to-top"><a href="#top">Back to top</a></p>
+          </div>
+        </details>
+        <details id='submit'>
+          <summary><h3>Can I Submit an Event?</h3></summary>
+          <div class="details">
+            <p>That's not what this is, this is just an aggregator. If you come up with a new source, please get in touch and i'll review it to add here.</p>
+            <p class="back-to-top"><a href="#top">Back to top</a></p>
+          </div>
+        </details>
+        <details id='google'>
+          <summary><h3>Why Aren't You Supporting Google Anymore?</h3></summary>
+          <div class="details">
+            <p>The Boycott, Divestment, and Sanction movement has identified Google as a pressure target. For pressure targets, the movement calls for users to use other services when available. To support this request, the Baltimore Calendar Crawler is now available in many different formats, including raw ics. See <a href='https://www.notechforapartheid.com/' target='_blank' rel='noopener'>https://www.notechforapartheid.com/</a> and <a href='https://bdsmovement.net/Guide-to-BDS-Boycott' target='_blank' rel='noopener'>https://bdsmovement.net/Guide-to-BDS-Boycott</a> for more details. </p>
+            <p>If you still have the old link in your Google calendar, it still works for now, but this may change in the future as the movement's strategies shift. The ics link to Google Calendar above will always work so long as Google supports ics. It should be noted that Microsoft links are also provided, and Microsoft is also a pressure target. I encourage you not to use these services, but they're there if you need them.</p>
+            <p class="back-to-top"><a href="#top">Back to top</a></p>
+          </div>
+        </details>
+        <details id='beta'>
+          <summary><h3>Is This a Beta Version?</h3></summary>
+          <div class="details">
+            <p>Yes. There are a few issues to work out - some events with weird formatting don't parse correctly, multi-day events don't work, the de-duplicator needs work with false positives, error handling could be better, and I'd like to automate the crawling so results are accurate up to the hour.</p>
+            <p class="back-to-top"><a href="#top">Back to top</a></p>
+          </div>
+        </details>
+        <details id='thanks' open>
+          <summary><h3>Thanks</h3></summary>
+          <div class="details">
+            <p>The utmost gratitude for everyone who performs at and runs these shows, and special thanks to <a target='_blank' rel='noopener' href='https://baltshowplace.tumblr.com/'>Showplace</a> for their effort in collecting so many of these events.</p>
+            <p class="back-to-top"><a href="#top">Back to top</a></p>
+          </div>
+        </details>
+        <hr>
+        <p class='footer'>Calendar crawler code is open source: <a target='_blank' rel='noopener' href='https://github.com/dzink/calendar-crawler'>Calendar Crawler</a>.</p>
+        <p class='footer'>Copyright &copy; {{year}} whomtube.com</p>
+      </div>
+      </aside>
+  	</section>
+
+  </div>
+</div>
+{{scripts}}
+</body>
+</html>

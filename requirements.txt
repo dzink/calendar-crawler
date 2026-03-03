@@ -1,0 +1,12 @@
+beautifulsoup4==4.13.5
+bs4==0.0.2
+DateTime==5.5
+google-api-python-client==2.179.0
+google-auth-httplib2==0.2.0
+google-auth-oauthlib==1.2.2
+python-dateutil==2.9.0.post0
+PyYAML==6.0.2
+selenium==4.35.0
+tinydb==4.8.2
+webdriver-manager==4.0.2
+icalendar
