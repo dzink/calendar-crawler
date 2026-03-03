@@ -56,7 +56,7 @@ def main():
 def parseArguments():
     global options
     parser = argparse.ArgumentParser(description='Scrape event pages and add them to a Google calendar')
-    addLoggerArgsToParser(parser)
+    addLoggerArgsToParser(parser, {})
     parser.add_argument('-l', '--location', help = 'Search by location/venue', default = False)
     parser.add_argument('-s', '--summary', help = 'Search by title/artist/etc', default = False)
     parser.add_argument('-o', '--source', help = 'Search by import source', default = False)

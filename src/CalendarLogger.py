@@ -4,12 +4,27 @@ Probably overkill, but can be pasted into future scripts.
 """
 
 import logging
+import os
 import subprocess
 
 class NotifyHandler(logging.Handler):
+    def __init__(self, log_file=None):
+        super().__init__()
+        self.log_file = os.path.abspath(log_file) if log_file else None
+
     def emit(self, record):
         try:
-            subprocess.Popen(['notify-send', 'Calendar Crawler', self.format(record)])
+            msg = self.format(record)
+            if self.log_file:
+                subprocess.Popen([
+                    'bash', '-c',
+                    'action=$(notify-send "Calendar Crawler" "$1" --action="view=View Log"); '
+                    '[ "$action" = "view" ] && '
+                    'zenity --text-info --filename="$2" --title="Calendar Crawler - Error Log" --width=800 --height=600 2>/dev/null',
+                    '--', msg, self.log_file
+                ])
+            else:
+                subprocess.Popen(['notify-send', 'Calendar Crawler', msg])
         except Exception:
             pass
 
@@ -43,7 +58,7 @@ def buildLogger(options):
     f_handler.setFormatter(f_format)
 
     # Desktop notification handler for errors
-    n_handler = NotifyHandler()
+    n_handler = NotifyHandler(log_file='./data/current.log')
     n_handler.setLevel(logging.ERROR)
     n_handler.setFormatter(c_format)
 

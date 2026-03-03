@@ -23,7 +23,7 @@ def main():
         global factory
         options = parseArguments()
         buildLogger(options)
-        factory = CalendarFactory(options)
+        factory = CalendarFactory(options, {})
 
         sourceConfigs = loadConfig('./data/sources.yml')
         secrets = loadConfig('./data/secrets.yml')
@@ -32,7 +32,7 @@ def main():
         deadline = False
 
         if (not options.clean_all):
-            deadline = datetime.now() - relativedelta(days=int(31))
+            deadline = datetime.now() - relativedelta(days=int(90))
             deadline = deadline.strftime('%Y-%m-%d')
 
         if (options.id is not None):
@@ -60,7 +60,7 @@ def main():
 
 def parseArguments():
     parser = argparse.ArgumentParser(description='Clean old events from the calendar')
-    addLoggerArgsToParser(parser)
+    addLoggerArgsToParser(parser, {})
     parser.add_argument('-d', '--dry-run', help = 'Run the cleaner but do not write to the calendar or database.', action = 'store_true', default = False)
     parser.add_argument('--clean-all', help = 'Clean all events', action = 'store_true', default = False)
     parser.add_argument('-s', '--source', help = 'Only crawl the given source(s).', action = 'append', default = None)

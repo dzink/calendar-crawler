@@ -16,3 +16,4 @@ src/__pycache__
 .tags
 
 .venv
+dist/
