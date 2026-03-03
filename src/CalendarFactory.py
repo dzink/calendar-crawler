@@ -10,6 +10,7 @@ from parsers.ShowPlaceParser import ShowPlaceParser
 from parsers.OttobarParser import OttobarParser
 from parsers.SquareSpaceParser import SquareSpaceParser
 from parsers.WithFriendsParser import WithFriendsParser
+from parsers.CurrentSpaceParser import CurrentSpaceParser
 from parsers.RhizomeParser import RhizomeParser
 from parsers.GreedyReadsParser import GreedyReadsParser
 from parsers.RedRoomParser import RedRoomParser
