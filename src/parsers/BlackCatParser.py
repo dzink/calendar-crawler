@@ -36,7 +36,7 @@ class BlackCatParser(CalendarParser):
                     event.setSummary(title)
                     event.setLocation(self.location)
                     event.setLink(link)
-                    event.setDescription(self.replaceWhitespaceWithPipes(description))
+                    event.setDescription(description)
                     event.setStartString(self.buildStartstamp(year, date, time), '%A %B %d %Y %I:%M%p')
                     event.setAbsoluteEndDateTime(23, 59)
 

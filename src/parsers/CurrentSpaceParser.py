@@ -51,7 +51,6 @@ class CurrentSpaceParser(WithFriendsParser):
 
                 self.removeScriptsFromElement(card)
                 description = self.getDescriptionText(card)
-                description = self.replaceWhitespaceWithPipes(description)
                 event.setDescription(description)
 
                 self.addEvent(event)

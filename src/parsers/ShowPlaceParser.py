@@ -47,7 +47,7 @@ class ShowPlaceParser(CalendarParser):
     """
     def parseWaterfall(self, text, date):
         event = Event()
-        event.setDescription(self.replaceWhitespaceWithPipes(text))
+        event.setDescription(text)
 
         # Default
         venueParsed = re.findall('(.*)\\s*\\@\\s*([^@]*)$', text)

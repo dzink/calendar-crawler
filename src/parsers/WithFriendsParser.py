@@ -38,7 +38,6 @@ class WithFriendsParser(CalendarParser):
                 self.removeScriptsFromElement(eventHtml)
 
                 description = self.getDescriptionText(eventHtml)
-                description = self.replaceWhitespaceWithPipes(description)
                 event.setDescription(description)
 
                 self.addEvent(event)

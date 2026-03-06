@@ -86,7 +86,11 @@ class CalendarParser:
             tag.insert_before('\n')
         for br in el.find_all('br'):
             br.decompose()
-        return el.get_text()
+        text = el.get_text()
+        text = re.sub(r'[^\S\n]*\n[^\S\n]*', '\n', text)
+        text = re.sub(r'\n{3,}', '\n\n', text)
+        text = re.sub(r'[^\S\n]{2,}', ' ', text)
+        return text.strip()
 
     def cutPatternFromString(self, text, cutPattern):
         if (text is None):
