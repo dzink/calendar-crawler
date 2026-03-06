@@ -113,7 +113,7 @@ def buildCalendar(events):
     cal = Calendar()
     cal.add('prodid', '-//Calendar Crawler//EN')
     cal.add('version', '2.0')
-    cal.add('x-wr-calname', 'Baltimore Calendar Crawler')
+    cal.add('x-wr-calname', 'Baltimore DIY Calendar Crawler')
 
     for event in events:
         ical_event = ICalEvent()
@@ -130,6 +130,8 @@ def buildCalendar(events):
             ical_event.add('description', event.description)
         if event.link:
             ical_event.add('url', event.link)
+        if event.img:
+            ical_event.add('attach', event.img, parameters={'FMTTYPE': 'image/jpeg'})
 
         cal.add_component(ical_event)
         logger.info('Added: %s (%s)' % (event.summary, event.startToString('%Y-%m-%d')))
@@ -195,7 +197,7 @@ def writeSourceCalendars(events, output_dir):
         cal = Calendar()
         cal.add('prodid', '-//Calendar Crawler//EN')
         cal.add('version', '2.0')
-        cal.add('x-wr-calname', 'Baltimore Calendar Crawler - %s' % source_name)
+        cal.add('x-wr-calname', 'Baltimore DIY Calendar Crawler - %s' % source_name)
 
         for event in source_events:
             ical_event = ICalEvent()
@@ -231,17 +233,23 @@ def buildDataAttrs(ev):
         attrs.append('data-location="%s"' % html.escape(ev.location, quote=True))
     if ev.link:
         attrs.append('data-url="%s"' % html.escape(ev.link, quote=True))
+    if ev.img:
+        attrs.append('data-img="%s"' % html.escape(ev.img, quote=True))
     return ' '.join(attrs)
 
 
 _BARE_URL = re.compile(r'(https?://[^\s<>\"\']+[^\s<>\"\'.,;:)\]])')
 _LINK_SPLIT = re.compile(r'(<a\s[^>]*>.*?</a>)', re.IGNORECASE | re.DOTALL)
+_A_OPEN = re.compile(r'<a\s', re.IGNORECASE)
 
 def linkify(text):
-    """Wrap bare URLs (not already inside an <a> tag) in anchor tags."""
+    """Wrap bare URLs in anchor tags and ensure all links open in new tabs."""
     parts = _LINK_SPLIT.split(text)
     for i, part in enumerate(parts):
-        if not _LINK_SPLIT.match(part):
+        if _LINK_SPLIT.match(part):
+            if 'target=' not in part:
+                parts[i] = _A_OPEN.sub('<a target="_blank" rel="noopener" ', part)
+        else:
             parts[i] = _BARE_URL.sub(r'<a href="\1" target="_blank" rel="noopener">\1</a>', part)
     return ''.join(parts)
 
@@ -278,26 +286,33 @@ def buildHtml(events, source_list=None):
         for ev in day_events:
             summary = html.escape(ev.summary or 'Untitled')
             time_str = ev.startDate.strftime('%-I:%M %p') if ev.startDate else ''
+            approx_end = ev.description and re.search(r'End times? (?:is|are) approximate', ev.description, re.IGNORECASE)
             location = html.escape(ev.location) if ev.location else ''
+            link = html.escape(ev.link) if ev.link else ''
             source = html.escape(ev.sourceTitle) if ev.sourceTitle else ''
             meta_parts = []
             if time_str:
-                meta_parts.append(time_str)
+                meta_parts.append(time_str + ('*' if approx_end else ''))
             if location:
                 meta_parts.append('at ' + location)
-            if source:
-                meta_parts.append('from source ' + source)
+            # if source:
+            #     meta_parts.append('from source ' + source)
             meta_line = '<span class="summary-meta">%s</span>' % ' &middot; '.join(meta_parts) if meta_parts else ''
             summary_line = '<span class="summary-text">%s%s</span>' % (summary, meta_line)
 
             detail_lines = []
             if ev.startDate and ev.endDate:
-                time_range = '%s – %s' % (ev.startDate.strftime('%-I:%M %p'), ev.endDate.strftime('%-I:%M %p'))
+                time_range = '%s – %s%s' % (ev.startDate.strftime('%-I:%M %p'), ev.endDate.strftime('%-I:%M %p'), '*' if approx_end else '')
                 detail_lines.append('<p class="time time-range">%s</p>' % html.escape(time_range))
             elif ev.startDate:
                 detail_lines.append('<p class="time">%s</p>' % html.escape(ev.startDate.strftime('%-I:%M %p')))
             if location:
                 detail_lines.append('<p class="location">%s</p>' % location)
+            if link:
+                detail_lines.append(linkify('<p class="link-url"><a href="%s" title="%s">%s</a></p>' % (link, summary, link)))
+            flyer = ev.flyerHtml()
+            if flyer:
+                detail_lines.append(flyer)
             if ev.description:
                 # data-desc marks this paragraph so JS can grab its textContent
                 # for calendar descriptions
@@ -307,7 +322,7 @@ def buildHtml(events, source_list=None):
             # if ev.link:
                 # detail_lines.append('<a href="%s" target="_blank" rel="noopener">Event Link</a>' % html.escape(ev.link))
             # Per-event add-to-calendar trigger; JS attaches a shared dropdown here
-            detail_lines.append('<a href="#" class="add-to-cal simple-link primary-btn">+ add to calendar</a>')
+            detail_lines.append('<div class="section--add-to-cal"><a href="#" class="add-to-cal simple-link primary-btn" role="button" aria-haspopup="menu" aria-expanded="false">+ add to calendar</a></div>')
 
             # data-* attrs on <details> carry event info for client-side calendar URLs
             data_attrs = buildDataAttrs(ev)
@@ -339,7 +354,7 @@ def buildHtml(events, source_list=None):
     base_url = options.base_url.rstrip('/')
     https_ics = base_url + '/assets/ics/events.ics'
     webcal_ics = https_ics.replace('https://', 'webcal://', 1)
-    name = 'Baltimore Calendar Crawler'
+    name = 'Baltimore DIY Calendar Crawler'
     encoded_name = html.escape(name, quote=True).replace(' ', '%20')
 
     result = HTML_TEMPLATE.replace('{{content}}', ''.join(sections))
