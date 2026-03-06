@@ -6,6 +6,7 @@ data/secrets.yml
 data/credentials.json
 data/token.json
 data/*.log
+data/.backups
 
 chromedriver-linux64*
 source_html/*.html
