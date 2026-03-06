@@ -112,6 +112,7 @@ class GoogleCalendar:
         if (event.color != None):
             eventData['colorId'] = self.mapColor(event.color) or 0
 
+        eventData['description'] += "\n\nAdministrative note: this Google Calendar is deprecated in favor of a more open source approach that will support many calendar types (including a direct Google Calendar replacement). Support for this calendar may end without notice. Sorry for the hassle. See https://shows.whomtube.com to get the new calendar."
         return eventData
 
     def getCreds(self):

@@ -284,8 +284,8 @@ class Event:
 
     def prefixDescriptionWithLink(self):
         if self.link:
-            linkText = '<a href=\'%s\'>%s</a>' % (self.link, self.link)
-            self.description = '\n\n'.join([linkText, self.description])
+            linkText = '<span class="hidden"><a href=\'%s\'>%s</a>\\n\\n</span>' % (self.link, self.link)
+            self.description = ''.join([linkText, self.description])
 
     def __str__(self):
         string = "ID: %s\n\tSummary: %s\n\tStart: %s\n\tEnd: %s\n\tLocation: %s\n\tDescription: %s\n\tLink: %s\n\tSource: %s\n\tcalendarId: %s\n\tcolor: %s" %(self.id, self.summary, self.startToString(), self.endToString(), self.location, self.description, self.link, self.sourceTitle, self.calendarId, self.color)
