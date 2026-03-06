@@ -82,9 +82,10 @@ class CalendarParser:
         if element is None:
             return ''
         el = copy.copy(element)
-        for tag in el.find_all(['br', 'p']):
-            tag.insert_before('\n')
+        for p in el.find_all('p'):
+            p.insert_before('\n\n')
         for br in el.find_all('br'):
+            br.insert_before('\n')
             br.decompose()
         text = el.get_text()
         text = re.sub(r'[^\S\n]*\n[^\S\n]*', '\n', text)

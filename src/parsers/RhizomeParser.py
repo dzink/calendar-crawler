@@ -19,7 +19,7 @@ class RhizomeParser(CalendarParser):
                     if imgUrl and not imgUrl.startswith('http'):
                         imgUrl = 'https://www.rhizomedc.org' + imgUrl
                     event.setImg(imgUrl, img.get('alt'))
-                descriptionHtml = eventHtml.find('div', class_ = 'summary-excerpt')
+                descriptionHtml = eventHtml.find('div', class_ = 'summary-excerpt') or eventHtml.find('div', class_ = 'summary-content')
                 description = self.getDescriptionText(descriptionHtml)
                 link = eventHtml.find('a').get('href')
 
@@ -28,7 +28,7 @@ class RhizomeParser(CalendarParser):
                 year = event.getNearestYear(date, '%b %d')
 
                 # The time is always in the first paragraph
-                topLine = descriptionHtml.find('p').get_text()
+                topLine = (descriptionHtml.find('p') or descriptionHtml).get_text()
                 topLine = topLine.replace('|', '')
 
                 startTime, endTime = self.parseStartAndEndTimesFromFuzzyString(topLine)

@@ -64,7 +64,7 @@ class Event:
         if not self.img:
             return None
         alt = (self.imgAlt or self.summary or '').replace("'", '&#39;')
-        return "<span class='flyer'><a href='%s' data-alt='%s'>See Flyer</a><span class='hidden' aria-hidden='true'>: %s<br><br></span></span>" % (self.img, alt, self.img)
+        return "<div class='flyer'><a href='%s' data-alt='%s'>See Flyer</a></div>" % (self.img, alt)
 
     def setCalendarId(self, calendarId):
         self.calendarId = calendarId

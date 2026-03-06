@@ -61,10 +61,11 @@ def main():
                     updated += 1
 
                 if (not options.dry_run):
-                    googleCalendar.syncEvent(event)
+                    # googleCalendar.syncEvent(event)
                     event.write()
                 else:
-                    googleCalendar.dryRun(event, options.show_skips)
+                    pass
+                    # googleCalendar.dryRun(event, options.show_skips)
 
             errors = sum(1 for line in open('./data/current.log') if line.strip())
             print('Done. %d inserted, %d updated, %d skipped, %d errors.' % (inserted, updated, skipped, errors))
