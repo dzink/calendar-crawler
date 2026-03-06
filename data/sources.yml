@@ -12,7 +12,7 @@ showPlace:
       pattern:
         location: ((Ottobar)|(Red Emma)|(Current Space)|(2640)|(Joe Squared)|(Black Cat)|(Rhizome)|(Metro))
     - type: addBoilerplateToDescriptions
-      text: End times are approximate. Crawled from https://baltshowplace.tumblr.com/, see https://whomtube.com/shows for more.
+      text: <span class='smaller'>End time is approximate. Crawled from https://baltshowplace.tumblr.com/.<span class='hidden' aria-hidden='true'> See https://shows.whomtube.com for more.</span></span>
     - type: setColors
       color: default
 
@@ -25,13 +25,14 @@ redEmmas:
     class: WithFriendsParser
   postTasks:
     - type: addBoilerplateToDescriptions
-      text: End time is approximate. Crawled from https://withfriends.co/red_emmas/events, see https://whomtube.com/shows for more.
+      text: <span class='smaller'>End time is approximate. Crawled from https://withfriends.co/red_emmas/events.<span class='hidden' aria-hidden='true'> See https://shows.whomtube.com for more.</span></span>
     - type: prefixDescriptionsWithLinks
     - type: setLocationAddress
       text: Red Emma's
     - type: setDefaultTimeLength
       hour: 2
       minute: 00
+    - type: prefixDescriptionsWithFlyer
     - type: setColors
       color: default
 
@@ -44,13 +45,14 @@ currentSpace:
     class: CurrentSpaceParser
   postTasks:
     - type: addBoilerplateToDescriptions
-      text: End time is approximate. Crawled from https://withfriends.co/current_space/events, see https://whomtube.com/shows for more.
+      text: <span class='smaller'>End time is approximate. Crawled from https://withfriends.co/current_space/events.<span class='hidden' aria-hidden='true'> See https://shows.whomtube.com for more.</span></span>
     - type: prefixDescriptionsWithLinks
     - type: setLocationAddress
       text: Current Space
     - type: setAbsoluteEndDateTime
       hour: 22
       minute: 30
+    - type: prefixDescriptionsWithFlyer
     - type: setColors
       color: default
 
@@ -68,8 +70,9 @@ ottobar:
       pattern:
         summary: (Taylor Swift .*|ALL KILLER.*|K-POP.*)
     - type: addBoilerplateToDescriptions
-      text: End time is approximate. Crawled from https://theottobar.com/calendar/, see https://whomtube.com/shows for more.
+      text: <span class='smaller'>End time is approximate. Crawled from https://theottobar.com/calendar/.<span class='hidden' aria-hidden='true'> See https://shows.whomtube.com for more.</span></span>
     - type: prefixDescriptionsWithLinks
+    - type: prefixDescriptionsWithFlyer
     - type: setColors
       color: default
 
@@ -85,8 +88,9 @@ metroGallery:
       pattern:
         location: (Current Space|Joe Squared)
     - type: addBoilerplateToDescriptions
-      text: End time is approximate. Crawled from https://metrobmore.com/events/, see https://whomtube.com/shows for more.
+      text: <span class='smaller'>End time is approximate. Crawled from https://metrobmore.com/events/.<span class='hidden' aria-hidden='true'> See https://shows.whomtube.com for more.</span></span>
     - type: prefixDescriptionsWithLinks
+    - type: prefixDescriptionsWithFlyer
     - type: setColors
       color: default
 
@@ -98,9 +102,10 @@ blackCat:
     class: BlackCatParser
   postTasks:
     - type: addBoilerplateToDescriptions
-      text: End time is approximate. Crawled from https://www.blackcatdc.com/schedule.html, see https://whomtube.com/shows for more.
+      text: <span class='smaller'>End time is approximate. Crawled from https://www.blackcatdc.com/schedule.html.<span class='hidden' aria-hidden='true'> See https://shows.whomtube.com for more.</span></span>
     - type: prefixDescriptionsWithLinks
     - type: setColors
+    - type: prefixDescriptionsWithFlyer
       color: default
 
 joeSquared:
@@ -111,10 +116,11 @@ joeSquared:
     class: SquareSpaceParser
   postTasks:
     - type: addBoilerplateToDescriptions
-      text: Crawled from https://www.joesquared.com/events/, see https://whomtube.com/shows for more.
+      text: <span class='smaller'>Crawled from https://www.joesquared.com/events/.<span class='hidden' aria-hidden='true'> See https://shows.whomtube.com for more.</span></span>
     - type: prefixLinks
       text: https://www.joesquared.com
     - type: prefixDescriptionsWithLinks
+    - type: prefixDescriptionsWithFlyer
     - type: setColors
       color: default
 
@@ -126,10 +132,11 @@ space2640:
     class: SquareSpaceParser
   postTasks:
     - type: addBoilerplateToDescriptions
-      text: Crawled from https://www.2640space.net/, see https://whomtube.com/shows for more.
+      text: <span class='smaller'>Crawled from https://www.2640space.net/.<span class='hidden' aria-hidden='true'> See https://shows.whomtube.com for more.</span></span>
     - type: prefixLinks
       text: https://www.2640space.net
     - type: prefixDescriptionsWithLinks
+    - type: prefixDescriptionsWithFlyer
     - type: setColors
       color: default
 
@@ -143,10 +150,11 @@ rhizome:
     - type: setLocationAddress
       text: Rhizome Washington DC
     - type: addBoilerplateToDescriptions
-      text: Crawled from https://www.rhizomedc.org/, see https://whomtube.com/shows for more.
+      text: <span class='smaller'>Crawled from https://www.rhizomedc.org/.<span class='hidden' aria-hidden='true'> See https://shows.whomtube.com for more.</span></span>
     - type: prefixLinks
       text: https://www.rhizomedc.org
     - type: prefixDescriptionsWithLinks
+    - type: prefixDescriptionsWithFlyer
     - type: setColors
       color: default
 
@@ -159,13 +167,14 @@ greedyReads:
     class: GreedyReadsParser
   postTasks:
     - type: addBoilerplateToDescriptions
-      text: End time is approximate. Crawled from https://greedyreads.com/events, see https://whomtube.com/shows for more.
+      text: <span class='smaller'>End time is approximate. Crawled from https://greedyreads.com/events.<span class='hidden' aria-hidden='true'> See https://shows.whomtube.com for more.</span></span>
     - type: setDefaultTimeLength
       hour: 2
       minute: 0
     - type: prefixDescriptionsWithLinks
     - type: setLocationAddress
       text: Greedy Reads (see description for store location)
+    - type: prefixDescriptionsWithFlyer
     - type: setColors
       color: default
 
@@ -178,12 +187,13 @@ redRoom:
     class: RedRoomParser
   postTasks:
     - type: addBoilerplateToDescriptions
-      text: End time is approximate. Crawled from https://redroom.org, see https://whomtube.com/shows for more.
+      text: <span class='smaller'>End time is approximate. Crawled from https://redroom.org.<span class='hidden' aria-hidden='true'> See https://shows.whomtube.com for more.</span></span>
     - type: setDefaultTimeLength
       hour: 4
       minute: 0
     - type: prefixDescriptionsWithLinks
     - type: setLocationAddress
       text: See link for location of Red Room events
+    - type: prefixDescriptionsWithFlyer
     - type: setColors
       color: default
