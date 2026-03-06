@@ -249,7 +249,14 @@ class Event:
     be updated.
     """
     def needsToUpdate(self, data, dupe):
-        return (not self.matches(dupe, data = data, regex = False))
+        all_keys = set(data.keys()) | set(dupe.keys())
+        for key in all_keys:
+            a = data.get(key)
+            b = dupe.get(key)
+            if a or b:
+                if a != b:
+                    return True
+        return False
 
     """
     Merge the properties that one would want to keep from a dupe.
