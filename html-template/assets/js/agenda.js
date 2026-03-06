@@ -2,11 +2,13 @@
  * agenda.js — UI logic for the HTML agenda page.
  *
  * Sections:
- *   1. Navigation    — scroll-to-section, date picker sync, day/week/month nav
- *   2. Focus mgmt    — keyboard focus tracking, Escape to nav, toolbar arrows
- *   3. Filtering     — comma-separated text filter across all events
- *   4. View/theme    — day/week toggle, stage-mode toggle (persisted in localStorage)
- *   5. Add-to-cal    — per-event dropdown generating Google/Outlook/Yahoo URLs
+ *   Navigation    — scroll-to-section, date picker sync, day/week/month nav
+ *   Focus mgmt    — keyboard focus tracking, Escape to nav, toolbar arrows
+ *   Filtering     — comma-separated text filter across all events
+ *   View/theme    — day/week toggle, stage-mode toggle (persisted in localStorage)
+ *   Flyer         — click-to-load event flyer images
+ *   Map links     — per-event map provider links (OSM, DDG, Google, geo:)
+ *   Add-to-cal    — per-event dropdown generating Google/Outlook/Yahoo URLs
  *                      and .ics blob downloads. Uses a single shared dropdown
  *                      element moved between events to keep the DOM light.
  *
@@ -18,14 +20,16 @@
  * calendar-export.py. Avoid // inside string literals — use
  * String.fromCharCode(47, 47) or the _https helper instead.
  */
-/* ===================== 1. Navigation helpers ===================== */
+/* ===================== Navigation helpers ===================== */
 
 var agenda = document.getElementById('agenda');
 var nav = document.querySelector('nav.date-picker');
 
 /* Each day is a <section id="day-YYYY-MM-DD"> in the agenda grid */
-function getSections() {
-  return Array.from(agenda.querySelectorAll('section[id^="day-"]'));
+function getSections(includeHidden) {
+  var all = Array.from(agenda.querySelectorAll('section[id^="day-"]'));
+  if (includeHidden) return all;
+  return all.filter(function(s) { return s.style.display !== 'none'; });
 }
 function navHeight() {
   return nav ? nav.offsetHeight : 0;
@@ -74,7 +78,7 @@ function scrollToSection(sec) {
     window.scrollTo({ top: posOf(sec), behavior: 'smooth' });
   }
 }
-/* ===================== 2. Focus management ===================== */
+/* ===================== Focus management ===================== */
 
 /* savedFocus/savedDate let Escape→Tab restore focus to the last event */
 var savedFocus = null;
@@ -82,6 +86,13 @@ var savedDate = null;
 /* focusin bubbles (unlike focus), so we can track focus across the whole agenda */
 var _redirectingFocus = false;
 var _shiftTabbing = false;
+var _mouseInDetails = false;
+agenda.addEventListener('mousedown', function(e) {
+  _mouseInDetails = !!e.target.closest('.details');
+});
+agenda.addEventListener('mouseup', function() {
+  _mouseInDetails = false;
+});
 document.addEventListener('keydown', function(e) {
   _shiftTabbing = e.key === 'Tab' && e.shiftKey;
 });
@@ -93,9 +104,11 @@ document.addEventListener('focusin', function(e) {
     if (sections[i].contains(e.target)) { lastFocusedIndex = i; break; }
   }
   // If the agenda container itself got focus, redirect to a summary
-  // (but let Shift-Tab pass through so the user can leave the agenda)
+  // (but let Shift-Tab pass through so the user can leave the agenda,
+  // and skip if a click landed inside .details so text selection works)
   if (e.target === agenda) {
     if (_shiftTabbing) return;
+    if (_mouseInDetails) return;
     _redirectingFocus = true;
     if (savedFocus && savedDate === picker.value && agenda.contains(savedFocus)) {
       savedFocus.focus({ preventScroll: true });
@@ -248,12 +261,20 @@ document.querySelectorAll('[role="toolbar"]').forEach(function(toolbar) {
     items[next].focus();
   });
 });
-/* ===================== 3. Event filtering ===================== */
+/* ===================== Event filtering ===================== */
 
 /* Comma-separated filter: all terms must match an event's text content */
+var filterClear = document.getElementById('filter-clear');
+var filterInput = document.getElementById('event-filter');
+function clearFilter() {
+  filterInput.value = '';
+  filterEvents('');
+  filterInput.focus();
+}
 function filterEvents(query) {
+  filterClear.hidden = !query;
   var terms = query.toLowerCase().split(',').map(function(t) { return t.trim(); }).filter(Boolean);
-  var sections = getSections();
+  var sections = getSections(true);
   for (var i = 0; i < sections.length; i++) {
     var sec = sections[i];
     var events = sec.querySelectorAll('details');
@@ -270,6 +291,13 @@ function filterEvents(query) {
     sec.style.display = anyVisible || !terms.length ? '' : 'none';
   }
 }
+filterInput.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    var match = agenda.querySelector('details:not([style*="none"]) summary');
+    if (match) match.focus();
+  }
+});
 /* Auto-scroll to an event when it's opened */
 agenda.addEventListener('toggle', function(e) {
   var det = e.target;
@@ -290,19 +318,28 @@ document.addEventListener('click', function(e) {
   if (target.tagName === 'DETAILS') target.open = true;
   target.scrollIntoView({ behavior: 'instant' });
 });
-/* ===================== 4. View and theme toggles ===================== */
+/* ===================== View and theme toggles ===================== */
 
 /* Stage mode: high-contrast red-on-black theme for dark venues */
+var THEME_DARK_CLASS = 'dark';
+var THEME_LIGHT_CLASS = 'light';
+
+function updateThemeToggle(on) {
+  var btn = document.getElementById('theme-toggle');
+  btn.className = on ? THEME_LIGHT_CLASS : THEME_DARK_CLASS;
+  btn.querySelector('.hidden').textContent = on ? 'Switch to dark theme' : 'Switch to light theme';
+}
+
 function toggleTheme() {
   document.body.classList.toggle('stage-theme');
   var on = document.body.classList.contains('stage-theme');
   localStorage.setItem('stage-theme', on ? '1' : '');
-  document.getElementById('theme-toggle').textContent = on ? '☀' : '☽';
+  updateThemeToggle(on);
 }
 (function() {
   if (localStorage.getItem('stage-theme') === '1') {
     document.body.classList.add('stage-theme');
-    document.getElementById('theme-toggle').textContent = '☀';
+    updateThemeToggle(true);
   }
 })();
 /* Day view is the default (week view removed for now, class set on <body>) */
@@ -318,6 +355,20 @@ function toggleTheme() {
     document.getElementById('view-toggle').textContent = 'week';
   }
 })(); */
+/* Webcal fallback: if the link doesn't open an app, show the alt text */
+document.addEventListener('click', function(e) {
+  var link = e.target.closest('a[href^="webcal:"]');
+  if (!link) return;
+  var alt = document.querySelector('.subheader-alt');
+  if (!alt) return;
+  var hidden = !document.hidden;
+  function onHide() { hidden = false; }
+  document.addEventListener('visibilitychange', onHide);
+  setTimeout(function() {
+    document.removeEventListener('visibilitychange', onHide);
+    if (hidden) alt.classList.add('webcal-fallback');
+  }, 1500);
+});
 /* Show the sticky subscribe CTA once the nav bar becomes sticky */
 (function() {
   var navSub = document.querySelector('.nav-subscribe');
@@ -333,7 +384,98 @@ function toggleTheme() {
   window.addEventListener('scroll', checkSticky);
   checkSticky();
 })();
-/* ===================== 5. Add-to-Calendar dropdown ===================== */
+/* ===================== Flyer image loader ========================== */
+agenda.addEventListener('click', function(e) {
+  var flyer = e.target.closest('.details > .flyer');
+  if (!flyer) return;
+  var link = e.target.closest('a');
+  if (!link) return;
+  e.preventDefault();
+  if (link.classList.contains('flyer-hide')) {
+    flyer.querySelector('.flyer-img').remove();
+    flyer.querySelector('.flyer-hide').remove();
+    flyer.querySelector('a').style.display = '';
+  } else {
+    var img = document.createElement('img');
+    img.src = link.href;
+    img.alt = link.dataset.alt || '';
+    img.className = 'flyer-img';
+    link.style.display = 'none';
+    var hide = document.createElement('a');
+    hide.href = '#';
+    hide.className = 'flyer-hide';
+    hide.textContent = 'Hide Flyer';
+    flyer.appendChild(hide);
+    flyer.appendChild(img);
+  }
+});
+/* ===================== Map links ====================================== */
+var mapDropdown = null;
+
+function ensureMapDropdown() {
+  if (mapDropdown) return mapDropdown;
+  mapDropdown = document.createElement('span');
+  mapDropdown.className = 'map-dropdown';
+  return mapDropdown;
+}
+
+function closeMap() {
+  if (mapDropdown) mapDropdown.classList.remove('open');
+}
+
+function buildMapLinks(location) {
+  var q = encodeURIComponent(location + ' maryland');
+  // var osm = _https + 'www.openstreetmap.org/search?query=' + q;
+  var ddg = _https + 'duckduckgo.com/?q=' + q + '&iaxm=maps';
+  var gm = _https + 'www.google.com/maps/search/' + q;
+  // var geo = 'geo:0,0?q=' + q;
+  return 'some map guesses:'
+    // '<a href="' + osm + '" target="_blank" rel="noopener">OpenStreetMap</a> / '
+    + '<a href="' + ddg + '" target="_blank" rel="noopener">DuckDuckGo</a> / '
+    + '<a href="' + gm + '" target="_blank" rel="noopener">Google</a>';
+    // + '<a href="' + geo + '">Open in app</a>';
+}
+
+agenda.addEventListener('click', function(e) {
+  var trigger = e.target.closest('.map-toggle');
+  if (trigger) {
+    e.preventDefault();
+    var dd = ensureMapDropdown();
+    var isOpen = dd.classList.contains('open') && trigger.nextElementSibling === dd;
+    closeMap();
+    if (isOpen) return;
+    var loc = trigger.closest('.details').querySelector('.location');
+    if (!loc) return;
+    dd.innerHTML = buildMapLinks(loc.textContent);
+    trigger.after(dd);
+    dd.classList.add('open');
+    return;
+  }
+  if (mapDropdown && !e.target.closest('.map-dropdown') && !e.target.closest('.map-toggle')) closeMap();
+});
+
+/* Inject [map] toggle after each location element */
+agenda.querySelectorAll('.location').forEach(function(loc) {
+  var btn = document.createElement('a');
+  btn.href = '#';
+  btn.className = 'map-toggle';
+  btn.textContent = '[map]';
+  loc.append(btn);
+});
+
+/* ===================== Copy URL button =============================== */
+agenda.querySelectorAll('.link-url a').forEach(function(link) {
+  var btn = document.createElement('button');
+  btn.className = 'copy-url';
+  btn.title = 'Copy URL';
+  btn.addEventListener('click', function(e) {
+    e.preventDefault();
+    navigator.clipboard.writeText(link.href);
+  });
+  link.after(btn);
+});
+
+/* ===================== Add-to-Calendar dropdown ===================== */
 
 /* One shared dropdown element is moved between events on click,
    keeping the DOM light for pages with 500+ events. */
@@ -358,7 +500,7 @@ function getEventData(details) {
     tmp.innerHTML = desc;
     desc = tmp.textContent;
   }
-  var d = { title: ds.title || 'Untitled', start: ds.start || '', location: ds.location || '', url: ds.url || '', desc: desc };
+  var d = { title: ds.title || 'Untitled', start: ds.start || '', location: ds.location || '', url: ds.url || '', img: ds.img || '', desc: desc };
   if (ds.end) {
     d.end = ds.end;
   } else if (d.start) {
@@ -404,6 +546,7 @@ function calIcs(d) {
   if (d.location) lines.push('LOCATION:' + d.location);
   if (d.url) lines.push('URL:' + d.url);
   if (d.desc) lines.push('DESCRIPTION:' + d.desc);
+  if (d.img) lines.push('ATTACH;FMTTYPE=image/jpeg:' + d.img);
   lines.push('END:VEVENT', 'END:VCALENDAR');
   return lines.join('\r\n');
 }
@@ -414,14 +557,21 @@ function ensureDropdown() {
   if (calDropdown) return calDropdown;
   calDropdown = document.createElement('div');
   calDropdown.className = 'cal-dropdown';
-  calDropdown.innerHTML = '<a href="#" data-cal="ics" class="cal-primary">Download .ics</a> / '
-    + '<a href="#" data-cal="google">Google Calendar</a> / '
-    + '<a href="#" data-cal="outlook">Outlook</a> / '
-    + '<a href="#" data-cal="yahoo">Yahoo Calendar</a>';
+  calDropdown.setAttribute('role', 'menu');
+  calDropdown.setAttribute('aria-label', 'Add to your calendars options');
+  calDropdown.innerHTML = '<span class="cal-note">Single event only. Will not auto-update — check back for changes.</span>'
+    + '<a href="#" data-cal="ics" role="menuitem" class="cal-primary">Download .ics</a> / '
+    + '<a href="#" data-cal="google" role="menuitem">Google Calendar</a> / '
+    + '<a href="#" data-cal="outlook" role="menuitem">Outlook</a> / '
+    + '<a href="#" data-cal="yahoo" role="menuitem">Yahoo Calendar</a>';
   return calDropdown;
 }
 function closeCal() {
-  if (calDropdown) calDropdown.classList.remove('open');
+  if (calDropdown) {
+    calDropdown.classList.remove('open');
+    var prev = calDropdown.previousElementSibling;
+    if (prev) prev.setAttribute('aria-expanded', 'false');
+  }
 }
 /* Click delegation: .add-to-cal toggles the dropdown, .cal-dropdown a
    fires the appropriate calendar action, anything else closes it. */
@@ -435,6 +585,7 @@ document.addEventListener('click', function(e) {
     if (isOpen) return;
     trigger.after(dd);
     dd.classList.add('open');
+    trigger.setAttribute('aria-expanded', 'true');
     return;
   }
   var calLink = e.target.closest('.cal-dropdown a');
