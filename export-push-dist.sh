@@ -3,10 +3,12 @@
 
 set -euo pipefail
 
-read -r -p "Export, commit, and push dist/prod to origin? [y/N] " reply
-if [[ ! "$reply" =~ ^[Yy]$ ]]; then
-  echo "Aborted."
-  exit 0
+if [[ "${1:-}" != "-y" ]]; then
+  read -r -p "Export, commit, and push dist/prod to origin? [y/N] " reply
+  if [[ ! "$reply" =~ ^[Yy]$ ]]; then
+    echo "Aborted."
+    exit 0
+  fi
 fi
 
 .venv/bin/python3 calendar-export.py -v
