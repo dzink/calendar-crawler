@@ -45,6 +45,10 @@ class CurrentSpaceParser(WithFriendsParser):
                     year = event.getNearestYear(date_text, fmt)
                     event.setStartString(date_text + str(year), fmt + '%Y')
 
+                img = card.find('img')
+                if img:
+                    event.setImg(img.get('data-image') or img.get('src'), img.get('alt'))
+
                 self.removeScriptsFromElement(card)
                 description = self.getDescriptionText(card)
                 description = self.replaceWhitespaceWithPipes(description)

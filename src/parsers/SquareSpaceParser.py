@@ -13,17 +13,22 @@ class SquareSpaceParser(CalendarParser):
                 location = self.replaceWhitespace(location, '')
                 descriptionHtml = eventHtml.find('div', class_ = 'eventlist-description')
                 description = self.getDescriptionText(descriptionHtml) if descriptionHtml else ''
-                description = self.replaceWhitespace(description, '')
                 title = eventHtml.find('h1', class_ = 'eventlist-title').get_text()
                 date = eventHtml.find('time', class_ = 'event-date').get_text()
                 startTime = eventHtml.find('time', class_ = 'event-time-12hr-start').get_text()
                 endTime = eventHtml.find('time', class_ = 'event-time-12hr-end').get_text()
+
+                img = eventHtml.find('img')
+                imgUrl = img.get('data-image') or img.get('src') if img else None
+                imgAlt = img.get('alt') if img else None
 
                 event = Event()
                 event.setSummary(title)
                 event.setDescription(description)
                 event.setLink(link)
                 event.setLocation(location)
+                if imgUrl:
+                    event.setImg(imgUrl, imgAlt)
                 event.setStartString(date + startTime, '%A, %B %d, %Y%I:%M %p')
                 event.setEndString(date + endTime, '%A, %B %d, %Y%I:%M %p')
 

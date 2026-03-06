@@ -15,7 +15,11 @@ class OttobarParser(CalendarParser):
                     time = '8:00pm'
                     endTime = '11:59pm'
 
-                    description = self.replaceWhitespaceWithPipes(self.getDescriptionText(eventHtml))
+                    img = eventHtml.find('img')
+                    if img:
+                        event.setImg(img.get('data-image') or img.get('src'), img.get('alt'))
+
+                    description = self.getDescriptionText(eventHtml)
                     event.setDescription(description)
 
                     title = eventHtml.find('h2')

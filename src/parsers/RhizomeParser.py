@@ -12,6 +12,13 @@ class RhizomeParser(CalendarParser):
                 title = eventHtml.find('div', class_ = 'summary-title').get_text()
                 title = self.replaceWhitespace(title, ' ')
                 event = Event()
+
+                img = eventHtml.find('img')
+                if img:
+                    imgUrl = img.get('data-image') or img.get('src') or ''
+                    if imgUrl and not imgUrl.startswith('http'):
+                        imgUrl = 'https://www.rhizomedc.org' + imgUrl
+                    event.setImg(imgUrl, img.get('alt'))
                 descriptionHtml = eventHtml.find('div', class_ = 'summary-excerpt')
                 description = self.getDescriptionText(descriptionHtml)
                 link = eventHtml.find('a').get('href')

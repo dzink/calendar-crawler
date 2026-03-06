@@ -30,6 +30,10 @@ class WithFriendsParser(CalendarParser):
                     date = date + str(event.getNearestYear(date, '%A, %B %d at %I:%M %p'))
                     event.setStartString(date, '%A, %B %d at %I:%M %p%Y')
 
+                img = eventHtml.find('img')
+                if img:
+                    event.setImg(img.get('data-image') or img.get('src'), img.get('alt'))
+
                 # Remove scripts
                 self.removeScriptsFromElement(eventHtml)
 

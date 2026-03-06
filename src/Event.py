@@ -21,6 +21,8 @@ class Event:
         self.id = None
         self.link = None
         self.sourceTitle = None
+        self.img = None
+        self.imgAlt = None
         self.skipSync = None
         self.color = 'default'
         self.buildId()
@@ -51,6 +53,18 @@ class Event:
     def setSourceTitle(self, sourceTitle):
         self.sourceTitle = sourceTitle
         return self
+
+    def setImg(self, img, imgAlt=None):
+        self.img = img
+        if imgAlt is not None:
+            self.imgAlt = imgAlt
+        return self
+
+    def flyerHtml(self):
+        if not self.img:
+            return None
+        alt = (self.imgAlt or self.summary or '').replace("'", '&#39;')
+        return "<span class='flyer'><a href='%s' data-alt='%s'>See Flyer</a><span class='hidden' aria-hidden='true'>: %s<br><br></span></span>" % (self.img, alt, self.img)
 
     def setCalendarId(self, calendarId):
         self.calendarId = calendarId
@@ -146,6 +160,8 @@ class Event:
             'calendarId': self.calendarId,
             'color': self.color,
             'link': self.link,
+            'img': self.img,
+            'imgAlt': self.imgAlt,
             'sourceTitle': self.sourceTitle,
             'start': self.startToString(),
             'end': self.endToString(),
@@ -163,6 +179,7 @@ class Event:
         self.setLocation(data.get('location') or self.location)
         self.setDescription(data.get('description') or self.description)
         self.setLink(data.get('link') or self.link)
+        self.setImg(data.get('img') or self.img, data.get('imgAlt') or self.imgAlt)
         self.setCalendarId(data.get('calendarId') or self.calendarId)
         self.setColor(data.get('color') or self.color)
         self.setStartString(data.get('start') or self.startToString())

@@ -13,6 +13,10 @@ class MetroParser(CalendarParser):
                 title = eventHtml.find('h3', class_ = 'listing__title').get_text()
                 title = self.replaceWhitespace(title, ' ')
                 event = Event()
+
+                img = eventHtml.find('img')
+                if img:
+                    event.setImg(img.get('data-image') or img.get('src'), img.get('alt'))
                 tickets_link = eventHtml.find('a', class_ = 'JS--buyTicketsButton').get('href')
                 more_link = eventHtml.find('a', class_ = 'plotButton--secondary').get('href')
 

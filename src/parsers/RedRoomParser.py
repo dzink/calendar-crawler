@@ -12,6 +12,10 @@ class RedRoomParser(CalendarParser):
             try:
                 event = Event()
 
+                img = eventHtml.find('img')
+                if img:
+                    event.setImg(img.get('data-image') or img.get('src'), img.get('alt'))
+
                 titleHtml = eventHtml.find('h4')
                 title = titleHtml.get_text()
                 title = self.removeWhitespace(title)

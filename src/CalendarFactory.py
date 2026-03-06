@@ -86,6 +86,10 @@ class CalendarFactory:
             events.prefixLinks(text)
             return events
 
+        if (type == 'prefixDescriptionsWithFlyer'):
+            events.addFlyerLink()
+            return events
+
         if (type == 'setColors'):
             color = taskConfig.get('color')
             events.setColors(color)

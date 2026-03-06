@@ -13,6 +13,10 @@ class GreedyReadsParser(CalendarParser):
                 title = header.get_text()
                 event = Event()
 
+                img = eventHtml.find('img')
+                if img:
+                    event.setImg(img.get('data-image') or img.get('src'), img.get('alt'))
+
 
                 lines = eventHtml.find_all('div', class_ = 'bm-txt-0')
                 timeStampHtml = lines[0]

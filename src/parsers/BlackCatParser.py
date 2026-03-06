@@ -26,6 +26,13 @@ class BlackCatParser(CalendarParser):
 
                     time = re.findall('(\\d+)(:\\d\\d)', description)[0]
 
+                    img = eventHtml.find('img')
+                    if img:
+                        imgUrl = img.get('data-image') or img.get('src') or ''
+                        if imgUrl and not imgUrl.startswith('http'):
+                            imgUrl = 'https://www.blackcatdc.com' + imgUrl
+                        event.setImg(imgUrl, img.get('alt'))
+
                     event.setSummary(title)
                     event.setLocation(self.location)
                     event.setLink(link)

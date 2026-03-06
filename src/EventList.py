@@ -53,6 +53,13 @@ class EventList:
         for event in self:
             event.prefixDescriptionWithLink()
 
+    def addFlyerLink(self):
+        for event in self:
+            flyer = event.flyerHtml()
+            if flyer:
+                event.setDescription(''.join([flyer, event.description or '']))
+
+
     def setColors(self, color):
         for event in self:
             event.setColor(color)
