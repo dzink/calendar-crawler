@@ -41,63 +41,23 @@ class GoogleCalendar(CalendarProvider):
             logger.debug('connected to google calendar')
         return self.serviceObject
 
-    def setScopes(self, newScopes):
-        this.scopes = newScopes
-        return self
+    def addEvent(self, event):
+        """Insert an event into Google Calendar. Returns the Google event ID."""
+        eventData = self.getDictionaryFromEvent(event)
+        logger.info('Inserting event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
+        gEvent = self.service().events().insert(calendarId=self.googleCalendarId, body=eventData).execute()
+        return gEvent['id']
 
-    def dryRun(self, event, externalId=None):
-        data = self.getDictionaryFromEvent(event)
-        if externalId:
-            logger.info('Dry run - Updating event \"%s\" on %s from source \"%s\"' % (event.summary, event.startDate, event.sourceTitle))
-            logger.debug('Dry Run: Updating ' + str(data))
-        else:
-            logger.info('Dry run - Inserting event \"%s\" on %s from source \"%s\"' % (event.summary, event.startDate, event.sourceTitle))
-            logger.debug('Dry Run: Inserting ' + str(data))
+    def updateEvent(self, event, externalId):
+        """Update an existing event on Google Calendar."""
+        eventData = self.getDictionaryFromEvent(event)
+        logger.info('Updating event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
+        self.service().events().update(calendarId=self.googleCalendarId, eventId=externalId, body=eventData).execute()
 
-    def syncPending(self, dryRun=False, limit=None):
-        """Sync all pending events to Google Calendar. Returns count of synced events."""
-        synced = 0
-        pending = self.getPendingEvents()
-        if limit:
-            pending = pending[:limit]
-        for event, record in pending:
-            externalId = record.get('externalId')
-            if dryRun:
-                self.dryRun(event, externalId)
-                synced += 1
-                continue
-            try:
-                eventData = self.getDictionaryFromEvent(event)
-
-                if externalId:
-                    logger.info('Updating event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
-                    self.service().events().update(calendarId=self.googleCalendarId, eventId=externalId, body=eventData).execute()
-                else:
-                    logger.info('Inserting event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
-                    gEvent = self.service().events().insert(calendarId=self.googleCalendarId, body=eventData).execute()
-                    externalId = gEvent['id']
-
-                self.markSynced(event.id, externalId)
-                synced += 1
-
-            except HttpError as error:
-                logger.exception("Exception occurred")
-                logger.error("The attempted event was: " + str(eventData))
-
-        return synced
-
-    def dryDeleteEvent(self, event):
-        logger.info('Dry run - Deleting event \"%s\" on %s from source \"%s\"' % (event.summary, event.startDate, event.sourceTitle))
-
-    def deleteEvent(self, eventId, externalCalendarId):
-        """Delete an event from Google Calendar and remove the sync record."""
-        try:
-            self.service().events().delete(calendarId=self.googleCalendarId, eventId=externalCalendarId).execute()
-            logger.info('Deleted event %s from Google Calendar' % eventId)
-            self.deleteItem(eventId)
-
-        except HttpError as error:
-            logger.exception("Exception occurred")
+    def deleteEvent(self, externalId):
+        """Delete an event from Google Calendar."""
+        self.service().events().delete(calendarId=self.googleCalendarId, eventId=externalId).execute()
+        logger.info('Deleted event %s from Google Calendar' % externalId)
 
     def getDictionaryFromEvent(self, event):
         eventData = {}
@@ -135,9 +95,6 @@ class GoogleCalendar(CalendarProvider):
 
         return creds
 
-    """
-    Get the colorId from the string color name.
-    """
     def mapColor(self, color):
         lowerColor = str(color).lower()
         return self.colorIds.get(lowerColor)

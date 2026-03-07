@@ -24,8 +24,8 @@ class CalendarPipeline:
             name = sourceConfig.get('name', sourceId)
 
             # Fetch
-            source = self.factory.source(sourceId, sourceConfig)
-            html = source.getHtml()
+            fetcher = self.factory.fetcher(sourceId, sourceConfig)
+            html = fetcher.getHtml()
 
             # Parse
             parser = self.factory.parser(sourceId, sourceConfig)
@@ -55,8 +55,8 @@ class CalendarPipeline:
             logger.exception("Exception occurred in source " + sourceId)
             return EventList()
 
-    def sync(self, events, calendarId, providers=None):
-        """Write events to DB, queue changes, and sync to external calendars.
+    def sync(self, events, calendarId):
+        """Write events to DB and queue changes for external calendars.
         Returns (inserted, updated, skipped)."""
         inserted = 0
         updated = 0
@@ -76,8 +76,5 @@ class CalendarPipeline:
 
         if not self.options.dry_run:
             self.calendarItemsDb.upsertSyncStatus(events, calendarId)
-            for provider in (providers or []):
-                synced = provider.syncPending()
-                logger.info('%d events synced to %s' % (synced, type(provider).__name__))
 
         return inserted, updated, skipped

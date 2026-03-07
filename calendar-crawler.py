@@ -14,7 +14,7 @@ from CalendarPipeline import CalendarPipeline
 from datetime import datetime
 
 from CalendarLogger import logger, addLoggerArgsToParser, buildLogger
-from CalendarSource import CalendarSource
+from Fetcher import Fetcher
 
 def main():
     print('Running Calendar Crawler at ' + datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
@@ -26,12 +26,11 @@ def main():
         options = parseArguments(config)
         buildLogger(options)
 
-        factory = CalendarFactory(options, config)
+        factory = CalendarFactory(options, config, secrets)
         pipeline = CalendarPipeline(factory, options)
 
         for calendarKey in calendarConfigs:
             calendarConfig = calendarConfigs.get(calendarKey)
-            providers = factory.providers(calendarKey, calendarConfig, secrets)
             events = EventList()
 
             sourceKeys = calendarConfig.get('sources', [])
@@ -41,7 +40,7 @@ def main():
             for sourceKey in sourceKeys:
                 events = events.merge(pipeline.getEvents(sourceKey, sourceConfigs.get(sourceKey)))
 
-            inserted, updated, skipped = pipeline.sync(events, calendarKey, providers)
+            inserted, updated, skipped = pipeline.sync(events, calendarKey)
 
             with open('./data/current.log') as f:
                 errors = sum(1 for line in f if line.strip())
@@ -50,7 +49,7 @@ def main():
     except Exception as e:
         logger.exception("Exception occurred")
     finally:
-        CalendarSource.quitDriver()
+        Fetcher.quitDriver()
 
 def parseArguments(config):
     parser = argparse.ArgumentParser(description='Scrape event pages and add them to a Google calendar')

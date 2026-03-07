@@ -258,6 +258,8 @@ class Transformer:
             endDt = dt.replace(hour=int(h), minute=int(m))
 
         if endDt:
+            if endDt <= dt:
+                endDt += timedelta(days=1)
             fields['end'] = endDt.strftime('%Y-%m-%d %H:%M')
             fields['endFormat'] = '%Y-%m-%d %H:%M'
 

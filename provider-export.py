@@ -26,11 +26,11 @@ def main():
 
     calendarConfigs = loadConfig('./data/calendars.yml')
     secrets = loadConfig('./data/secrets.yml')
-    factory = CalendarFactory(options, config)
+    factory = CalendarFactory(options, config, secrets)
 
     for calendarKey in calendarConfigs:
         calendarConfig = calendarConfigs.get(calendarKey)
-        providers = factory.providers(calendarKey, calendarConfig, secrets)
+        providers = factory.providers(calendarKey, calendarConfig)
 
         if options.provider:
             providers = [p for p in providers if p.config.get('type') in options.provider]

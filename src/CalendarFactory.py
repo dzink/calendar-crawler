@@ -1,7 +1,7 @@
 """
 CalendarFactory
 
-Builds pipeline components from config: Parser, Transformer, Processor, CalendarSource.
+Builds pipeline components from config: Fetcher, Parser, Transformer, Processor.
 The caller is responsible for running the pipeline.
 """
 
@@ -12,7 +12,7 @@ sys.path.append('./transformers')
 sys.path.append('./processors')
 
 from GoogleCalendar import GoogleCalendar
-from CalendarSource import CalendarSource
+from Fetcher import Fetcher
 from Event import Event
 from EventList import EventList
 from parsers.Parser import Parser
@@ -25,26 +25,17 @@ from CalendarLogger import logger
 
 class CalendarFactory:
 
-    def __init__(self, options, config):
+    def __init__(self, options, config, secrets=None):
         self.options = options
         self.config = config
+        self.secrets = secrets or {}
 
-    def source(self, sourceId, sourceConfig):
-        sourceConfig = sourceConfig['source']
-        class_ = sourceConfig.get('class', 'CalendarSource')
-        scrollCount = sourceConfig.get('scrollCount', 0)
-        url = sourceConfig['url']
-
-        sourceClass = self.getClass(class_)
-        source = sourceClass(url, sourceId, self.options.remote, self.config.get('chromeDriverLocation', None), self.config.get('chromeBinaryLocation', None))
-
-        if scrollCount:
-            source.setScrollCount(scrollCount)
-
-        return source
+    def fetcher(self, sourceId, sourceConfig):
+        fetchConfig = self.resolveSecrets(sourceConfig.get('fetch', {}), self.secrets)
+        return Fetcher(sourceId, fetchConfig, self.options.remote, self.config)
 
     def parser(self, sourceId, sourceConfig):
-        parserConfig = sourceConfig.get('parser', {})
+        parserConfig = sourceConfig.get('parse', {})
         name = sourceConfig.get('name')
         class_ = parserConfig.get('class', 'Parser')
 
@@ -92,12 +83,12 @@ class CalendarFactory:
             events.add(event)
         return events
 
-    def providers(self, calendarKey, calendarConfig, secrets={}):
+    def providers(self, calendarKey, calendarConfig):
         """Build a list of CalendarProvider instances from calendar config."""
         providers = []
         for providerConfig in calendarConfig.get('providers', []):
             type_ = providerConfig.get('type')
-            config = self.resolveSecrets(providerConfig, secrets)
+            config = self.resolveSecrets(providerConfig, self.secrets)
             if type_ == 'google':
                 providers.append(GoogleCalendar(calendarKey, config))
             else:

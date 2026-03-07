@@ -1,8 +1,8 @@
 showPlace:
   name: ShowPlace
-  source:
+  fetch:
     url: https://baltshowplace.tumblr.com/
-  parser:
+  parse:
     class: ShowPlaceParser
     container: div.post-content
     containerIndex: [0, 1]
@@ -50,10 +50,10 @@ showPlace:
 
 redEmmas:
   name: Red Emma's
-  source:
+  fetch:
     url: https://withfriends.co/red_emmas/events
     scrollCount: 4
-  parser:
+  parse:
     class: Parser
     container: li.wf-event
     fields:
@@ -85,10 +85,10 @@ redEmmas:
 
 currentSpace:
   name: Current Space
-  source:
+  fetch:
     url: https://withfriends.events/o/current_space/upcoming/
     scrollCount: 4
-  parser:
+  parse:
     class: Parser
     container: .ticketContainer div.ticketCard
     fields:
@@ -119,9 +119,9 @@ currentSpace:
 
 ottobar:
   name: Ottobar
-  source:
+  fetch:
     url: https://theottobar.com/calendar/
-  parser:
+  parse:
     class: Parser
     container: div.eventWrapper
     require: a.btn-primary
@@ -160,10 +160,10 @@ ottobar:
 
 metroGallery:
   name: Metro Gallery
-  source:
+  fetch:
     url: https://metrobmore.com/events/
     scrollCount: 4
-  parser:
+  parse:
     class: Parser
     container: div.listings-block-listgrid div.listings-block-list__listing
     fields:
@@ -201,9 +201,9 @@ metroGallery:
 
 blackCat:
   name: Black Cat DC
-  source:
+  fetch:
     url: https://www.blackcatdc.com/schedule.html
-  parser:
+  parse:
     class: Parser
     container: div.show
     require: h1 a
@@ -240,9 +240,9 @@ blackCat:
 
 space2640:
   name: 2640 Space
-  source:
+  fetch:
     url: https://www.2640space.net/events
-  parser:
+  parse:
     class: Parser
     container: article.eventlist-event--upcoming
     fields:
@@ -281,9 +281,9 @@ space2640:
 
 rhizome:
   name: Rhizome DC
-  source:
+  fetch:
     url: https://www.rhizomedc.org/
-  parser:
+  parse:
     class: Parser
     container: div.summary-block-collection-type-events div.summary-item-record-type-event
     fields:
@@ -330,10 +330,10 @@ rhizome:
 
 greedyReads:
   name: Greedy Reads
-  source:
+  fetch:
     url: https://greedyreads.com/events
     scrollCount: 4
-  parser:
+  parse:
     class: Parser
     container: div.preview-container div.ant-row
     fields:
@@ -364,10 +364,10 @@ greedyReads:
 
 redRoom:
   name: The Red Room at Normal's
-  source:
+  fetch:
     url: https://www.redroom.org/
     # scrollCount: 4
-  parser:
+  parse:
     class: Parser
     container: div#content-area div.home-post-area
     fields:

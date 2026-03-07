@@ -2,22 +2,37 @@
 CalendarProvider
 
 Base class for external calendar sync targets (Google Calendar, CalDAV, etc.).
-Provides methods to query pending sync items and mark them as synced.
-Subclasses implement the actual API calls.
+Subclasses must implement addEvent, updateEvent, and deleteEvent.
 """
 
+from abc import ABC, abstractmethod
 from CalendarItemsDb import CalendarItemsDb
 from EventDb import EventDb
 from Event import Event
 from CalendarLogger import logger
 
 
-class CalendarProvider:
+class CalendarProvider(ABC):
 
     def __init__(self, providerId, config=None):
         self.providerId = providerId
         self.config = config or {}
         self.itemsDb = CalendarItemsDb()
+
+    @abstractmethod
+    def addEvent(self, event):
+        """Add an event to the external calendar. Returns the external ID."""
+        pass
+
+    @abstractmethod
+    def updateEvent(self, event, externalId):
+        """Update an existing event on the external calendar."""
+        pass
+
+    @abstractmethod
+    def deleteEvent(self, externalId):
+        """Delete an event from the external calendar."""
+        pass
 
     def getPendingEvents(self):
         """Return (event, syncRecord) pairs for all pending items in this provider."""
@@ -34,6 +49,10 @@ class CalendarProvider:
                 logger.warning('Pending sync record for missing event %s' % record['eventId'])
         return results
 
+    def getPendingDeletes(self):
+        """Return all sync records flagged for deletion."""
+        return self.itemsDb.getPendingDeletes(self.providerId)
+
     def markSynced(self, eventId, externalId):
         """Mark an event as synced with the external service's ID."""
         self.itemsDb.markSynced(eventId, self.providerId, externalId)
@@ -41,3 +60,45 @@ class CalendarProvider:
     def deleteItem(self, eventId):
         """Remove a sync record for this provider."""
         self.itemsDb.delete(eventId, self.providerId)
+
+    def syncPending(self, dryRun=False, limit=None):
+        """Sync all pending events and process deletions. Returns count of synced events."""
+        synced = 0
+        pending = self.getPendingEvents()
+        if limit:
+            pending = pending[:limit]
+
+        for event, record in pending:
+            externalId = record.get('externalId')
+            if dryRun:
+                if externalId:
+                    logger.info('Dry run - Updating event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
+                else:
+                    logger.info('Dry run - Inserting event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
+                synced += 1
+                continue
+            try:
+                if externalId:
+                    self.updateEvent(event, externalId)
+                else:
+                    externalId = self.addEvent(event)
+                self.markSynced(event.id, externalId)
+                synced += 1
+            except Exception as e:
+                logger.exception("Exception occurred")
+
+        for record in self.getPendingDeletes():
+            externalId = record.get('externalId')
+            eventId = record['eventId']
+            if dryRun:
+                logger.info('Dry run - Deleting event %s' % eventId)
+                continue
+            if externalId:
+                try:
+                    self.deleteEvent(externalId)
+                except Exception as e:
+                    logger.exception("Exception occurred")
+                    continue
+            self.deleteItem(eventId)
+
+        return synced

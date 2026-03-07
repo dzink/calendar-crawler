@@ -76,6 +76,18 @@ class CalendarItemsDb:
             if event.id not in existingIds:
                 self.upsert(event.id, providerId, status=0)
 
+    def markDeleted(self, eventId):
+        """Flag all sync records for an event as pending deletion."""
+        table = CalendarItemsDb.table
+        table.update({'pendingDelete': True}, where('eventId') == eventId)
+
+    def getPendingDeletes(self, providerId):
+        """Return all records flagged for deletion for a given provider."""
+        table = CalendarItemsDb.table
+        return table.search(
+            (where('providerId') == providerId) & (where('pendingDelete') == True)
+        )
+
     def getByEventId(self, eventId, providerId):
         """Look up a single record."""
         table = CalendarItemsDb.table

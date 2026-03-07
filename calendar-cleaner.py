@@ -8,7 +8,6 @@ import yaml
 import argparse
 from EventList import EventList
 from CalendarFactory import CalendarFactory
-from CalendarItemsDb import CalendarItemsDb
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -24,11 +23,10 @@ def main():
         global factory
         options = parseArguments()
         buildLogger(options)
-        factory = CalendarFactory(options, {})
-
         sourceConfigs = loadConfig('./data/sources.yml')
         secrets = loadConfig('./data/secrets.yml')
         calendarConfigs = loadConfig('./data/calendars.yml')
+        factory = CalendarFactory(options, {}, secrets)
 
         deadline = False
 
@@ -41,23 +39,17 @@ def main():
         else:
             events = get_expired_from_calendars(calendarConfigs['dzShowCrawler'], sourceConfigs, deadline)
 
-        itemsDb = CalendarItemsDb()
+        for event in events:
+            if options.dry_run:
+                logger.info('Dry run - Deleting event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
+            else:
+                event.delete()
 
         for calendarKey in calendarConfigs.keys():
             calendarConfig = calendarConfigs.get(calendarKey)
-            providers = factory.providers(calendarKey, calendarConfig, secrets)
-
-            for event in events:
-                for provider in providers:
-                    record = itemsDb.getByEventId(event.id, calendarKey)
-                    if record and record.get('externalId'):
-                        if options.dry_run:
-                            provider.dryDeleteEvent(event)
-                        else:
-                            provider.deleteEvent(event.id, record['externalId'])
-
-                if not options.dry_run:
-                    event.delete()
+            providers = factory.providers(calendarKey, calendarConfig)
+            for provider in providers:
+                provider.syncPending(dryRun=options.dry_run)
 
     except Exception as e:
         logger.exception("Exception occurred")

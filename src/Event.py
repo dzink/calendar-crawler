@@ -3,6 +3,7 @@ import sys
 import pytz
 from datetime import datetime, timedelta
 from EventDb import EventDb
+from CalendarItemsDb import CalendarItemsDb
 import random
 from copy import copy
 from CalendarLogger import logger
@@ -224,6 +225,7 @@ class Event:
         return self
 
     def delete(self):
+        CalendarItemsDb().markDeleted(self.id)
         EventDb().delete(self)
         return self
 
