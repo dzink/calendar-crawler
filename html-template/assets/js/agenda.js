@@ -423,7 +423,9 @@ agenda.addEventListener('click', function(e) {
     if (isOpen) return;
     var loc = trigger.closest('.details').querySelector('.location');
     if (!loc) return;
-    dd.innerHTML = buildMapLinks(loc.textContent);
+    var clone = loc.cloneNode(true);
+    clone.querySelectorAll('.map-toggle, .map-dropdown').forEach(function(el) { el.remove() });
+    dd.innerHTML = buildMapLinks(clone.textContent);
     trigger.after(dd);
     dd.classList.add('open');
     return;
@@ -468,7 +470,8 @@ agenda.addEventListener('click', function(e) {
     e.preventDefault();
     var details = btn.closest('details');
     var d = getEventData(details);
-    navigator.clipboard.writeText(d.title + '\n\n' + d.desc);
+    var date = details.closest('section').querySelector('h2').textContent.trim();
+    navigator.clipboard.writeText(d.title + '\n\n' + date + '\n\n' + d.desc);
     flashCopied(btn);
     return;
   }
@@ -481,19 +484,12 @@ agenda.addEventListener('toggle', function(e) {
   var sec = document.createElement('section');
   sec.className = 'contextual-menu';
   sec.setAttribute('aria-label', 'Event actions');
-  var copyBtn = document.createElement('button');
-  copyBtn.className = 'copy-event';
-  copyBtn.setAttribute('aria-label', 'Copy event details');
-  copyBtn.title = 'Copy event details';
-  var a = document.createElement('a');
-  a.href = '#';
-  a.className = 'add-to-cal simple-link primary-btn';
-  a.setAttribute('role', 'button');
-  a.setAttribute('aria-haspopup', 'menu');
-  a.setAttribute('aria-expanded', 'false');
-  a.textContent = 'add to calendar';
-  sec.appendChild(copyBtn);
-  sec.appendChild(a);
+  // var copyBtn = document.createElement('button');
+  // copyBtn.className = 'copy-event';
+  // copyBtn.setAttribute('aria-label', 'Copy event details');
+  // copyBtn.title = 'Copy event details';
+  sec.innerHTML = '<button class="copy-event btn tertiary-btn" aria-label="Copy event details" title="Copy event details"><span class="hidden">Copy Details</span></button>'
+    + '<button class="add-to-cal btn secondary-btn" aria-haspopup="menu" aria-expanded="false">add to calendar</button>';
   det.appendChild(sec);
 }, true);
 
@@ -631,7 +627,6 @@ function closeCal() {
 document.addEventListener('click', function(e) {
   var trigger = e.target.closest('.add-to-cal');
   if (trigger) {
-    e.preventDefault();
     var dd = ensureDropdown();
     var isOpen = dd.classList.contains('open') && trigger.nextElementSibling === dd;
     closeCal();

@@ -43,7 +43,7 @@
   </header>
   <div class='section-inner'>
     <div class="subheader">
-      <p class="subheader-main"><a class="subheader-btn primary-btn" href='{{webcal_ics}}'>Subscribe to<br class="mobile-only"> Calendar</a></p>
+      <p class="subheader-main"><a class="btn subheader-btn primary-btn" href='{{webcal_ics}}'>Subscribe to<br class="mobile-only"> Calendar</a></p>
       <p class="subheader-desc">Updates automatically. <a href='#google'>BDS-compliant</a>.The preferred way to get these events on your phone or computer. </p>
       <p class="subheader-alt">If that link doesn't work, your device isn't set up for webcal. That's OK. Also available for <a target='_blank' href='{{google_ics}}'>Google Calendar</a>, <a target='_blank' href='{{outlook_ics}}'>Outlook</a>, <a target='_blank' href='{{office365_ics}}'>Office 365</a>, or as a <a href='assets/ics/events.ics'>raw ICS file</a>.</p>
     </div>
@@ -54,24 +54,26 @@
         </div> -->
         <div class="nav-row">
           <div class="btnset">
-            <button onclick="go(-1,'day')" aria-label="Previous day">&lt;</button>
-            <button onclick="go(1,'day')" aria-label="Next day">&gt;</button>
-            <button onclick="go(-1,'week')" aria-label="Back one week">&lt; wk</button>
-            <button onclick="go(1,'week')" aria-label="Forward one week">wk &gt;</button>
-            <button onclick="go(-1,'month')" aria-label="Previous month">&lt; mo</button>
-            <button onclick="go(1,'month')" aria-label="Next month">mo &gt;</button>
+            <button onclick="go(-1,'day')" aria-label="Previous day" titleel="Previous day" class="icon-up">day</button>
+            <button onclick="go(1,'day')" aria-label="Next day" title="Next day" class="icon-down">day</button>
+            <button onclick="go(-1,'week')" aria-label="Previous week" title="Previous week" class="icon-up">wk</button>
+            <button onclick="go(1,'week')" aria-label="Next week" title="Next week" class="icon-down">wk</button>
+            <button onclick="go(-1,'month')" aria-label="Previous month" title="Previous month" class="icon-up">mo</button>
+            <button onclick="go(1,'month')" aria-label="Next month" title="Next month" class="icon-down">mo</button>
           </div>
           <button id="theme-toggle" class="dark" onclick="toggleTheme()" aria-label="Toggle theme"><span class="hidden">Switch to light theme</span></button>
 
         </div>
         <div class="nav-row">
           <span class="filter-wrap">
-            <input type="text" id="event-filter" aria-label="Filter events" placeholder="filter (comma-separated phrases)" oninput="filterEvents(this.value)">
+            <input type="text" id="event-filter" aria-label="Filter events" placeholder="keyword filter" oninput="filterEvents(this.value)">
             <button id="filter-clear" aria-label="Clear filter" onclick="clearFilter()" hidden>&times;</button>
           </span>
           <!-- <button id="view-toggle" onclick="toggleView()" aria-label="Toggle week/day view">day</button> -->
           <input type="date" id="datepicker" aria-label="Jump to date" onchange="goToDate(this.value)">
         </div>
+
+        <div class="nav-row smaller filter-help"><p>To filter text, enter phrases. Separate multiple phrases with commas.</p></div>
       </nav>
       <div id="agenda" role="region" aria-label="Event listings" tabindex="0">
         {{content}}

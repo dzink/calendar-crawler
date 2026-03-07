@@ -19,12 +19,14 @@
   --color-primary-standout: #fff;
   --color-primary-hover: #d94d63;
 
+  --space-xxs: 0.125rem;
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
   --space-md: 1rem;
   --space-lg: 1.5rem;
   --space-xl: 2rem;
-  --space-xxl: 3rem;
+  --space-xxl: 2.5rem;
+  --space-xxxl: 3rem;
   --content-half-width: 24rem;
   --space-neg-sm: -0.5rem;
   --space-neg-md: -1rem;
@@ -46,6 +48,9 @@
   --icon-sun: url("data:image/svg+xml,<svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'> <path  fill-rule='evenodd'  clip-rule='evenodd'  d='M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16ZM12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18Z'  fill='white' /> <path  fill-rule='evenodd'  clip-rule='evenodd'  d='M11 0H13V4.06189C12.6724 4.02104 12.3387 4 12 4C11.6613 4 11.3276 4.02104 11 4.06189V0ZM7.0943 5.68018L4.22173 2.80761L2.80752 4.22183L5.6801 7.09441C6.09071 6.56618 6.56608 6.0908 7.0943 5.68018ZM4.06189 11H0V13H4.06189C4.02104 12.6724 4 12.3387 4 12C4 11.6613 4.02104 11.3276 4.06189 11ZM5.6801 16.9056L2.80751 19.7782L4.22173 21.1924L7.0943 18.3198C6.56608 17.9092 6.09071 17.4338 5.6801 16.9056ZM11 19.9381V24H13V19.9381C12.6724 19.979 12.3387 20 12 20C11.6613 20 11.3276 19.979 11 19.9381ZM16.9056 18.3199L19.7781 21.1924L21.1923 19.7782L18.3198 16.9057C17.9092 17.4339 17.4338 17.9093 16.9056 18.3199ZM19.9381 13H24V11H19.9381C19.979 11.3276 20 11.6613 20 12C20 12.3387 19.979 12.6724 19.9381 13ZM18.3198 7.0943L21.1923 4.22183L19.7781 2.80762L16.9056 5.6801C17.4338 6.09071 17.9092 6.56608 18.3198 7.0943Z'  fill='white' /></svg>");
   --icon-link: url("data:image/svg+xml,<svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'> <path   d='M14.8284 12L16.2426 13.4142L19.071 10.5858C20.6331 9.02365 20.6331 6.49099 19.071 4.9289C17.509 3.3668 14.9763 3.3668 13.4142 4.9289L10.5858 7.75732L12 9.17154L14.8284 6.34311C15.6095 5.56206 16.8758 5.56206 17.6568 6.34311C18.4379 7.12416 18.4379 8.39049 17.6568 9.17154L14.8284 12Z'   fill='white' /> <path   d='M12 14.8285L13.4142 16.2427L10.5858 19.0711C9.02372 20.6332 6.49106 20.6332 4.92896 19.0711C3.36686 17.509 3.36686 14.9764 4.92896 13.4143L7.75739 10.5858L9.1716 12L6.34317 14.8285C5.56212 15.6095 5.56212 16.8758 6.34317 17.6569C7.12422 18.4379 8.39055 18.4379 9.1716 17.6569L12 14.8285Z'   fill='white' /> <path   d='M14.8285 10.5857C15.219 10.1952 15.219 9.56199 14.8285 9.17147C14.4379 8.78094 13.8048 8.78094 13.4142 9.17147L9.1716 13.4141C8.78107 13.8046 8.78107 14.4378 9.1716 14.8283C9.56212 15.2188 10.1953 15.2188 10.5858 14.8283L14.8285 10.5857Z'   fill='white' /></svg>");
   --icon-copy: url("data:image/svg+xml,<svg   width='24'   height='24'   viewBox='0 0 24 24'   fill='none'   xmlns='http://www.w3.org/2000/svg' >   <path d='M13 7H7V5H13V7Z' fill='white' />   <path d='M13 11H7V9H13V11Z' fill='white' />   <path d='M7 15H13V13H7V15Z' fill='white' />   <path     fill-rule='evenodd'     clip-rule='evenodd'     d='M3 19V1H17V5H21V23H7V19H3ZM15 17V3H5V17H15ZM17 7V19H9V21H19V7H17Z'     fill='white'   /> </svg>");
+  --icon-details: url("data:image/svg+xml,<svg  width='24'  height='24'  viewBox='0 0 24 24'  fill='none'  xmlns='http://www.w3.org/2000/svg'>  <path    d='M2 8C2 7.44772 2.44772 7 3 7H21C21.5523 7 22 7.44772 22 8C22 8.55228 21.5523 9 21 9H3C2.44772 9 2 8.55228 2 8Z'    fill='white'  />  <path    d='M2 12C2 11.4477 2.44772 11 3 11H21C21.5523 11 22 11.4477 22 12C22 12.5523 21.5523 13 21 13H3C2.44772 13 2 12.5523 2 12Z'    fill='white'  />  <path    d='M3 15C2.44772 15 2 15.4477 2 16C2 16.5523 2.44772 17 3 17H15C15.5523 17 16 16.5523 16 16C16 15.4477 15.5523 15 15 15H3Z'    fill='white'  /></svg>");
+  --icon-up: url("data:image/svg+xml,<svg  width='24'  height='24'  viewBox='0 0 24 24'  fill='none'  xmlns='http://www.w3.org/2000/svg'>  <path    d='M17.6568 8.96219L16.2393 10.3731L12.9843 7.10285L12.9706 20.7079L10.9706 20.7059L10.9843 7.13806L7.75404 10.3532L6.34314 8.93572L12.0132 3.29211L17.6568 8.96219Z'    fill='white'  /></svg>");
+  --icon-down: url("data:image/svg+xml,<svg  width='24'  height='24'  viewBox='0 0 24 24'  fill='none'  xmlns='http://www.w3.org/2000/svg'>  <path    d='M11.0001 3.67157L13.0001 3.67157L13.0001 16.4999L16.2426 13.2574L17.6568 14.6716L12 20.3284L6.34314 14.6716L7.75735 13.2574L11.0001 16.5001L11.0001 3.67157Z'    fill='white'  /></svg>");
 }
 
 /* ===== Stage theme ===== */
@@ -202,19 +207,65 @@ ul.navigation li a {
   margin: 0;
 }
 
-body a.primary-btn {
+body .btn {
   display: inline-block;
-  padding: var(--space-xs) var(--space-md);
-  background: var(--color-primary);
-  color: var(--color-primary-standout);
+  padding: var(--space-xs) var(--space-lg);
   text-decoration: none !important;
-  font-weight: 700;
-  border-radius: var(--radius-sm);
+  font-size: inherit;
+  font-family: inherit;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  min-height: var(--space-xl);
+  font-size: 0.85em;
+  border: 1px solid var(--color-primary);
 }
 
-body a.primary-btn:focus,
-body a.primary-btn:hover {
+body details .btn {
+  min-height: var(--space-xxl);
+}
+
+body .btn::before {
+  width: 1.8em;
+  height: 1.4em;
+  top: var(--space-xs);
+}
+body .primary-btn {
+  font-weight: 700;
+  background: var(--color-primary);
+  color: var(--color-primary-standout);
+}
+
+body .primary-btn:focus,
+body .primary-btn:hover {
   background: var(--color-primary-hover);
+}
+
+body .tertiary-btn,
+body .secondary-btn {
+  color: var(--color-primary);
+  background: var(--color-base);
+  border-color: var(--color-border);
+}
+
+body .tertiary-btn {
+  color: var(--color-text);
+}
+
+body .secondary-btn::before {
+  background: var(--color-primary);
+}
+
+body .tertiary-btn::before {
+  background: var(--color-text-muted);
+}
+
+body .secondary-btn:focus,
+body .secondary-btn:hover,
+body .tertiary-btn:focus,
+body .tertiary-btn:hover {
+  /* color: var(--color-primary); */
+  background: var(--color-primary-standout);
 }
 
 .subheader-desc {
@@ -235,16 +286,19 @@ body a.primary-btn:hover {
 }
 
 /* ===== Shared icon base ===== */
-
-a.add-to-cal::before,
+.description::before,
+.add-to-cal::before,
+.copy-event::before,
 a.subheader-btn::before,
 summary::before,
 .details .time::before,
 .details .location::before,
 .details .link-url::before,
 .details > .flyer::before,
-.copy-url::after,
+.copy-url::before,
 .copy-event::after,
+.icon-up::before,
+.icon-down::after,
 #agenda .details a[target="_blank"]::after {
   content: ' ';
   display: inline-block;
@@ -254,6 +308,9 @@ summary::before,
   mask-repeat: no-repeat;
   -webkit-mask-mode: alpha;
   mask-mode: alpha;
+  top: var(--space-xxs);
+  position: relative;
+
 }
 
 /* ===== Date picker / nav ===== */
@@ -283,23 +340,43 @@ nav.date-picker {
   min-width: 0;
 }
 
-.btnset button {
+.btnset > * {
   flex: 1;
   border-radius: 0;
   border-right: none;
 }
 
-.btnset button:first-child {
-  border-top-left-radius: var(--radius-sm);
-  border-bottom-left-radius: var(--radius-sm);
+.btnset > *:first-child {
+  border-top-left-radius: var(--radius-md);
+  border-bottom-left-radius: var(--radius-md);
 }
 
-.btnset button:last-child {
+.btnset > *:last-child {
   border: 1px solid var(--color-border);
-  border-top-right-radius: var(--radius-sm);
-  border-bottom-right-radius: var(--radius-sm);
+  border-top-right-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
 }
 
+.icon-down::after,
+.icon-up::before {
+  width: 1.1em;
+  height: 1.1em;
+  background-color: var(--color-text-muted);
+}
+
+.icon-up::before {
+  -webkit-mask-image: var(--icon-up);
+  mask-image: var(--icon-up);
+  top: var(--space-xxs);
+}
+
+.icon-down::after {
+  -webkit-mask-image: var(--icon-down);
+  mask-image: var(--icon-down);
+  top: var(--space-xs);
+}
+
+.date-jump-period,
 button,
 #datepicker,
 #theme-toggle,
@@ -310,9 +387,15 @@ button,
   border: 1px solid var(--color-border);
   background: var(--color-base);
   color: var(--color-text);
-  cursor: pointer;
   white-space: nowrap;
   border-radius: var(--radius-sm);
+}
+
+button,
+#datepicker,
+#theme-toggle,
+#view-toggle {
+  cursor: pointer;
 }
 
 .btnset button:hover,
@@ -395,6 +478,14 @@ button,
   color: var(--color-text);
 }
 
+.filter-help {
+  display: none;
+}
+
+.nav-row:has(#event-filter:focus) ~ .filter-help {
+  display: block;
+}
+
 /* Nav subscribe (sticky CTA) */
 
 .nav-subscribe {
@@ -436,7 +527,7 @@ button,
 }
 
 #agenda h2 {
-  font-size: 0.85em;
+  font-size: 1em;
   font-weight: 600;
   margin: var(--space-md) var(--space-neg-md) var(--space-xs);
   padding-bottom: var(--space-xs);
@@ -454,10 +545,11 @@ details {
 }
 
 details summary {
-  padding: var(--space-xs) var(--space-md);
+  padding: var(--space-sm) var(--space-md);
 }
 
 details[open] {
+  border-top: var(--space-xxs) solid var(--color-border);
   border-bottom: var(--space-xs) solid var(--color-border);
   background: var(--color-detail-bg);
   margin: var(--space-xs) var(--space-neg-md) var(--space-lg);
@@ -538,6 +630,12 @@ details[open] .summary-meta {
   line-height: 1.5em;
 }
 
+.details > div.description {
+  padding-left: var(--space-xl);
+  position: relative;
+  margin-top: var(--space-lg);
+}
+
 .details .description p {
   margin: var(--space-sm) 0;
   line-height: 1.5em;
@@ -548,6 +646,7 @@ details[open] .summary-meta {
 .details .time::before,
 .details .location::before,
 .details .link-url::before,
+.details .description::before,
 .details > .flyer::before {
   width: var(--space-xl);
   height: 1em;
@@ -567,6 +666,14 @@ details[open] .summary-meta {
 .details .link-url::before {
   -webkit-mask-image: var(--icon-link);
   mask-image: var(--icon-link);
+}
+
+.details .description::before {
+  -webkit-mask-image: var(--icon-details);
+  mask-image: var(--icon-details);
+  position: absolute;
+  top: var(--space-xs);
+  left: 0;
 }
 
 .details > .flyer::before {
@@ -598,26 +705,26 @@ details[open] .summary-meta {
   vertical-align: bottom;
 }
 
-.copy-url::after {
-  width: 1em;
-  height: 1em;
+.copy-url::before {
+  width: 1.4em;
+  height: 1.4em;
   -webkit-mask-image: var(--icon-copy);
   mask-image: var(--icon-copy);
   background-color: var(--color-text-muted);
 }
 
-.copy-url:hover::after {
+.copy-url:hover::before {
   background-color: var(--color-link);
 }
 
-.copy-url.copied::after {
+.copy-url.copied::before {
   background-color: var(--color-primary);
   animation: copyPulse 0.3s ease-out;
 }
 
 @keyframes copyPulse {
   0%   { transform: scale(1); }
-  50%  { transform: scale(1.5); }
+  50%  { transform: scale(1.1); }
   100% { transform: scale(1); }
 }
 
@@ -671,7 +778,7 @@ details[open] .summary-meta {
 
 /* Description */
 
-.details .smaller {
+.smaller {
   font-size: 0.85em;
   color: var(--color-text-muted);
 }
@@ -694,16 +801,28 @@ details[open] .summary-meta {
 
 /* ===== Add-to-calendar ===== */
 
-a.add-to-cal::before,
+.add-to-cal::before,
 a.subheader-btn::before {
   -webkit-mask-image: var(--icon-calendar-next);
   mask-image: var(--icon-calendar-next);
   background-color: var(--color-primary-standout);
   width: var(--space-lg);
   height: 1em;
-  top: 0.1em;
-  position: relative;
 }
+
+body .copy-event {
+  padding: var(--space-xs) var(--space-md);
+}
+
+body .copy-event::before {
+  -webkit-mask-image: var(--icon-copy);
+  mask-image: var(--icon-copy);
+  background-color: var(--color-text-muted);
+  height: 1em;
+  width: 1em;
+}
+
+
 
 .contextual-menu {
   text-align: right;
@@ -715,36 +834,25 @@ a.subheader-btn::before {
   margin: var(--space-sm) var(--space-md);
 }
 
-.copy-event {
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-}
-
-.copy-event::after {
-    width: 2em;
-    height: 2em;
-    -webkit-mask-image: var(--icon-copy);
-    mask-image: var(--icon-copy);
-    background-color: var(--color-text-muted);
-    position: relative;
-    top: var(--space-sm);
-}
-
-.copy-event:hover::after {
-  background-color: var(--color-link);
-}
-
-.copy-event.copied::after {
-  background-color: var(--color-primary);
+.copy-event.copied {
   animation: copyPulse 0.3s ease-out;
 }
 
+.copy-event.copied::before {
+  background: var(--color-link);
+}
+
+.copy-url.copied::after,
+.copy-event.copied::after {
+  content: 'copied';
+  padding-left: var(--space-xs);
+}
+
+.copy-url.copied::after {
+  content: 'link copied';
+}
+
 .add-to-cal {
-  display: block;
-  margin-top: var(--space-sm);
-  text-decoration: none;
   text-align: right;
 }
 
@@ -823,14 +931,13 @@ details a:visited {
   color: var(--color-header);
 }
 
-a:not(.simple-link) {
+a:not(.simple-link, .primary-btn) {
   background: var(--color-link-shade);
 }
 
-a:not(.simple-link):focus,
-a:not(.simple-link):hover {
+a:not(.simple-link, .primary-btn):focus,
+a:not(.simple-link, .primary-btn):hover {
   background: var(--color-base);
-  outline: none;
 }
 
 /* ===== ICS subscribe list ===== */
@@ -905,6 +1012,7 @@ nav.date-picker input:focus-visible {
 
 ::placeholder {
   color: var(--color-text-muted);
+  size: 0.8em;
 }
 
 /* ===== Animations ===== */
