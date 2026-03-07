@@ -54,13 +54,20 @@ class GoogleCalendar(CalendarProvider):
             logger.info('Dry run - Inserting event \"%s\" on %s from source \"%s\"' % (event.summary, event.startDate, event.sourceTitle))
             logger.debug('Dry Run: Inserting ' + str(data))
 
-    def syncPending(self):
+    def syncPending(self, dryRun=False, limit=None):
         """Sync all pending events to Google Calendar. Returns count of synced events."""
         synced = 0
-        for event, record in self.getPendingEvents():
+        pending = self.getPendingEvents()
+        if limit:
+            pending = pending[:limit]
+        for event, record in pending:
+            externalId = record.get('externalId')
+            if dryRun:
+                self.dryRun(event, externalId)
+                synced += 1
+                continue
             try:
                 eventData = self.getDictionaryFromEvent(event)
-                externalId = record.get('externalId')
 
                 if externalId:
                     logger.info('Updating event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
