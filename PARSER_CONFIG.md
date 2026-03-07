@@ -1,6 +1,13 @@
 # Parser Configuration
 
-Events are parsed from HTML using a config-driven system defined in `data/sources.yml`. Each source specifies how to fetch a page, how to extract events from it, and how to post-process the results.
+Events are parsed from HTML using a config-driven system defined in `data/sources.yml`. Each source specifies how to fetch a page, how to extract fields from it, how to transform those fields, and how to post-process the resulting event list.
+
+The pipeline is orchestrated by `CalendarFactory.getEvents()`:
+
+1. **Parse** — extract raw field dicts from HTML
+2. **Transform** — transform each field dict (dates, text cleanup, etc.)
+3. **Build** — convert field dicts to Event objects
+4. **Process** — filter/modify the event list
 
 ## Source structure
 
@@ -11,36 +18,32 @@ sourceName:
     url: https://example.com/events
     scrollCount: 4                   # optional: scroll the page N times before parsing
   parser:
-    class: GenericParser             # or a subclass like ShowPlaceParser
+    class: Parser                    # or a subclass like ShowPlaceParser
     container: div.event             # CSS selector for each event element
     require: a.btn                   # optional: skip elements missing this selector
     fields:
       # ... field definitions
-    tamper:
-      # ... ordered processing steps
-  postTasks:
+  transform:
+    # ... ordered field transformation steps
+  process:
     # ... post-processing on the event list
 ```
 
 ## Parser classes
 
-### GenericParser
+### Parser
 
-The default config-driven parser. Selects container elements from the page, extracts fields from each one, runs the tamper pipeline, and builds events. All behavior is defined in YAML.
+The default config-driven parser. Selects container elements from the page and extracts fields from each one. All behavior is defined in YAML.
 
-### Subclassing GenericParser
+### Subclassing Parser
 
-For pages that don't fit the simple "list of identical containers" model, subclass GenericParser and override one or more hooks:
+For pages that don't fit the simple "list of identical containers" model, subclass Parser and override `collectElements`:
 
 | Hook | Purpose | Default behavior |
 |------|---------|-----------------|
 | `collectElements(soup, config)` | Yield `(element, extra_fields)` pairs | Select all containers, filter by `require` |
-| `beforeTamper(fields)` | Transform fields after extraction | No-op |
-| `afterTamper(fields)` | Transform fields after tamper pipeline | No-op |
 
 The `extra_fields` dict is merged into the field bag before field extraction. This is how a subclass can inject context like a date heading.
-
-Subclasses inherit `acceptsConfig = True` from GenericParser, so CalendarFactory automatically passes the parser config.
 
 **Example: ShowPlaceParser** overrides `collectElements` to walk Tumblr posts with stateful h2 date headings, yielding each `<p>` event with `{'date': currentDate}` as extra fields.
 
@@ -69,9 +72,6 @@ containerIndex: [0, 1]    # only parse the first two containers
 ### fields
 A map of field names to extraction definitions. See [Field extraction](#field-extraction).
 
-### tamper
-An ordered list of transformation steps. See [Tamper pipeline](#tamper-pipeline).
-
 ## Field extraction
 
 Fields extract values from each container element. Some field names map directly to event properties:
@@ -84,10 +84,10 @@ Fields extract values from each container element. Some field names map directly
 | `location`    | location       |
 | `img`         | flyer image    |
 | `imgAlt`      | flyer alt text |
-| `start`       | start datetime (set by tamper, not directly) |
-| `end`         | end datetime (set by tamper, not directly)   |
+| `start`       | start datetime (set by transform, not directly) |
+| `end`         | end datetime (set by transform, not directly)   |
 
-Any other field names (e.g. `date`, `time`, `ticketsLink`) are working fields available to the tamper pipeline but not mapped to the event.
+Any other field names (e.g. `date`, `time`, `ticketsLink`) are working fields available to the transform pipeline but not mapped to the event.
 
 ### Shorthand syntax
 
@@ -197,9 +197,40 @@ title:
 #### separator
 Join string used with `select: all`. Default: `", "`.
 
-## Tamper pipeline
+## Transform pipeline
 
 An ordered list of steps that transform the extracted fields before creating the event. Each step operates on the shared field bag (a dict of field names to values).
+
+### Field interpolation
+
+Several transform types support `{fieldName}` placeholders in their text/value parameters. These are replaced with the current value of the named field at runtime. Supported in: `set` (value), `append` (text), `prefix` (text), `regex` (default).
+
+```yaml
+- type: set
+  target: description
+  value: "{title} at {location}"
+- type: regex
+  target: titleTime
+  pattern: '...'
+  default: "{titleTime}"    # use field value as fallback
+```
+
+Defined at the source level under `transform:`. The default class is `Transformer`. For custom logic, specify a dict with `class:` and `steps:`:
+
+```yaml
+# Simple form (list of steps, uses default Transformer):
+transform:
+  - type: autoDate
+  - type: set
+    target: location
+    value: My Venue
+
+# Custom class form:
+transform:
+  class: MyTransformer
+  steps:
+    - type: autoDate
+```
 
 ### autoDate
 
@@ -270,7 +301,7 @@ Extract a capture group from a field using a regex.
 | `pattern` | yes | — | Regex pattern. Use single quotes in YAML to avoid escaping. |
 | `group` | no | `0` | Capture group index (0 = full match) |
 | `store` | no | same as `target` | Field to store the result |
-| `default` | no | — | Fallback if the pattern doesn't match. If the value matches an existing field name, that field's value is used; otherwise it's treated as a literal string. |
+| `default` | no | — | Fallback if the pattern doesn't match. Supports `{fieldName}` interpolation. |
 
 ### replace
 
@@ -318,20 +349,43 @@ Prepend text to a field, with an optional guard to skip values that already matc
 
 ### append
 
-Append one field's value onto another. Only runs if both fields have values.
+Append text to a field. Supports `{fieldName}` interpolation.
 
 ```yaml
+# Append literal text:
+- type: append
+  target: description
+  text: "\n\n<span class='smaller'>Crawled from example.com.</span>"
+
+# Append another field's value:
 - type: append
   target: title
-  field: support
-  separator: ", "
+  text: ", {support}"
 ```
 
 | Property | Required | Default | Description |
 |----------|----------|---------|-------------|
 | `target` | yes | — | Field to modify |
-| `field` | yes | — | Field whose value to append |
-| `separator` | no | `", "` | String between the two values |
+| `text` | yes | — | Text to append. Supports `{fieldName}` interpolation. |
+
+### set
+
+Set a field to a value. Supports `{fieldName}` interpolation.
+
+```yaml
+- type: set
+  target: location
+  value: Metro Gallery
+
+- type: set
+  target: description
+  value: "{title} at {location}"
+```
+
+| Property | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `target` | yes | — | Field to set |
+| `value` | yes | — | Value to assign. Supports `{fieldName}` interpolation. |
 
 ### copy
 
@@ -432,22 +486,25 @@ Normalize whitespace while preserving paragraph structure. Horizontal whitespace
 |----------|----------|---------|-------------|
 | `target` | yes | — | Field to modify |
 
-## Post-tasks
+## Process pipeline
 
-Post-tasks run on the full event list after all events have been parsed. They are shared across all parser types.
-
-### addBoilerplateToDescriptions
-
-Append text to every event's description.
+Process steps run on the full event list after all events have been built. Defined at the source level under `process:`. The default class is `Processor`.
 
 ```yaml
-- type: addBoilerplateToDescriptions
-  text: <span class='smaller'>Crawled from https://example.com.</span>
-```
+# Simple form (list of steps, uses default Processor):
+process:
+  - type: rejectEvents
+    pattern:
+      location: (Ottobar|Red Emma's)
 
-| Property | Required | Description |
-|----------|----------|-------------|
-| `text` | yes | HTML/text to append |
+# Custom class form:
+process:
+  class: MyProcessor
+  steps:
+    - type: rejectEvents
+      pattern:
+        summary: (Taylor Swift .*)
+```
 
 ### rejectEvents
 
@@ -463,88 +520,3 @@ Remove events matching a pattern. The pattern is a dict of field names to regex 
 | Property | Required | Description |
 |----------|----------|-------------|
 | `pattern` | yes | Dict of `{field: regex}` pairs |
-
-### setLocationAddress
-
-Set the location on all events that don't already have one.
-
-```yaml
-- type: setLocationAddress
-  text: Metro Gallery
-```
-
-| Property | Required | Description |
-|----------|----------|-------------|
-| `text` | yes | Location string |
-
-### setColors
-
-Set the calendar color for all events.
-
-```yaml
-- type: setColors
-  color: default
-```
-
-| Property | Required | Description |
-|----------|----------|-------------|
-| `color` | yes | Color name |
-
-### prefixLinks
-
-Prepend a base URL to all event links that don't already have a full URL.
-
-```yaml
-- type: prefixLinks
-  text: https://www.example.com
-```
-
-| Property | Required | Description |
-|----------|----------|-------------|
-| `text` | yes | Base URL to prepend |
-
-### prefixDescriptionsWithLinks
-
-Prepend each event's link URL to its description text. No configuration options.
-
-```yaml
-- type: prefixDescriptionsWithLinks
-```
-
-### prefixDescriptionsWithFlyer
-
-Prepend each event's flyer image as a link in the description. No configuration options.
-
-```yaml
-- type: prefixDescriptionsWithFlyer
-```
-
-### setAbsoluteEndDateTime
-
-Set the end time on all events to a fixed time of day. Use `autoDate`'s `defaultEndTime` instead when possible.
-
-```yaml
-- type: setAbsoluteEndDateTime
-  hour: 23
-  minute: 59
-```
-
-| Property | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `hour` | no | `23` | Hour (24h format) |
-| `minute` | no | `59` | Minute |
-
-### setDefaultTimeLength
-
-Set a default duration on events that don't have an end time. Use `autoDate`'s `defaultDuration` instead when possible.
-
-```yaml
-- type: setDefaultTimeLength
-  hour: 2
-  minute: 0
-```
-
-| Property | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `hour` | no | `2` | Hours |
-| `minute` | no | `0` | Minutes |

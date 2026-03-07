@@ -3,6 +3,8 @@
 import sys
 sys.path.append('./src')
 sys.path.append('./src/parsers')
+sys.path.append('./src/transformers')
+sys.path.append('./src/processors')
 
 import yaml
 import argparse
@@ -99,13 +101,7 @@ def getEvents(sourceId, sourceConfig):
     try:
         source = factory.source(sourceId, sourceConfig)
         html = source.getHtml()
-
-        parser = factory.parser(sourceId, sourceConfig)
-        events = parser.parse(html).events
-
-        events = factory.postTasks(events, sourceConfig)
-
-        return events
+        return factory.getEvents(html, sourceId, sourceConfig)
 
     except Exception as e:
         logger.exception("Exception occurred in source " + sourceId)

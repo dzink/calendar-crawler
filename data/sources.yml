@@ -9,41 +9,43 @@ showPlace:
     fields:
       text:
         extract: paragraphs
-    tamper:
-      - type: collapseWhitespace
-        target: text
-        separator: " "
-      - type: copy
-        target: text
-        store: description
-      - type: regex
-        target: text
-        pattern: '(.*)\s*@\s*([^@]*)\s*$'
-        group: 2
-        store: location
-      - type: regex
-        target: text
-        pattern: '(.*)\s*@\s*([^@]*)\s*$'
-        group: 1
-        store: titleTime
-      - type: regex
-        target: titleTime
-        pattern: '\s*(.*)\.\s*([^.]*)\s*$'
-        group: 1
-        store: title
-        default: titleTime
-      - type: autoDate
-        timeField: titleTime
-        defaultTime: "19:00"
-        defaultEndTime: "23:59"
-  postTasks:
+  transform:
+    - type: collapseWhitespace
+      target: text
+      separator: " "
+    - type: copy
+      target: text
+      store: description
+    - type: regex
+      target: text
+      pattern: '(.*)\s*@\s*([^@]*)\s*$'
+      group: 2
+      store: location
+    - type: regex
+      target: text
+      pattern: '(.*)\s*@\s*([^@]*)\s*$'
+      group: 1
+      store: titleTime
+    - type: regex
+      target: titleTime
+      pattern: '\s*(.*)\.\s*([^.]*)\s*$'
+      group: 1
+      store: title
+      default: "{titleTime}"
+    - type: autoDate
+      timeField: titleTime
+      defaultTime: "19:00"
+      defaultEndTime: "23:59"
+    - type: append
+      target: description
+      text: "\n\n<span class='smaller'>End time is approximate. Crawled from https://baltshowplace.tumblr.com/.</span>"
+    - type: set
+      target: color
+      value: default
+  process:
     - type: rejectEvents
       pattern:
         location: ((Ottobar)|(Red Emma)|(Current Space)|(2640)|(Joe Squared)|(Black Cat)|(Rhizome)|(Metro))
-    - type: addBoilerplateToDescriptions
-      text: <span class='smaller'>End time is approximate. Crawled from https://baltshowplace.tumblr.com/.</span>
-    - type: setColors
-      color: default
 
 redEmmas:
   name: Red Emma's
@@ -51,7 +53,7 @@ redEmmas:
     url: https://withfriends.co/red_emmas/events
     scrollCount: 4
   parser:
-    class: GenericParser
+    class: Parser
     container: li.wf-event
     fields:
       title: h4
@@ -63,20 +65,22 @@ redEmmas:
       link: a@href
       img: img@data-image | img@src
       imgAlt: img@alt
-    tamper:
-      - type: autoDate
-        defaultDuration: "2:00"
-      - type: prefix
-        target: link
-        text: "https://withfriends.co"
-        unless: "^https?://"
-  postTasks:
-    - type: addBoilerplateToDescriptions
-      text: <span class='smaller'>End time is approximate. Crawled from https://withfriends.co/red_emmas/events.</span>
-    - type: setLocationAddress
-      text: Red Emma's
-    - type: setColors
-      color: default
+  transform:
+    - type: autoDate
+      defaultDuration: "2:00"
+    - type: prefix
+      target: link
+      text: "https://withfriends.co"
+      unless: "^https?://"
+    - type: set
+      target: location
+      value: "Red Emma's"
+    - type: append
+      target: description
+      text: "\n\n<span class='smaller'>End time is approximate. Crawled from https://withfriends.co/red_emmas/events.</span>"
+    - type: set
+      target: color
+      value: default
 
 currentSpace:
   name: Current Space
@@ -84,7 +88,7 @@ currentSpace:
     url: https://withfriends.events/o/current_space/upcoming/
     scrollCount: 4
   parser:
-    class: GenericParser
+    class: Parser
     container: .ticketContainer div.ticketCard
     fields:
       title: .eventTitleMobile
@@ -95,27 +99,29 @@ currentSpace:
       link: a@href
       img: img@data-image | img@src
       imgAlt: img@alt
-    tamper:
-      - type: autoDate
-        defaultEndTime: "22:30"
-      - type: prefix
-        target: link
-        text: "https://withfriends.co"
-        unless: "^https?://"
-  postTasks:
-    - type: addBoilerplateToDescriptions
-      text: <span class='smaller'>End time is approximate. Crawled from https://withfriends.co/current_space/events.</span>
-    - type: setLocationAddress
-      text: Current Space
-    - type: setColors
-      color: default
+  transform:
+    - type: autoDate
+      defaultEndTime: "22:30"
+    - type: prefix
+      target: link
+      text: "https://withfriends.co"
+      unless: "^https?://"
+    - type: set
+      target: location
+      value: Current Space
+    - type: append
+      target: description
+      text: "\n\n<span class='smaller'>End time is approximate. Crawled from https://withfriends.co/current_space/events.</span>"
+    - type: set
+      target: color
+      value: default
 
 ottobar:
   name: Ottobar
   source:
     url: https://theottobar.com/calendar/
   parser:
-    class: GenericParser
+    class: Parser
     container: div.eventWrapper
     require: a.btn-primary
     fields:
@@ -128,25 +134,27 @@ ottobar:
       link: a@href
       img: img@data-image | img@src
       imgAlt: img@alt
-    tamper:
-      - type: collapseWhitespace
-        target: title
-        separator: " | "
-      - type: autoDate
-        timeField: time
-        defaultTime: "20:00"
-        defaultEndTime: "23:59"
-  postTasks:
+  transform:
+    - type: collapseWhitespace
+      target: title
+      separator: " | "
+    - type: autoDate
+      timeField: time
+      defaultTime: "20:00"
+      defaultEndTime: "23:59"
+    - type: append
+      target: description
+      text: "\n\n<span class='smaller'>End time is approximate. Crawled from https://theottobar.com/calendar/.</span>"
+    - type: set
+      target: color
+      value: default
+  process:
     - type: rejectEvents
       pattern:
         location: (Current Space|Joe Squared|Upstairs @ Ottobar)
     - type: rejectEvents
       pattern:
         summary: (Taylor Swift .*|ALL KILLER.*|K-POP.*)
-    - type: addBoilerplateToDescriptions
-      text: <span class='smaller'>End time is approximate. Crawled from https://theottobar.com/calendar/.</span>
-    - type: setColors
-      color: default
 
 metroGallery:
   name: Metro Gallery
@@ -154,7 +162,7 @@ metroGallery:
     url: https://metrobmore.com/events/
     scrollCount: 4
   parser:
-    class: GenericParser
+    class: Parser
     container: div.listings-block-listgrid div.listings-block-list__listing
     fields:
       title: h3.listing__title
@@ -163,37 +171,37 @@ metroGallery:
       link: a.plotButton--secondary@href
       img: img@data-image | img@src
       imgAlt: img@alt
-    tamper:
-      - type: collapseWhitespace
-        target: title
-        separator: " "
-      - type: autoDate
-        defaultTime: "19:00"
-        defaultEndTime: "22:00"
-      - type: join
-        fields: [link, ticketsLink]
-        store: description
-        separator: " , tickets: "
-      - type: prefix
-        target: description
-        text: " read more: "
-  postTasks:
+  transform:
+    - type: collapseWhitespace
+      target: title
+      separator: " "
+    - type: autoDate
+      defaultTime: "19:00"
+      defaultEndTime: "22:00"
+    - type: join
+      fields: [link, ticketsLink]
+      store: description
+      separator: " , tickets: "
+    - type: set
+      target: location
+      value: Metro Gallery
+    - type: append
+      target: description
+      text: "\n\n<span class='smaller'>End time is approximate. Crawled from https://metrobmore.com/events/.</span>"
+    - type: set
+      target: color
+      value: default
+  process:
     - type: rejectEvents
       pattern:
         location: (Current Space|Joe Squared)
-    - type: addBoilerplateToDescriptions
-      text: <span class='smaller'>End time is approximate. Crawled from https://metrobmore.com/events/.</span>
-    - type: setLocationAddress
-      text: Metro Gallery
-    - type: setColors
-      color: default
 
 blackCat:
   name: Black Cat DC
   source:
     url: https://www.blackcatdc.com/schedule.html
   parser:
-    class: GenericParser
+    class: Parser
     container: div.show
     require: h1 a
     fields:
@@ -208,29 +216,31 @@ blackCat:
       link: h1 a@href
       img: img@data-image | img@src
       imgAlt: img@alt
-    tamper:
-      - type: autoDate
-        timeField: time
-        defaultTime: "19:00"
-        defaultEndTime: "23:59"
-      - type: prefix
-        target: img
-        text: "https://www.blackcatdc.com"
-        unless: "^https?://"
-  postTasks:
-    - type: addBoilerplateToDescriptions
-      text: <span class='smaller'>End time is approximate. Crawled from https://www.blackcatdc.com/schedule.html.</span>
-    - type: setLocationAddress
-      text: Black Cat DC
-    - type: setColors
-      color: default
+  transform:
+    - type: autoDate
+      timeField: time
+      defaultTime: "19:00"
+      defaultEndTime: "23:59"
+    - type: prefix
+      target: img
+      text: "https://www.blackcatdc.com"
+      unless: "^https?://"
+    - type: set
+      target: location
+      value: Black Cat DC
+    - type: append
+      target: description
+      text: "\n\n<span class='smaller'>End time is approximate. Crawled from https://www.blackcatdc.com/schedule.html.</span>"
+    - type: set
+      target: color
+      value: default
 
 space2640:
   name: 2640 Space
   source:
     url: https://www.2640space.net/events
   parser:
-    class: GenericParser
+    class: Parser
     container: article.eventlist-event--upcoming
     fields:
       title: h1.eventlist-title
@@ -246,31 +256,32 @@ space2640:
       link: a@href
       img: img@data-image | img@src
       imgAlt: img@alt
-    tamper:
-      - type: collapseWhitespace
-        target: location
-      - type: collapseParagraphs
-        target: description
-      - type: prefix
-        target: link
-        text: https://www.2640space.net
-        unless: "^https?://"
-      - type: autoDate
-        startTimeField: startTime
-        endTimeField: endTime
-        defaultDuration: "3:00"
-  postTasks:
-    - type: addBoilerplateToDescriptions
-      text: <span class='smaller'>Crawled from https://www.2640space.net/.</span>
-    - type: setColors
-      color: default
+  transform:
+    - type: collapseWhitespace
+      target: location
+    - type: collapseParagraphs
+      target: description
+    - type: prefix
+      target: link
+      text: https://www.2640space.net
+      unless: "^https?://"
+    - type: autoDate
+      startTimeField: startTime
+      endTimeField: endTime
+      defaultDuration: "3:00"
+    - type: append
+      target: description
+      text: "\n\n<span class='smaller'>Crawled from https://www.2640space.net/.</span>"
+    - type: set
+      target: color
+      value: default
 
 rhizome:
   name: Rhizome DC
   source:
     url: https://www.rhizomedc.org/
   parser:
-    class: GenericParser
+    class: Parser
     container: div.summary-block-collection-type-events div.summary-item-record-type-event
     fields:
       title: div.summary-title
@@ -288,29 +299,31 @@ rhizome:
       link: a@href
       img: img@data-image | img@src
       imgAlt: img@alt
-    tamper:
-      - type: collapseWhitespace
-        target: title
-        separator: " "
-      - type: autoDate
-        timeField: time
-        defaultTime: "19:00"
-        defaultEndTime: "22:00"
-      - type: prefix
-        target: link
-        text: "https://www.rhizomedc.org"
-        unless: "^https?://"
-      - type: prefix
-        target: img
-        text: "https://www.rhizomedc.org"
-        unless: "^https?://"
-  postTasks:
-    - type: setLocationAddress
-      text: Rhizome Washington DC
-    - type: addBoilerplateToDescriptions
-      text: <span class='smaller'>Crawled from https://www.rhizomedc.org/.</span>
-    - type: setColors
-      color: default
+  transform:
+    - type: collapseWhitespace
+      target: title
+      separator: " "
+    - type: autoDate
+      timeField: time
+      defaultTime: "19:00"
+      defaultEndTime: "22:00"
+    - type: prefix
+      target: link
+      text: "https://www.rhizomedc.org"
+      unless: "^https?://"
+    - type: prefix
+      target: img
+      text: "https://www.rhizomedc.org"
+      unless: "^https?://"
+    - type: set
+      target: location
+      value: Rhizome Washington DC
+    - type: append
+      target: description
+      text: "\n\n<span class='smaller'>Crawled from https://www.rhizomedc.org/.</span>"
+    - type: set
+      target: color
+      value: default
 
 greedyReads:
   name: Greedy Reads
@@ -318,7 +331,7 @@ greedyReads:
     url: https://greedyreads.com/events
     scrollCount: 4
   parser:
-    class: GenericParser
+    class: Parser
     container: div.preview-container div.ant-row
     fields:
       title: h4
@@ -332,17 +345,19 @@ greedyReads:
       link: div.bm-txt-0 a@href
       img: img@data-image | img@src
       imgAlt: img@alt
-    tamper:
-      - type: autoDate
-        defaultTime: "19:00"
-        defaultDuration: "2:00"
-  postTasks:
-    - type: addBoilerplateToDescriptions
-      text: <span class='smaller'>End time is approximate. Crawled from https://greedyreads.com/events.</span>
-    - type: setLocationAddress
-      text: Greedy Reads (see description for store location)
-    - type: setColors
-      color: default
+  transform:
+    - type: autoDate
+      defaultTime: "19:00"
+      defaultDuration: "2:00"
+    - type: set
+      target: location
+      value: Greedy Reads (see description for store location)
+    - type: append
+      target: description
+      text: "\n\n<span class='smaller'>End time is approximate. Crawled from https://greedyreads.com/events.</span>"
+    - type: set
+      target: color
+      value: default
 
 redRoom:
   name: The Red Room at Normal's
@@ -350,7 +365,7 @@ redRoom:
     url: https://www.redroom.org/
     # scrollCount: 4
   parser:
-    class: GenericParser
+    class: Parser
     container: div#content-area div.home-post-area
     fields:
       title: h4
@@ -359,28 +374,38 @@ redRoom:
       link: a@href
       img: img@data-image | img@src
       imgAlt: img@alt
-    tamper:
-      - type: collapseWhitespace
-        target: title
-      - type: cut
-        target: date
-        pattern: '\s*\|.*'
-      - type: autoDate
-        defaultTime: "20:00"
-        defaultDuration: "4:00"
-      - type: collapseWhitespace
-        target: descriptionRaw
-      - type: cut
-        target: descriptionRaw
-        pattern: '>> MORE'
-      - type: join
-        fields: [title, date, descriptionRaw]
-        store: description
-        separator: "\n\n"
-  postTasks:
-    - type: addBoilerplateToDescriptions
-      text: <span class='smaller'>End time is approximate. Crawled from https://redroom.org.</span>
-    - type: setLocationAddress
-      text: See link for location of Red Room events
-    - type: setColors
-      color: default
+  transform:
+    - type: collapseWhitespace
+      target: title
+    # Original format: "Day Month DD, YYYY | TIME | PRICE"
+    # Keep day and time, strip the price portion
+    - type: replace
+      target: date
+      find: '(.*?)\s*\|\s*(.*?)\s*\|.*'
+      replace: '\1 \2'
+      regex: true
+    # Fallback: if only one pipe (no time), just strip it
+    - type: cut
+      target: date
+      pattern: '\s*\|.*'
+    - type: autoDate
+      defaultTime: "20:00"
+      defaultDuration: "4:00"
+    - type: collapseWhitespace
+      target: descriptionRaw
+    - type: cut
+      target: descriptionRaw
+      pattern: '>> MORE'
+    - type: join
+      fields: [title, date, descriptionRaw]
+      store: description
+      separator: "\n\n"
+    - type: set
+      target: location
+      value: See link for location of Red Room events
+    - type: append
+      target: description
+      text: "\n\n<span class='smaller'>End time is approximate. Crawled from https://redroom.org.</span>"
+    - type: set
+      target: color
+      value: default

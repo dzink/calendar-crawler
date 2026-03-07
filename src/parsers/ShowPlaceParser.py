@@ -14,13 +14,13 @@ events grouped under h2 date headings:
 
 This parser walks the children of each post's body-text, tracking the current
 date heading and yielding each <p> as an event element with the date injected
-as an extra field. Field extraction and tampers are handled by GenericParser.
+as an extra field. Field extraction and transforms are handled by the factory.
 """
 
-from parsers.GenericParser import GenericParser
+from parsers.Parser import Parser
 
 
-class ShowPlaceParser(GenericParser):
+class ShowPlaceParser(Parser):
 
     def collectElements(self, soup, config):
         """Walk h2/p siblings in each post, yielding (p_element, {'date': heading})."""
