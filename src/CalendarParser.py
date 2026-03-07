@@ -18,19 +18,18 @@ class CalendarParser:
         self.events = EventList([])
         self.sourceTitle = sourceTitle
 
-    def parse(self, html, settings = {}):
+    def parse(self, html, settings=None):
         logger.debug('parsing beginning for ' + self.sourceTitle)
-        self.parseEvents(html, settings)
+        self.parseEvents(html, settings or {})
         logger.debug('parsing completed for ' + self.sourceTitle)
         logger.info('%d events found in %s' % (len(self.events.events), self.sourceTitle))
 
         return self
 
-    def soup(self, html):
-        self.soup = BeautifulSoup(html, features="html.parser")
-        return self.soup
+    def makeSoup(self, html):
+        return BeautifulSoup(html, features="html.parser")
 
-    def parseEvents(self, html, settings = {}):
+    def parseEvents(self, html, settings=None):
 
         return self
 
@@ -51,10 +50,6 @@ class CalendarParser:
             script.extract()
         return element
 
-    def removeScriptsFromElement(self, element):
-        return self.removeTagFromElement(element, 'script')
-
-
     def replaceWhitespace(self, text, replace = ' | '):
         if (text is None):
             return text
@@ -64,19 +59,6 @@ class CalendarParser:
 
     def replaceWhitespaceWithPipes(self, text):
         return self.replaceWhitespace(text, ' | ')
-
-    def removeWhitespace(self, text):
-        return self.replaceWhitespace(text, '')
-
-    def replaceDictionary(self, text, replacements, maxCount = 20):
-        for search, replace in replacements.items():
-            text = text.replace(search, replace, maxCount)
-        return text
-
-    def getTextOrDefault(self, htmlObject, default = ''):
-        if (htmlObject is not None):
-            return htmlObject.get_text()
-        return default
 
     def getDescriptionText(self, element):
         if element is None:
@@ -93,30 +75,9 @@ class CalendarParser:
         text = re.sub(r'[^\S\n]{2,}', ' ', text)
         return text.strip()
 
-    def cutPatternFromString(self, text, cutPattern):
-        if (text is None):
-            return text
-        text = re.sub(cutPattern, '', text)
-        return text
-
-    def replacePatternInString(self, text, find, replace):
-        if (text is None):
-            return text
-        text = re.sub(find, replace, text)
-        return text
-
-
-    """
-    Convert inconsistent time indications to a common format
-    A few common fuzzy time strings that this can capture:
-        1-3pm
-        noon
-        9 am to 2 pm
-        530-630
-        doors at 7
-    @returns Array with the startTime and endTime, if any
-    """
     def parseStartAndEndTimesFromFuzzyString(self, string):
+        """Parse start and end times from fuzzy strings like '7-9pm', 'doors at 8', 'noon'.
+        Returns [startTime, endTime] where each is a string like '7:00pm' or None."""
         startTime = None
         endTime = None
 
@@ -143,21 +104,6 @@ class CalendarParser:
 
 
         return [startTime, endTime]
-
-    def parseDateFromFuzzyString(self, string):
-        longMonthMatch = re.findall('(\\d\\d?\\s+)?(January|February|March|April|May|June|July|August|September|October|November|December)(\\s+\\d\\d?)?(\\s\\d{4})?', string)
-        if (len(longMonthMatch) > 0):
-          month = longMonthMatch[0][1]
-          day = self.removeWhitespace(longMonthMatch[0][0] + longMonthMatch[0][2])
-          year = self.removeWhitespace(longMonthMatch[0][3])
-          return [year, month, day]
-        shortMonthMatch = re.findall('(\\d\\d?\\s+)?(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)(\\s+\\d\\d?)?(\\s\\d{4})?', string)
-        if (len(shortMonthMatch) > 0):
-          month = shortMonthMatch[0][1]
-          day = self.removeWhitespace(shortMonthMatch[0][0] + shortMonthMatch[0][2])
-          year = self.removeWhitespace(shortMonthMatch[0][3])
-          return [year, month, day]
-        return None
 
     def removeOrdinalsFromNumbersInString(self, text):
         matches = re.findall('(.*)(\\dst|\\dnd|\\drd|\\dth)(.*)', text)

@@ -8,15 +8,14 @@ showPlace:
     containerIndex: [0, 1]
     fields:
       text:
-        extract: description
+        extract: paragraphs
     tamper:
       - type: collapseWhitespace
         target: text
         separator: " "
-      - type: join
-        fields: [text]
+      - type: copy
+        target: text
         store: description
-        separator: ""
       - type: regex
         target: text
         pattern: '(.*)\s*@\s*([^@]*)\s*$'
@@ -59,7 +58,7 @@ redEmmas:
       date:
         selector: "[data-type='Date_Time'][data-kind='Item']"
       description:
-        extract: description
+        extract: paragraphs
         removeTag: script
       link: a@href
       img: img@data-image | img@src
@@ -91,7 +90,7 @@ currentSpace:
       title: .eventTitleMobile
       date: .imageTextUpperLeft
       description:
-        extract: description
+        extract: paragraphs
         removeTag: script
       link: a@href
       img: img@data-image | img@src
@@ -124,7 +123,7 @@ ottobar:
       date: div.eventDateList
       time: div.eventDoorStartDate
       description:
-        extract: description
+        extract: paragraphs
       location: a.venueLink
       link: a@href
       img: img@data-image | img@src
@@ -200,12 +199,12 @@ blackCat:
     fields:
       title:
         selector: h1, h2.support
-        all: true
+        select: all
       date: h2.date
       time:
-        extract: description
+        extract: paragraphs
       description:
-        extract: description
+        extract: paragraphs
       link: h1 a@href
       img: img@data-image | img@src
       imgAlt: img@alt
@@ -226,20 +225,6 @@ blackCat:
     - type: setColors
       color: default
 
-joeSquared:
-  name: Joe Squared
-  source:
-    url: https://www.joesquared.com/events/
-  parser:
-    class: SquareSpaceParser
-  postTasks:
-    - type: addBoilerplateToDescriptions
-      text: <span class='smaller'>Crawled from https://www.joesquared.com/events/.</span>
-    - type: prefixLinks
-      text: https://www.joesquared.com
-    - type: setColors
-      color: default
-
 space2640:
   name: 2640 Space
   source:
@@ -255,7 +240,9 @@ space2640:
       location:
         selector: li.eventlist-meta-address
         removeTag: a
-      description: div.eventlist-description
+      description:
+        selector: div.eventlist-description
+        extract: paragraphs
       link: a@href
       img: img@data-image | img@src
       imgAlt: img@alt
@@ -290,10 +277,10 @@ rhizome:
       date: div.summary-thumbnail-event-date
       description:
         selector: div.summary-excerpt
-        extract: description
+        extract: paragraphs
         fallback:
           selector: div.summary-content
-          extract: description
+          extract: paragraphs
       time:
         selector: div.summary-excerpt p
         fallback:
@@ -341,7 +328,7 @@ greedyReads:
       description:
         selector: div.bm-txt-0
         index: 1
-        extract: description
+        extract: paragraphs
       link: div.bm-txt-0 a@href
       img: img@data-image | img@src
       imgAlt: img@alt
@@ -375,12 +362,12 @@ redRoom:
     tamper:
       - type: collapseWhitespace
         target: title
-      - type: autoDate
-        defaultTime: "20:00"
-        defaultDuration: "4:00"
       - type: cut
         target: date
         pattern: '\s*\|.*'
+      - type: autoDate
+        defaultTime: "20:00"
+        defaultDuration: "4:00"
       - type: collapseWhitespace
         target: descriptionRaw
       - type: cut

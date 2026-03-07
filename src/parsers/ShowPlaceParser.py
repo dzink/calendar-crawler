@@ -1,9 +1,29 @@
+"""
+ShowPlaceParser
+
+Parses the ShowPlace Tumblr blog (baltshowplace.tumblr.com).
+
+The page contains multiple Tumblr posts, each with a div.body-text that lists
+events grouped under h2 date headings:
+
+    <h2>Saturday, March 7, 2026</h2>
+    <p>Band Name. 8PM, $10 @ Venue</p>
+    <p>Other Band. 9PM, $5 @ Other Venue</p>
+    <h2>Sunday, March 8, 2026</h2>
+    <p>...</p>
+
+This parser walks the children of each post's body-text, tracking the current
+date heading and yielding each <p> as an event element with the date injected
+as an extra field. Field extraction and tampers are handled by GenericParser.
+"""
+
 from parsers.GenericParser import GenericParser
 
 
 class ShowPlaceParser(GenericParser):
 
     def collectElements(self, soup, config):
+        """Walk h2/p siblings in each post, yielding (p_element, {'date': heading})."""
         container = config.get('container')
         containerIndex = config.get('containerIndex')
 

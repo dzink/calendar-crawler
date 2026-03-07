@@ -123,28 +123,28 @@ class Event:
             date = tz.localize(date)
         return date
 
-    """
-    Some sources don't indicate the year. This will find the nearest possible
-    year for a given date.
-    """
-    def getNearestYear(self, date, pattern = '%A %B %d'):
-        pattern = pattern + ' %Y'
-        now = self.localizeDate(datetime.now())
-        years = [now.year - 1, now.year, now.year + 1]
+    @classmethod
+    def getNearestYear(cls, date, pattern='%A %B %d'):
+        """Find the nearest year for a date string that lacks a year.
+        Can be called as Event.getNearestYear() without instantiation."""
+        patternWithYear = pattern + ' %Y'
+        tz = pytz.timezone(cls.timeZone)
+        now = tz.localize(datetime.now())
         shortestYear = None
         shortestDifference = None
-        for year in years:
+        for year in [now.year - 1, now.year, now.year + 1]:
             try:
-                testDate = self.parseDateString(' '.join([date, str(year)]), pattern)
-                difference = abs((now - testDate).total_seconds())
-                if (shortestDifference == None or (difference < shortestDifference)):
+                dt = datetime.strptime(' '.join([date, str(year)]), patternWithYear)
+                dt = tz.localize(dt)
+                difference = abs((now - dt).total_seconds())
+                if shortestDifference is None or difference < shortestDifference:
                     shortestYear = year
                     shortestDifference = difference
-            except:
-                # This is required because Feb 29 messes up certain years.
-                logger.debug('Could not parse the date for the year %d' % (year))
+            except ValueError:
+                # Feb 29 doesn't exist in every year
+                logger.debug('Could not parse the date for the year %d' % year)
 
-        assert (shortestYear is not None), "Unable to determine the nearest year"
+        assert shortestYear is not None, "Unable to determine the nearest year"
 
         return shortestYear
 

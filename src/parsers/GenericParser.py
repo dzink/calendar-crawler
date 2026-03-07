@@ -1,6 +1,21 @@
+"""
+GenericParser
+
+A config-driven event parser. All parsing behavior is defined in sources.yml
+using CSS selectors for field extraction and a tamper pipeline for transformations.
+
+Subclasses can override three hooks:
+  - collectElements(): controls which HTML elements become events
+  - beforeTamper(): transforms fields after extraction, before the tamper pipeline
+  - afterTamper(): transforms fields after tampers, before event creation
+
+See PARSER_CONFIG.md in the project root for full config syntax documentation.
+"""
+
 from CalendarParser import CalendarParser
 from Event import Event
 from CalendarLogger import logger
+import dateparser
 from dateutil.parser import parse as dateutil_parse
 from datetime import timedelta
 import re
@@ -9,21 +24,25 @@ import copy
 
 class GenericParser(CalendarParser):
 
+    # When True, CalendarFactory passes the parser config dict to __init__.
     acceptsConfig = True
 
     def __init__(self, sourceTitle, parserConfig=None):
         super().__init__(sourceTitle)
         self.parserConfig = parserConfig or {}
 
-    def parseEvents(self, html, settings={}):
+    def parseEvents(self, html, settings=None):
+        """Main parse loop: collect elements, extract fields, run tampers, build events."""
         config = self.parserConfig
         fieldDefs = config.get('fields', {})
         tamperDefs = config.get('tamper', [])
 
-        soup = self.soup(html)
+        soup = self.makeSoup(html)
 
         for el, extra in self.collectElements(soup, config):
             try:
+                # Extract fields from the element, seeded with any extra fields
+                # provided by collectElements (e.g. a date heading)
                 fields = dict(extra)
                 for name, defn in fieldDefs.items():
                     fields[name] = self._extractField(el, defn)
@@ -42,8 +61,11 @@ class GenericParser(CalendarParser):
 
         return self
 
+    # --- Subclass hooks ---
+
     def collectElements(self, soup, config):
-        """Yield (element, extra_fields) for each item to parse. Override in subclasses."""
+        """Yield (element, extra_fields) for each item to parse.
+        Override in subclasses to change how events are collected from the page."""
         container = config.get('container')
         require = config.get('require')
         elements = self._select(soup, container)
@@ -53,14 +75,17 @@ class GenericParser(CalendarParser):
             yield el, {}
 
     def beforeTamper(self, fields):
-        """Called after field extraction, before tamper pipeline. Override in subclasses."""
+        """Hook called after field extraction, before tamper pipeline."""
         return fields
 
     def afterTamper(self, fields):
-        """Called after tamper pipeline, before event creation. Override in subclasses."""
+        """Hook called after tamper pipeline, before event creation."""
         return fields
 
+    # --- Event building ---
+
     def _buildEvent(self, fields):
+        """Map the processed field bag to an Event object and add it to the list."""
         event = Event()
         if fields.get('title'):
             event.setSummary(fields['title'])
@@ -73,20 +98,25 @@ class GenericParser(CalendarParser):
         if fields.get('img'):
             event.setImg(fields['img'], fields.get('imgAlt'))
         if fields.get('start'):
-            event.setStartString(fields['start'], fields['startFormat'])
+            event.setStartString(fields['start'], fields.get('startFormat', '%Y-%m-%d %H:%M'))
         if fields.get('end'):
-            event.setEndString(fields['end'], fields['endFormat'])
+            event.setEndString(fields['end'], fields.get('endFormat', '%Y-%m-%d %H:%M'))
 
         self.addEvent(event)
 
+    # --- Field extraction ---
+    # Fields are defined in sources.yml and can be either shorthand strings
+    # or object definitions. See PARSER_CONFIG.md for the full syntax.
+
     def _select(self, soup, selector):
-        """Parse a selector string into a BeautifulSoup find operation."""
         if not selector:
             return []
         return soup.select(selector)
 
     def _extractField(self, el, defn):
-        """Extract a field value from an element based on its definition."""
+        """Extract a field value from an element based on its definition.
+        Supports shorthand strings ("h2", "a@href", "img@src | img@data-src")
+        and object form with selector, extract, index, all, fallback, etc."""
         if defn is None:
             return None
 
@@ -98,7 +128,9 @@ class GenericParser(CalendarParser):
         selector = defn.get('selector')
         separator = defn.get('separator', ', ')
 
-        if defn.get('all') and selector:
+        select = defn.get('select', 'first')
+
+        if select == 'all' and selector:
             targets = el.select(selector)
             if not targets:
                 return defn.get('default')
@@ -155,30 +187,26 @@ class GenericParser(CalendarParser):
         if target is None:
             return None
 
-        # Auto-detect description fields
-        if 'description' in shorthand.lower() or shorthand == 'description':
-            return self.getDescriptionText(target)
-
         return target.get_text().strip()
 
     def _extractValue(self, target, extract):
         """Extract a value from an element based on extract type."""
         if extract == 'text':
             return target.get_text().strip()
-        if extract == 'description':
+        if extract == 'paragraphs':
             return self.getDescriptionText(target)
         if extract.startswith('attr:'):
             return target.get(extract[5:])
         return target.get_text().strip()
 
+    # --- Tamper pipeline ---
+    # Tampers are ordered processing steps that transform the extracted field bag
+    # before the event is created. Each step operates on the shared fields dict.
+
     def _tamper(self, fields, step):
-        """Apply a tamper step to the field bag."""
+        """Dispatch a tamper step to the appropriate handler."""
         t = step.get('type')
 
-        if t == 'parseDate':
-            return self._tamperParseDate(fields, step)
-        if t == 'parseDateFuzzy':
-            return self._tamperParseDateFuzzy(fields, step)
         if t == 'nearestYear':
             return self._tamperNearestYear(fields, step)
         if t == 'regex':
@@ -195,6 +223,8 @@ class GenericParser(CalendarParser):
             return self._tamperCollapseParagraphs(fields, step)
         if t == 'cut':
             return self._tamperCut(fields, step)
+        if t == 'copy':
+            return self._tamperCopy(fields, step)
         if t == 'join':
             return self._tamperJoin(fields, step)
         if t == 'append':
@@ -205,56 +235,6 @@ class GenericParser(CalendarParser):
         logger.warning('Unknown tamper type: %s' % t)
         return fields
 
-    def _tamperParseDate(self, fields, step):
-        """Concatenate fields and store as a date string with format."""
-        source_fields = step.get('fields', [])
-        fmt = step.get('format')
-        target = step.get('target', 'start')
-        separator = step.get('separator', '')
-
-        parts = [str(fields.get(f, '')) for f in source_fields]
-        dateStr = separator.join(parts)
-
-        fields[target] = dateStr
-        fields[target + 'Format'] = fmt
-        return fields
-
-    def _tamperParseDateFuzzy(self, fields, step):
-        """Parse date with fuzzy time extraction, setting both start and end."""
-        source_fields = step.get('fields', [])
-        fmt = step.get('format')
-        defaultTime = step.get('defaultTime', '19:00')
-        defaultEndTime = step.get('defaultEndTime')
-        separator = step.get('separator', ' ')
-
-        timeField = step.get('timeField', 'time')
-        timeValue = fields.get(timeField, '')
-        times = self.parseStartAndEndTimesFromFuzzyString(timeValue) if timeValue else [None, None]
-
-        startTime = times[0]
-        endTime = times[1]
-
-        if not startTime:
-            h, m = defaultTime.split(':')
-            startTime = '%s:%s%s' % (str(int(h) % 12 or 12), m, 'am' if int(h) < 12 else 'pm')
-
-        if not endTime and defaultEndTime:
-            h, m = defaultEndTime.split(':')
-            endTime = '%s:%s%s' % (str(int(h) % 12 or 12), m, 'am' if int(h) < 12 else 'pm')
-
-        dateFields = [f for f in source_fields if f != timeField]
-        dateParts = [str(fields.get(f, '')) for f in dateFields]
-        dateStr = separator.join(dateParts)
-
-        fields['start'] = (dateStr + separator + startTime).strip()
-        fields['startFormat'] = fmt
-
-        if endTime:
-            fields['end'] = (dateStr + separator + endTime).strip()
-            fields['endFormat'] = fmt
-
-        return fields
-
     def _tamperNearestYear(self, fields, step):
         """Add nearest year to a date field."""
         target = step.get('target', 'date')
@@ -263,14 +243,15 @@ class GenericParser(CalendarParser):
         if not value:
             return fields
 
-        event = Event()
-        year = event.getNearestYear(value, fmt)
+        year = Event.getNearestYear(value, fmt)
         separator = step.get('separator', '')
         fields[target] = value + separator + str(year)
         return fields
 
     def _tamperRegex(self, fields, step):
-        """Extract or transform a field with a regex."""
+        """Extract or transform a field with a regex.
+        If the pattern doesn't match, 'default' can be a literal value
+        or the name of another field to copy from."""
         target = step.get('target')
         pattern = step.get('pattern')
         group = step.get('group', 0)
@@ -285,7 +266,6 @@ class GenericParser(CalendarParser):
             fields[store] = match.group(group)
         elif 'default' in step:
             default = step['default']
-            # If default matches a field name, use that field's value
             if default in fields:
                 fields[store] = fields[default]
             else:
@@ -362,6 +342,15 @@ class GenericParser(CalendarParser):
             fields[target] = re.sub(pattern, '', value)
         return fields
 
+    def _tamperCopy(self, fields, step):
+        """Copy one field's value to another."""
+        target = step.get('target')
+        store = step.get('store')
+        value = fields.get(target, '')
+        if value:
+            fields[store] = value
+        return fields
+
     def _tamperJoin(self, fields, step):
         """Concatenate multiple fields into one."""
         source_fields = step.get('fields', [])
@@ -382,8 +371,18 @@ class GenericParser(CalendarParser):
             fields[target] = targetVal + separator + fieldVal
         return fields
 
+    # --- autoDate ---
+    # The primary date-parsing tamper. Uses dateparser for flexible date parsing
+    # and parseStartAndEndTimesFromFuzzyString (from CalendarParser) for extracting
+    # start/end times from strings like "7-9pm", "doors at 8", "noon".
+    # Time priority: explicit time fields > fuzzy-extracted times > defaults.
+
+    _dateparser_settings = {
+        'RETURN_AS_TIMEZONE_AWARE': False,
+    }
+
     def _tamperAutoDate(self, fields, step):
-        """Parse date automatically using dateutil with fuzzy time extraction.
+        """Parse date automatically using dateparser with fuzzy time extraction.
 
         Options:
           target:          field containing date text (default: "date")
@@ -420,30 +419,34 @@ class GenericParser(CalendarParser):
         elif not explicitStartTime:
             fuzzyStartTime, fuzzyEndTime = self.parseStartAndEndTimesFromFuzzyString(dateText)
 
-        # Pre-clean the date text for dateutil
+        # Pre-clean noisy date text
         cleaned = self._cleanDateText(dateText)
 
         # Parse the date portion
-        try:
-            dt = dateutil_parse(cleaned, fuzzy=True)
-        except (ValueError, OverflowError):
+        dt = dateparser.parse(cleaned, settings=self._dateparser_settings)
+        if not dt:
             logger.warning('autoDate: could not parse "%s"' % dateText)
             return fields
 
-        # Apply start time: explicit field > dateutil-extracted > fuzzy > default
+        # Detect whether dateparser extracted a time by checking if the
+        # cleaned text contains time-like patterns. Midnight (00:00) from
+        # dateparser means "no time found" unless the text explicitly says so.
+        parsedHasTime = dt.hour != 0 or dt.minute != 0 or bool(
+            re.search(r'(?:^|\s)(?:12\s*(?:am|AM|midnight)|00:00)', cleaned))
+
+        # Correct year to nearest (handles yearless dates near year boundary)
+        year = Event.getNearestYear(dt.strftime('%b %d'), '%b %d')
+        dt = dt.replace(year=int(year))
+
+        # Apply start time: explicit field > dateparser-extracted > fuzzy > default
         if explicitStartTime:
             dt = self._applyTimeString(dt, explicitStartTime)
-        elif dt.hour == 0 and dt.minute == 0:
+        elif not parsedHasTime:
             if fuzzyStartTime:
                 dt = self._applyTimeString(dt, fuzzyStartTime)
             elif defaultTime:
                 h, m = defaultTime.split(':')
                 dt = dt.replace(hour=int(h), minute=int(m))
-
-        # Nearest year
-        event = Event()
-        year = event.getNearestYear(dt.strftime('%b %d'), '%b %d')
-        dt = dt.replace(year=int(year))
 
         # Store start
         fields['start'] = dt.strftime('%Y-%m-%d %H:%M')
@@ -469,9 +472,7 @@ class GenericParser(CalendarParser):
         return fields
 
     def _cleanDateText(self, text):
-        """Pre-clean date text for dateutil parsing."""
-        # Remove ordinals: 8th -> 8
-        text = re.sub(r'(\d)(st|nd|rd|th)\b', r'\1', text)
+        """Pre-clean noisy date text for parsing."""
         # Remove pipe-separated suffixes (price, etc)
         text = re.sub(r'\s*\|.*', '', text)
         # Replace @ with space (used as time separator)

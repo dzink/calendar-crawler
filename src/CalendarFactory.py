@@ -5,16 +5,7 @@ sys.path.append('./parsers')
 from GoogleCalendar import GoogleCalendar
 from CalendarSource import CalendarSource
 from CalendarParser import CalendarParser
-from parsers.BlackCatParser import BlackCatParser
 from parsers.ShowPlaceParser import ShowPlaceParser
-from parsers.OttobarParser import OttobarParser
-from parsers.SquareSpaceParser import SquareSpaceParser
-from parsers.WithFriendsParser import WithFriendsParser
-from parsers.CurrentSpaceParser import CurrentSpaceParser
-from parsers.RhizomeParser import RhizomeParser
-from parsers.GreedyReadsParser import GreedyReadsParser
-from parsers.RedRoomParser import RedRoomParser
-from parsers.MetroParser import MetroParser
 from parsers.GenericParser import GenericParser
 from EventList import EventList
 
@@ -44,16 +35,12 @@ class CalendarFactory:
         parserConfig = sourceConfig.get('parser', {})
         name = sourceConfig.get('name')
         class_ = parserConfig.get('class')
-        postOffsets = parserConfig.get('postOffsets', None)
 
         parserClass = self.getClass(class_)
         if getattr(parserClass, 'acceptsConfig', False):
             parser = parserClass(name, parserConfig)
         else:
             parser = parserClass(name)
-
-        if (postOffsets != None):
-            parser.setPostOffsets(postOffsets)
 
         return parser
 
