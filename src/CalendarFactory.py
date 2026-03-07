@@ -15,6 +15,7 @@ from parsers.RhizomeParser import RhizomeParser
 from parsers.GreedyReadsParser import GreedyReadsParser
 from parsers.RedRoomParser import RedRoomParser
 from parsers.MetroParser import MetroParser
+from parsers.GenericParser import GenericParser
 from EventList import EventList
 
 from CalendarLogger import logger
@@ -46,7 +47,10 @@ class CalendarFactory:
         postOffsets = parserConfig.get('postOffsets', None)
 
         parserClass = self.getClass(class_)
-        parser = parserClass(name)
+        if getattr(parserClass, 'acceptsConfig', False):
+            parser = parserClass(name, parserConfig)
+        else:
+            parser = parserClass(name)
 
         if (postOffsets != None):
             parser.setPostOffsets(postOffsets)

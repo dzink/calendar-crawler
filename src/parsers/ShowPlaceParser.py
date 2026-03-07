@@ -1,81 +1,27 @@
-import re
-from Event import Event
-from CalendarParser import CalendarParser
-from CalendarLogger import logger
+from parsers.GenericParser import GenericParser
 
-class ShowPlaceParser(CalendarParser):
 
-    """
-    Set the post offset to select which post to parse. 0 parses the latest, 1
-    the second latest, etc.
-    """
-    def setPostOffsets(self, postOffsets):
-        self.postOffsets = postOffsets
+class ShowPlaceParser(GenericParser):
 
-    def parseEvents(self, html, settings = {}):
-        post = self.soup(html).find_all('div', class_='post-content')
+    def collectElements(self, soup, config):
+        container = config.get('container')
+        containerIndex = config.get('containerIndex')
 
-        if (self.postOffsets is None):
-            self.postOffsets = [0]
+        containers = self._select(soup, container)
+        if containerIndex is not None:
+            containers = [containers[i] for i in containerIndex if i < len(containers)]
 
-        for offset in self.postOffsets:
-            bodyText = post[offset].find('div', class_='body-text')
-            date = False
-            logger.info('Capturing most recent post %d in ShowPlace' % (offset + 1))
-            for element in bodyText.findChildren():
-                if (element.name == 'h2'):
-                    date = element.text
-                if (element.name == 'p'):
-                    text = self.getDescriptionText(element)
-                    if (text):
+        for el in containers:
+            scope = el.select_one('div.body-text')
+            if not scope:
+                continue
 
-                        # Scraping magic happens here
-                        text = self.replaceWhitespace(text, ' ')
-                        try:
-                            event = self.parseWaterfall(text, date)
-                            if (event):
-                                self.addEvent(event)
-                            else:
-                                logger.warning('Could not parse: `' + text + '` for ' + date)
-                        except Exception as e:
-                            logger.exception("Exception occurred in %s for date %s" % (text, date))
-
-        return self
-
-    """
-    Parse a number of options for malformed items
-    """
-    def parseWaterfall(self, text, date):
-        event = Event()
-        event.setDescription(text)
-
-        # Default
-        venueParsed = re.findall('(.*)\\s*\\@\\s*([^@]*)$', text)
-        if (not venueParsed):
-            return None
-        event.setLocation(venueParsed[0][1])
-        text = venueParsed[0][0]
-
-        summaryParsed = re.findall('\\s*(.*)\\.\\s*([^.]*)\\s*$', text)
-        if (summaryParsed):
-            event.setSummary(summaryParsed[0][0])
-            text = summaryParsed[0][1]
-        else:
-            event.setSummary(text)
-
-        time = self.parseStartAndEndTimesFromFuzzyString(text)
-        if (time[0]):
-            start_time = time[0]
-        else:
-            start_time = "7:00pm"
-
-        event.setStartString('{date} {time}'.format(
-            date = date,
-            time = (time[0] or '7:00pm'),
-        ), '%A, %B %d, %Y %I:%M%p')
-        event.setEndString('{date} {time}'.format(
-            date = date,
-            time = (time[1] or '11:59pm'),
-        ), '%A, %B %d, %Y %I:%M%p')
-
-        return event
+            currentDate = None
+            for child in scope.children:
+                if not hasattr(child, 'name') or child.name is None:
+                    continue
+                if child.name == 'h2':
+                    currentDate = child.get_text().strip()
+                elif child.name == 'p' and currentDate:
+                    if child.get_text().strip():
+                        yield child, {'date': currentDate}
