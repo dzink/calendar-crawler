@@ -47,6 +47,7 @@ showPlace:
       pattern:
         location: ((Ottobar)|(Red Emma)|(Current Space)|(2640)|(Joe Squared)|(Black Cat)|(Rhizome)|(Metro))
 
+
 redEmmas:
   name: Red Emma's
   source:
@@ -156,6 +157,7 @@ ottobar:
       pattern:
         summary: (Taylor Swift .*|ALL KILLER.*|K-POP.*)
 
+
 metroGallery:
   name: Metro Gallery
   source:
@@ -195,6 +197,7 @@ metroGallery:
     - type: rejectEvents
       pattern:
         location: (Current Space|Joe Squared)
+
 
 blackCat:
   name: Black Cat DC

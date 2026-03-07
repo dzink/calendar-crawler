@@ -48,10 +48,11 @@ class EventDb:
         table = EventDb.table
 
         #Match link
-        results = table.search((where('link') == data['link']) & (where('link') != None) & (where('id') != data['id']))
-        if (results):
-            logger.debug('matched via link')
-            return results[0]
+        if data.get('link'):
+            results = table.search((where('link') == data['link']) & (where('id') != data['id']))
+            if (results):
+                logger.debug('matched via link')
+                return results[0]
 
         # Match location and datetime
         results = table.search((where('location') == data['location']) & (where('start') == data['start']) & (where('id') != data['id']))

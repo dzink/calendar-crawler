@@ -1,10 +1,11 @@
 dzShowCrawler:
-  googleApi:
-    calendarIdSecretKey: dzShowCrawlerCalendarId
-    applicationCredentialsSecretKey: dzShowCrawlerApplicationCredentials
-    tokenFile: data/token.json
-    scopes:
-      - https://www.googleapis.com/auth/calendar.events
+  providers:
+    - type: google
+      googleCalendarId: {secret: dzShowCrawlerCalendarId}
+      applicationCredentials: {secret: dzShowCrawlerApplicationCredentials}
+      tokenFile: data/token.json
+      scopes:
+        - https://www.googleapis.com/auth/calendar.events
   sources:
     - showPlace
     - redEmmas

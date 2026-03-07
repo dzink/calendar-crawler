@@ -1,8 +1,8 @@
 """
 CalendarFactory
 
-Orchestrates the full pipeline: parse HTML → transform fields → build events → process.
-Instantiates Parser, Transformer, and Processor classes from config (with sensible defaults).
+Builds pipeline components from config: Parser, Transformer, Processor, CalendarSource.
+The caller is responsible for running the pipeline.
 """
 
 import sys
@@ -92,56 +92,28 @@ class CalendarFactory:
             events.add(event)
         return events
 
-    def getEvents(self, html, sourceId, sourceConfig):
-        """Run the full pipeline: parse → transform → build → process."""
-        name = sourceConfig.get('name', sourceId)
+    def providers(self, calendarKey, calendarConfig, secrets={}):
+        """Build a list of CalendarProvider instances from calendar config."""
+        providers = []
+        for providerConfig in calendarConfig.get('providers', []):
+            type_ = providerConfig.get('type')
+            config = self.resolveSecrets(providerConfig, secrets)
+            if type_ == 'google':
+                providers.append(GoogleCalendar(calendarKey, config))
+            else:
+                logger.warning('Unknown provider type: %s' % type_)
+        return providers
 
-        # Parse: extract raw field dicts from HTML
-        parser = self.parser(sourceId, sourceConfig)
-        logger.debug('parsing beginning for ' + name)
-        fieldsList = list(parser.parseFields(html))
-        logger.debug('parsing completed for ' + name)
-
-        # Transform: transform each field dict
-        transformer, transformSteps = self.transformer(sourceConfig)
-        if transformSteps:
-            fieldsList = [transformer.run(fields, transformSteps) for fields in fieldsList]
-
-        # Build: convert field dicts to Event objects
-        events = self.buildEvents(fieldsList, name)
-        logger.info('%d events found in %s' % (len(events.events), name))
-
-        # Process: filter, annotate, etc.
-        processor, processSteps = self.processor(sourceConfig)
-        if processSteps:
-            events = processor.run(events, processSteps)
-
-        return events
-
-    def googleCalendar(self, calendarConfig, secrets={}):
-        googleCalendar = GoogleCalendar()
-        googleApiConfig = calendarConfig.get('googleApi', {})
-        calendarIdSecretKey = googleApiConfig.get('calendarIdSecretKey')
-        if calendarIdSecretKey:
-            calendarId = secrets.get(calendarIdSecretKey)
-            googleCalendar.calendarId = calendarId
-            logger.debug('Got calendarId from secrets file')
-
-        applicationCredentialsSecretKey = googleApiConfig.get('applicationCredentialsSecretKey')
-        if applicationCredentialsSecretKey:
-            applicationCredentials = secrets.get(applicationCredentialsSecretKey)
-            googleCalendar.applicationCredentials = applicationCredentials
-            logger.debug('Got application credentials from secrets file')
-
-        scopes = googleApiConfig.get('scopes')
-        if scopes:
-            googleCalendar.scopes = scopes
-
-        tokenFile = googleApiConfig.get('tokenFile')
-        if tokenFile:
-            googleCalendar.tokenFile = tokenFile
-
-        return googleCalendar
+    def resolveSecrets(self, config, secrets):
+        """Resolve secret references in a config dict. Values like {secret: keyName} are replaced."""
+        resolved = {}
+        for key, value in config.items():
+            if isinstance(value, dict) and 'secret' in value:
+                secretKey = value['secret']
+                resolved[key] = secrets.get(secretKey)
+            else:
+                resolved[key] = value
+        return resolved
 
     def getClass(self, class_):
         return getattr(sys.modules[__name__], class_)

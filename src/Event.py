@@ -24,6 +24,7 @@ class Event:
         self.img = None
         self.imgAlt = None
         self.skipSync = None
+        self.isDuplicate = False
         self.color = 'default'
         self.buildId()
 
@@ -236,6 +237,7 @@ class Event:
         dupe = EventDb().findDuplicate(data)
         if (dupe):
             logger.debug('found duplicate: ' + str(dupe))
+            self.isDuplicate = True
             self.updateFromDuplicate(dupe)
             data['id'] = dupe['id']
             data['calendarId'] = dupe['calendarId']

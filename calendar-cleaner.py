@@ -8,6 +8,7 @@ import yaml
 import argparse
 from EventList import EventList
 from CalendarFactory import CalendarFactory
+from CalendarItemsDb import CalendarItemsDb
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -40,18 +41,22 @@ def main():
         else:
             events = get_expired_from_calendars(calendarConfigs['dzShowCrawler'], sourceConfigs, deadline)
 
-        # Iterate through calendars in config
+        itemsDb = CalendarItemsDb()
+
         for calendarKey in calendarConfigs.keys():
             calendarConfig = calendarConfigs.get(calendarKey)
-            googleCalendar = factory.googleCalendar(calendarConfig, secrets)
+            providers = factory.providers(calendarKey, calendarConfig, secrets)
 
             for event in events:
-                if (options.dry_run):
-                    if (event.calendarId):
-                        googleCalendar.dryDeleteEvent(event)
-                else:
-                    if (event.calendarId):
-                        googleCalendar.deleteEvent(event)
+                for provider in providers:
+                    record = itemsDb.getByEventId(event.id, calendarKey)
+                    if record and record.get('externalId'):
+                        if options.dry_run:
+                            provider.dryDeleteEvent(event)
+                        else:
+                            provider.deleteEvent(event.id, record['externalId'])
+
+                if not options.dry_run:
                     event.delete()
 
     except Exception as e:
