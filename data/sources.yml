@@ -264,6 +264,9 @@ space2640:
       target: location
     - type: collapseParagraphs
       target: description
+    - type: append
+      target: title
+      text: "."
     - type: prefix
       target: link
       text: https://www.2640space.net

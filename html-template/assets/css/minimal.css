@@ -8,7 +8,7 @@
   --color-text-header: #fff;
   --color-border: rgba(0,0,0,0.2);
   --color-hover: #f5f5f5;
-  --color-link: #1a6fb5;
+  --color-link: #49396a;
   --color-link-shade: rgba(255, 255, 255, 0.2);
   --color-detail-bg: #fff;
   --color-add-to-cal-bg: #fff;
@@ -86,6 +86,7 @@ body {
   /* font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace; */
   /* font-family: 'Gill Sans', 'Optima', 'Calibri', 'Trebuchet MS', sans-serif; */
   font-family: monospace, sans-serif;
+  /* font-family: sans-serif; */
   background: var(--color-base);
   color: var(--color-text);
   margin: 0;
@@ -209,7 +210,7 @@ ul.navigation li a {
 
 body .btn {
   display: inline-block;
-  padding: var(--space-xs) var(--space-lg);
+  padding: var(--space-xs) var(--space-xs);
   text-decoration: none !important;
   font-size: inherit;
   font-family: inherit;
@@ -230,10 +231,12 @@ body .btn::before {
   height: 1.4em;
   top: var(--space-xs);
 }
+
 body .primary-btn {
   font-weight: 700;
   background: var(--color-primary);
   color: var(--color-primary-standout);
+  padding: var(--space-sm) var(--space-xxl);
 }
 
 body .primary-btn:focus,
@@ -286,15 +289,15 @@ body .tertiary-btn:hover {
 }
 
 /* ===== Shared icon base ===== */
-.description::before,
+.details .description .row-icon::before,
 .add-to-cal::before,
 .copy-event::before,
 a.subheader-btn::before,
 summary::before,
-.details .time::before,
-.details .location::before,
-.details .link-url::before,
-.details > .flyer::before,
+.details .time .row-icon::before,
+.details .location .row-icon::before,
+.details .link-url .row-icon::before,
+.details > .flyer .row-icon::before,
 .copy-url::before,
 .copy-event::after,
 .icon-up::before,
@@ -549,7 +552,7 @@ details summary {
 }
 
 details[open] {
-  border-top: var(--space-xxs) solid var(--color-border);
+  border-top: var(--space-xxs) solid var(--color-primary);
   border-bottom: var(--space-xs) solid var(--color-border);
   background: var(--color-detail-bg);
   margin: var(--space-xs) var(--space-neg-md) var(--space-lg);
@@ -631,9 +634,11 @@ details[open] .summary-meta {
 }
 
 .details > div.description {
-  padding-left: var(--space-xl);
-  position: relative;
   margin-top: var(--space-lg);
+}
+
+.details > div.description .row-icon {
+  display: none;
 }
 
 .details .description p {
@@ -643,40 +648,38 @@ details[open] .summary-meta {
 
 /* Detail metadata icons (time, location, link, flyer) */
 
-.details .time::before,
-.details .location::before,
-.details .link-url::before,
-.details .description::before,
-.details > .flyer::before {
+.details .time .row-icon::before,
+.details .location .row-icon::before,
+.details .link-url .row-icon::before,
+.details .description .row-icon::before,
+.details > .flyer .row-icon::before {
   width: var(--space-xl);
   height: 1em;
   background-color: var(--color-text-muted);
 }
 
-.details .time::before {
+.details .time .row-icon::before {
   -webkit-mask-image: var(--icon-time);
   mask-image: var(--icon-time);
 }
 
-.details .location::before {
+.details .location .row-icon::before {
   -webkit-mask-image: var(--icon-pin);
   mask-image: var(--icon-pin);
 }
 
-.details .link-url::before {
+.details .link-url .row-icon::before {
   -webkit-mask-image: var(--icon-link);
   mask-image: var(--icon-link);
 }
 
-.details .description::before {
+.details .description .row-icon::before {
   -webkit-mask-image: var(--icon-details);
   mask-image: var(--icon-details);
-  position: absolute;
-  top: var(--space-xs);
-  left: 0;
+  top: var(--space-sm);
 }
 
-.details > .flyer::before {
+.details > .flyer .row-icon::before {
   -webkit-mask-image: var(--icon-image);
   mask-image: var(--icon-image);
 }
@@ -685,7 +688,7 @@ details[open] .summary-meta {
 
 .details .link-url a {
   display: inline-block;
-  max-width: 50%;
+  max-width: 19em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -770,6 +773,7 @@ details[open] .summary-meta {
   margin: var(--space-xl) auto;
   display: block;
   animation: slideDown 0.3s ease-out;
+  flex: 0 0 100%;
 }
 
 .description .flyer {
@@ -1033,6 +1037,24 @@ nav.date-picker input:focus-visible {
   .subheader {
     flex-direction: row;
   }
+
+  .details > div {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .details > div > * {
+    align-items: stretch;
+  }
+
+  .details .link-url a {
+    display: inline-block;
+    max-width: 30em;
+  }
+
+  .details > div.description .row-icon {
+    display: inline;
+  }
+
 }
 
 @media only screen and (min-width: 1024px) {

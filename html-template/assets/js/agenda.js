@@ -305,10 +305,52 @@ function scrollIntoViewSmooth(el, block) {
   });
 }
 
-/* Auto-scroll to an event when it's opened */
+/* Auto-scroll to an event when it's opened, inject date and row-icon labels */
+var ROW_ICON_LABELS = {
+  time: 'Time', location: 'Location', 'link-url': 'Link',
+  description: 'Description', flyer: 'Flyer'
+};
+function injectRowIcons(det) {
+  var details = det.querySelector('.details');
+  if (!details) return;
+  for (var i = 0; i < details.children.length; i++) {
+    var child = details.children[i];
+    if (child.querySelector('.row-icon')) continue;
+    var label = null;
+    for (var cls in ROW_ICON_LABELS) {
+      if (child.classList.contains(cls)) { label = ROW_ICON_LABELS[cls]; break; }
+    }
+    if (!label) continue;
+    var icon = document.createElement('span');
+    icon.className = 'row-icon';
+    icon.title = label;
+    var hidden = document.createElement('span');
+    hidden.className = 'hidden';
+    hidden.textContent = label + ':';
+    icon.appendChild(hidden);
+    var content = document.createElement('span');
+    content.className = 'row-content';
+    while (child.firstChild) content.appendChild(child.firstChild);
+    child.appendChild(icon);
+    child.appendChild(content);
+  }
+}
 agenda.addEventListener('toggle', function(e) {
   var det = e.target;
   if (det.tagName === 'DETAILS' && det.open) {
+    injectRowIcons(det);
+    var timeEl = det.querySelector('.time .row-content');
+    if (timeEl && !timeEl.querySelector('.date-label')) {
+      var sec = det.closest('section');
+      if (sec) {
+        var dateStr = sec.id.replace('day-', '');
+        var parts = dateStr.split('-');
+        var span = document.createElement('span');
+        span.className = 'date-label';
+        span.textContent = ', ' + parts[1] + '-' + parts[2] + '-' + parts[0];
+        timeEl.append(span);
+      }
+    }
     scrollIntoViewSmooth(det);
   }
 }, true);
@@ -504,7 +546,7 @@ function compactDate(iso) {
   return iso.replace(/[-:]/g, '');
 }
 /* Extract clean text from .details, skipping JS-injected elements */
-var JS_INJECTED = '.map-toggle, .map-dropdown, .copy-url, .copy-event, .flyer-img, .flyer-hide';
+var JS_INJECTED = '.row-icon, .map-toggle, .map-dropdown, .copy-url, .copy-event, .flyer-img, .flyer-hide';
 
 function getDetailsText(details) {
   var detailsEl = details.querySelector('.details');
