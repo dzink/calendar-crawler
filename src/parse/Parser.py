@@ -12,7 +12,7 @@ See PARSER_CONFIG.md in the project root for full config syntax.
 
 from bs4 import BeautifulSoup
 from CalendarLogger import logger
-import ParserUtils
+import StringUtils
 import copy
 import re
 
@@ -38,7 +38,7 @@ class Parser:
                     fields[name] = self._extractField(el, defn)
                 yield fields
             except Exception as e:
-                eventText = ParserUtils.replaceWhitespaceWithPipes(el.get_text())
+                eventText = StringUtils.replaceWhitespaceWithPipes(el.get_text())
                 logger.exception("Exception occurred in " + eventText)
 
     # --- Subclass hook ---

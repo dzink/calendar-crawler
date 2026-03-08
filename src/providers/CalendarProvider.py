@@ -61,12 +61,22 @@ class CalendarProvider(ABC):
         """Remove a sync record for this provider."""
         self.itemsDb.delete(eventId, self.providerId)
 
-    def syncPending(self, dryRun=False, limit=None):
-        """Sync all pending events and process deletions. Returns count of synced events."""
+    @staticmethod
+    def filterAfter(pending, date):
+        """Filter pending events to those starting on or after a date (YYYY-MM-DD)."""
+        return [(e, r) for e, r in pending if e.startToString()[:10] >= date]
+
+    @staticmethod
+    def limit(pending, n):
+        """Limit pending events to the first n."""
+        return pending[:n]
+
+    def syncPending(self, pending=None, dryRun=False):
+        """Sync pending events and process deletions. Returns count of synced events.
+        If pending is None, fetches all pending events from the DB."""
         synced = 0
-        pending = self.getPendingEvents()
-        if limit:
-            pending = pending[:limit]
+        if pending is None:
+            pending = self.getPendingEvents()
 
         for event, record in pending:
             externalId = record.get('externalId')

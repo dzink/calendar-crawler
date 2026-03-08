@@ -66,15 +66,11 @@ class CalendarItemsDb:
         )
 
     def upsertSyncStatus(self, events, providerId):
-        """Mark events as unsynced (pending) if they are new to this provider."""
-        table = CalendarItemsDb.table
-        existing = table.search(where('providerId') == providerId)
-        existingIds = {record['eventId'] for record in existing}
+        """Mark events as pending sync if they are new or updated."""
         for event in events:
             if event.skipSync:
                 continue
-            if event.id not in existingIds:
-                self.upsert(event.id, providerId, status=0)
+            self.upsert(event.id, providerId, status=0)
 
     def markDeleted(self, eventId):
         """Flag all sync records for an event as pending deletion."""

@@ -17,7 +17,7 @@ date heading and yielding each <p> as an event element with the date injected
 as an extra field. Field extraction and transforms are handled by the factory.
 """
 
-from parsers.Parser import Parser
+from Parser import Parser
 
 
 class ShowPlaceParser(Parser):

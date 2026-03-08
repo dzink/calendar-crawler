@@ -9,7 +9,7 @@ See PARSER_CONFIG.md in the project root for full documentation.
 
 from Event import Event
 from CalendarLogger import logger
-import ParserUtils
+import StringUtils
 import dateparser
 from dateutil.parser import parse as dateutil_parse
 from datetime import timedelta
@@ -125,7 +125,7 @@ class Transformer:
         target = step.get('target')
         value = fields.get(target, '')
         if value:
-            fields[target] = ParserUtils.removeOrdinalsFromNumbersInString(value)
+            fields[target] = StringUtils.removeOrdinalsFromNumbersInString(value)
         return fields
 
     def _collapseWhitespace(self, fields, step):
@@ -137,7 +137,7 @@ class Transformer:
             fields[target] = value.strip()
         else:
             separator = step.get('separator', '')
-            fields[target] = ParserUtils.replaceWhitespace(value, separator)
+            fields[target] = StringUtils.replaceWhitespace(value, separator)
         return fields
 
     def _collapseParagraphs(self, fields, step):
@@ -208,17 +208,17 @@ class Transformer:
         if not dateText:
             return fields
 
-        explicitStartTime = fields.get(startTimeField, '').strip() if startTimeField else ''
-        explicitEndTime = fields.get(endTimeField, '').strip() if endTimeField else ''
+        explicitStartTime = (fields.get(startTimeField) or '').strip() if startTimeField else ''
+        explicitEndTime = (fields.get(endTimeField) or '').strip() if endTimeField else ''
 
         fuzzyStartTime = None
         fuzzyEndTime = None
         if timeField:
             timeText = fields.get(timeField, '')
             if timeText:
-                fuzzyStartTime, fuzzyEndTime = ParserUtils.parseStartAndEndTimesFromFuzzyString(timeText)
+                fuzzyStartTime, fuzzyEndTime = StringUtils.parseStartAndEndTimesFromFuzzyString(timeText)
         elif not explicitStartTime:
-            fuzzyStartTime, fuzzyEndTime = ParserUtils.parseStartAndEndTimesFromFuzzyString(dateText)
+            fuzzyStartTime, fuzzyEndTime = StringUtils.parseStartAndEndTimesFromFuzzyString(dateText)
 
         cleaned = self._cleanDateText(dateText)
 

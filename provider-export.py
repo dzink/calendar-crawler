@@ -12,10 +12,12 @@ Usage:
 
 import sys
 sys.path.append('./src')
+import paths
 
 import yaml
 import argparse
-from CalendarFactory import CalendarFactory
+from Factory import CalendarFactory
+from CalendarProvider import CalendarProvider
 from CalendarLogger import logger, addLoggerArgsToParser, buildLogger
 
 
@@ -36,7 +38,12 @@ def main():
             providers = [p for p in providers if p.config.get('type') in options.provider]
 
         for provider in providers:
-            synced = provider.syncPending(dryRun=options.dry_run, limit=options.limit)
+            pending = provider.getPendingEvents()
+            if options.after:
+                pending = CalendarProvider.filterAfter(pending, options.after)
+            if options.limit:
+                pending = CalendarProvider.limit(pending, options.limit)
+            synced = provider.syncPending(pending=pending, dryRun=options.dry_run)
             print('%s: %d events %s via %s' % (
                 calendarKey,
                 synced,
@@ -51,6 +58,7 @@ def parseArguments(config):
     parser.add_argument('-d', '--dry-run', help='Show what would be synced without syncing.', action='store_true', default=False)
     parser.add_argument('-p', '--provider', help='Only sync the given provider type(s).', action='append', default=None)
     parser.add_argument('-n', '--limit', help='Maximum number of events to sync per provider.', type=int, default=None)
+    parser.add_argument('-a', '--after', help='Only sync events starting after this date (YYYY-MM-DD).', default=None)
     return parser.parse_args()
 
 

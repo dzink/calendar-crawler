@@ -7,10 +7,10 @@ SYSTEMD_DIR="$HOME/.config/systemd/user"
 mkdir -p "$SYSTEMD_DIR"
 
 sed "s|/path/to/calendar-crawler|$PROJECT_DIR|g" \
-    "$PROJECT_DIR/data/example.calendar-crawler.service" \
+    "$PROJECT_DIR/example-data/example.calendar-crawler.service" \
     > "$SYSTEMD_DIR/calendar-crawler.service"
 
-cp "$PROJECT_DIR/data/example.calendar-crawler.timer" \
+cp "$PROJECT_DIR/example-data/example.calendar-crawler.timer" \
     "$SYSTEMD_DIR/calendar-crawler.timer"
 
 systemctl --user daemon-reload

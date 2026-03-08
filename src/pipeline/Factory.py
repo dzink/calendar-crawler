@@ -5,22 +5,13 @@ Builds pipeline components from config: Fetcher, Parser, Transformer, Processor.
 The caller is responsible for running the pipeline.
 """
 
-import sys
-
-sys.path.append('./parsers')
-sys.path.append('./transformers')
-sys.path.append('./processors')
-
 from GoogleCalendar import GoogleCalendar
 from Fetcher import Fetcher
 from Event import Event
 from EventList import EventList
-from parsers.Parser import Parser
-from parsers.ShowPlaceParser import ShowPlaceParser
-from transformers.Transformer import Transformer
-from processors.Processor import Processor
 
 from CalendarLogger import logger
+from registry import classes as _classes
 
 
 class CalendarFactory:
@@ -45,7 +36,7 @@ class CalendarFactory:
     def transformer(self, sourceConfig):
         config = sourceConfig.get('transform', {})
         if isinstance(config, list):
-            return Transformer(), config
+            return self.getClass('Transformer')(), config
         class_ = config.get('class', 'Transformer')
         steps = config.get('steps', [])
         cls = self.getClass(class_)
@@ -54,7 +45,7 @@ class CalendarFactory:
     def processor(self, sourceConfig):
         config = sourceConfig.get('process', {})
         if isinstance(config, list):
-            return Processor(), config
+            return self.getClass('Processor')(), config
         class_ = config.get('class', 'Processor')
         steps = config.get('steps', [])
         cls = self.getClass(class_)
@@ -107,4 +98,4 @@ class CalendarFactory:
         return resolved
 
     def getClass(self, class_):
-        return getattr(sys.modules[__name__], class_)
+        return _classes[class_]

@@ -11,7 +11,7 @@ if [[ "${1:-}" != "-y" ]]; then
   fi
 fi
 
-.venv/bin/python3 calendar-export.py -v
+.venv/bin/python3 html-export.py -v
 
 cd "$(dirname "$0")/dist/prod"
 

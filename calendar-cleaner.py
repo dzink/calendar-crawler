@@ -2,12 +2,12 @@
 
 import sys
 sys.path.append('./src')
-sys.path.append('./src/parsers')
+import paths
 
 import yaml
 import argparse
 from EventList import EventList
-from CalendarFactory import CalendarFactory
+from Factory import CalendarFactory
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta

@@ -131,7 +131,7 @@ ottobar:
       time: div.eventDoorStartDate
       description:
         extract: paragraphs
-      location: a.venueLink
+      location: .venueLink
       link: a@href
       img: img@data-image | img@src
       imgAlt: img@alt
@@ -271,6 +271,7 @@ space2640:
     - type: autoDate
       startTimeField: startTime
       endTimeField: endTime
+      defaultTime: "19:00"
       defaultDuration: "3:00"
     - type: append
       target: description

@@ -2,15 +2,13 @@
 
 import sys
 sys.path.append('./src')
-sys.path.append('./src/parsers')
-sys.path.append('./src/transformers')
-sys.path.append('./src/processors')
+import paths
 
 import yaml
 import argparse
 from EventList import EventList
-from CalendarFactory import CalendarFactory
-from CalendarPipeline import CalendarPipeline
+from Factory import CalendarFactory
+from Pipeline import CalendarPipeline
 from datetime import datetime
 
 from CalendarLogger import logger, addLoggerArgsToParser, buildLogger

@@ -24,7 +24,7 @@ See EXPORT.md for full documentation.
 
 import sys
 sys.path.append('./src')
-sys.path.append('./src/parsers')
+import paths
 
 import os
 import re
