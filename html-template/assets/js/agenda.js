@@ -385,7 +385,9 @@ locationBtn.addEventListener('click', function(e) {
   if (isOpen) return;
   buildLocationDropdown();
   var rect = locationBtn.getBoundingClientRect();
+  var navRect = nav.getBoundingClientRect();
   locationDropdown.style.top = (rect.bottom + 4) + 'px';
+  locationDropdown.style.right = (window.innerWidth - navRect.right) + 'px';
   locationDropdown.classList.add('open');
   locationBtn.setAttribute('aria-expanded', 'true');
 });

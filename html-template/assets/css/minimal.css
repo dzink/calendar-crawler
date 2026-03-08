@@ -549,7 +549,6 @@ button,
   min-width: 14em;
   max-width: calc(100vw - var(--space-md) * 2);
   left: var(--space-md);
-  right: var(--space-md);
   width: fit-content;
   margin-left: auto;
   padding: var(--space-xs) 0;
