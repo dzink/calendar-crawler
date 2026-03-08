@@ -12,7 +12,7 @@ if ! command -v inotifywait &>/dev/null; then
 fi
 
 rebuild() {
-  .venv/bin/python3 calendar-export.py --dev
+  .venv/bin/python3 html-export.py --dev
 }
 
 echo "Watching $DIR for changes... (press Enter to rebuild manually)"

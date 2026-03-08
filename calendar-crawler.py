@@ -2,114 +2,69 @@
 
 import sys
 sys.path.append('./src')
-sys.path.append('./src/parsers')
+import paths
 
 import yaml
 import argparse
 from EventList import EventList
-from CalendarFactory import CalendarFactory
+from Factory import CalendarFactory
+from Pipeline import CalendarPipeline
 from datetime import datetime
 
 from CalendarLogger import logger, addLoggerArgsToParser, buildLogger
-from CalendarSource import CalendarSource
-
-options = None
-factory = None
+from Fetcher import Fetcher
 
 def main():
-    print ('Running Calendar Crawler at ' + datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
+    print('Running Calendar Crawler at ' + datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
     try:
-        global options
-        global factory
         config = loadConfig('./data/options.yml')
         sourceConfigs = loadConfig('./data/sources.yml')
         calendarConfigs = loadConfig('./data/calendars.yml')
         secrets = loadConfig('./data/secrets.yml')
         options = parseArguments(config)
         buildLogger(options)
-        factory = CalendarFactory(options, config)
 
-        # Iterate through calendars in config
-        for calendarKey in calendarConfigs.keys():
+        factory = CalendarFactory(options, config, secrets)
+        pipeline = CalendarPipeline(factory, options)
+
+        for calendarKey in calendarConfigs:
             calendarConfig = calendarConfigs.get(calendarKey)
-
-            googleCalendar = factory.googleCalendar(calendarConfig, secrets)
             events = EventList()
 
             sourceKeys = calendarConfig.get('sources', [])
-            if (options.source):
-                sourceKeys = list(filter(lambda x: x in sourceKeys, options.source))
+            if options.source:
+                sourceKeys = [k for k in sourceKeys if k in options.source]
 
-            # Iterate through sources in calendar config
             for sourceKey in sourceKeys:
-                sourceConfig = sourceConfigs.get(sourceKey)
+                events = events.merge(pipeline.getEvents(sourceKey, sourceConfigs.get(sourceKey)))
 
-                events = events.merge(getEvents(sourceKey, sourceConfig))
+            inserted, updated, skipped = pipeline.sync(events, calendarKey)
 
-            inserted = 0
-            updated = 0
-            skipped = 0
-
-            for event in events:
-                event.deduplicate(forceUpdateIfMatched = options.force_update)
-
-                if (event.skipSync):
-                    skipped += 1
-                elif (event.calendarId == None):
-                    inserted += 1
-                else:
-                    updated += 1
-
-                if (not options.dry_run):
-                    googleCalendar.syncEvent(event)
-                    event.write()
-                else:
-                    googleCalendar.dryRun(event, options.show_skips)
-
-            errors = sum(1 for line in open('./data/current.log') if line.strip())
+            with open('./data/current.log') as f:
+                errors = sum(1 for line in f if line.strip())
             print('Done. %d inserted, %d updated, %d skipped, %d errors.' % (inserted, updated, skipped, errors))
 
     except Exception as e:
         logger.exception("Exception occurred")
     finally:
-        CalendarSource.quitDriver()
+        Fetcher.quitDriver()
 
 def parseArguments(config):
     parser = argparse.ArgumentParser(description='Scrape event pages and add them to a Google calendar')
     addLoggerArgsToParser(parser, config.get('logging', {}))
-    parser.add_argument('-l', '--local', help = 'Whether to use local cached sources instead of re-scraping html.', action = 'store_false', default = True, dest = 'remote')
-    parser.add_argument('-u', '--force-update', help = 'Whether to force Google Calendar updates, even if there\'s nothing to update.', action = 'store_true', default = config.get('forceUpdate', False))
-    parser.add_argument('-d', '--dry-run', help = 'Run the parser but do not write to the calendar or database.', action = 'store_true', default = False)
-    parser.add_argument('-s', '--source', help = 'Only crawl the given source(s).', action = 'append', default = None)
-    parser.add_argument('--show-skips', help = 'In a dry run, ignore the skips.', action = 'store_false', default = True)
-
+    parser.add_argument('-l', '--local', help='Whether to use local cached sources instead of re-scraping html.', action='store_false', default=True, dest='remote')
+    parser.add_argument('-u', '--force-update', help='Whether to force Google Calendar updates, even if there\'s nothing to update.', action='store_true', default=config.get('forceUpdate', False))
+    parser.add_argument('-d', '--dry-run', help='Run the parser but do not write to the calendar or database.', action='store_true', default=False)
+    parser.add_argument('-s', '--source', help='Only crawl the given source(s).', action='append', default=None)
+    parser.add_argument('--show-skips', help='In a dry run, ignore the skips.', action='store_false', default=True)
     return parser.parse_args()
 
 def loadConfig(filename):
     try:
-      with open(filename, 'r') as file:
-          config = yaml.safe_load(file)
-          return config
+        with open(filename, 'r') as file:
+            return yaml.safe_load(file) or {}
     except FileNotFoundError:
-      return {}
-
-
-def getEvents(sourceId, sourceConfig):
-    try:
-        source = factory.source(sourceId, sourceConfig)
-        html = source.getHtml()
-
-        parser = factory.parser(sourceId, sourceConfig)
-        events = parser.parse(html).events
-
-        events = factory.postTasks(events, sourceConfig)
-
-        return events
-
-    except Exception as e:
-        logger.exception("Exception occurred in source " + sourceId)
-        logger.exception(e)
-        return EventList()
+        return {}
 
 if __name__ == '__main__':
     main()

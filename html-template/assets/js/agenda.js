@@ -298,13 +298,60 @@ filterInput.addEventListener('keydown', function(e) {
     if (match) match.focus();
   }
 });
-/* Auto-scroll to an event when it's opened */
+/* Scroll an element into view on the next frame */
+function scrollIntoViewSmooth(el, block) {
+  requestAnimationFrame(function() {
+    el.scrollIntoView({ behavior: 'smooth', block: block || 'nearest' });
+  });
+}
+
+/* Auto-scroll to an event when it's opened, inject date and row-icon labels */
+var ROW_ICON_LABELS = {
+  time: 'Time', location: 'Location', 'link-url': 'Link',
+  description: 'Description', flyer: 'Flyer'
+};
+function injectRowIcons(det) {
+  var details = det.querySelector('.details');
+  if (!details) return;
+  for (var i = 0; i < details.children.length; i++) {
+    var child = details.children[i];
+    if (child.querySelector('.row-icon')) continue;
+    var label = null;
+    for (var cls in ROW_ICON_LABELS) {
+      if (child.classList.contains(cls)) { label = ROW_ICON_LABELS[cls]; break; }
+    }
+    if (!label) continue;
+    var icon = document.createElement('span');
+    icon.className = 'row-icon';
+    icon.title = label;
+    var hidden = document.createElement('span');
+    hidden.className = 'hidden';
+    hidden.textContent = label + ':';
+    icon.appendChild(hidden);
+    var content = document.createElement('span');
+    content.className = 'row-content';
+    while (child.firstChild) content.appendChild(child.firstChild);
+    child.appendChild(icon);
+    child.appendChild(content);
+  }
+}
 agenda.addEventListener('toggle', function(e) {
   var det = e.target;
   if (det.tagName === 'DETAILS' && det.open) {
-    requestAnimationFrame(function() {
-      det.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-    });
+    injectRowIcons(det);
+    var timeEl = det.querySelector('.time .row-content');
+    if (timeEl && !timeEl.querySelector('.date-label')) {
+      var sec = det.closest('section');
+      if (sec) {
+        var dateStr = sec.id.replace('day-', '');
+        var parts = dateStr.split('-');
+        var span = document.createElement('span');
+        span.className = 'date-label';
+        span.textContent = ', ' + parts[1] + '-' + parts[2] + '-' + parts[0];
+        timeEl.append(span);
+      }
+    }
+    scrollIntoViewSmooth(det);
   }
 }, true);
 /* Handle anchor links to sections/details (e.g. sidebar "About" links) */
@@ -342,19 +389,6 @@ function toggleTheme() {
     updateThemeToggle(true);
   }
 })();
-/* Day view is the default (week view removed for now, class set on <body>) */
-/* function toggleView() {
-  document.body.classList.toggle('day-view');
-  var dayMode = document.body.classList.contains('day-view');
-  localStorage.setItem('day-view', dayMode ? '1' : '');
-  document.getElementById('view-toggle').textContent = dayMode ? 'week' : 'day';
-}
-(function() {
-  if (localStorage.getItem('day-view') === '1') {
-    document.body.classList.add('day-view');
-    document.getElementById('view-toggle').textContent = 'week';
-  }
-})(); */
 /* Webcal fallback: if the link doesn't open an app, show the alt text */
 document.addEventListener('click', function(e) {
   var link = e.target.closest('a[href^="webcal:"]');
@@ -369,21 +403,6 @@ document.addEventListener('click', function(e) {
     if (hidden) alt.classList.add('webcal-fallback');
   }, 1500);
 });
-/* Show the sticky subscribe CTA once the nav bar becomes sticky */
-(function() {
-  var navSub = document.querySelector('.nav-subscribe');
-  if (!navSub || !nav) return;
-  function checkSticky() {
-    var rect = nav.getBoundingClientRect();
-    if (rect.top <= 0) {
-      navSub.classList.add('visible');
-    } else {
-      navSub.classList.remove('visible');
-    }
-  }
-  window.addEventListener('scroll', checkSticky);
-  checkSticky();
-})();
 /* ===================== Flyer image loader ========================== */
 agenda.addEventListener('click', function(e) {
   var flyer = e.target.closest('.details > .flyer');
@@ -407,9 +426,13 @@ agenda.addEventListener('click', function(e) {
     hide.textContent = 'Hide Flyer';
     flyer.appendChild(hide);
     flyer.appendChild(img);
+    img.onload = function() { scrollIntoViewSmooth(flyer); };
   }
 });
 /* ===================== Map links ====================================== */
+/* _https avoids a literal // in a string, which the naive minifier
+   would strip as a line comment. See EXPORT.md. */
+var _https = 'https:' + String.fromCharCode(47, 47);
 var mapDropdown = null;
 
 function ensureMapDropdown() {
@@ -425,15 +448,11 @@ function closeMap() {
 
 function buildMapLinks(location) {
   var q = encodeURIComponent(location + ' maryland');
-  // var osm = _https + 'www.openstreetmap.org/search?query=' + q;
   var ddg = _https + 'duckduckgo.com/?q=' + q + '&iaxm=maps';
   var gm = _https + 'www.google.com/maps/search/' + q;
-  // var geo = 'geo:0,0?q=' + q;
-  return 'some map guesses:'
-    // '<a href="' + osm + '" target="_blank" rel="noopener">OpenStreetMap</a> / '
-    + '<a href="' + ddg + '" target="_blank" rel="noopener">DuckDuckGo</a> / '
-    + '<a href="' + gm + '" target="_blank" rel="noopener">Google</a>';
-    // + '<a href="' + geo + '">Open in app</a>';
+  return 'some guesses:'
+    + '<a href="' + ddg + '" target="_blank">DuckDuckGo</a> / '
+    + '<a href="' + gm + '" target="_blank">Google</a>';
 }
 
 agenda.addEventListener('click', function(e) {
@@ -446,7 +465,9 @@ agenda.addEventListener('click', function(e) {
     if (isOpen) return;
     var loc = trigger.closest('.details').querySelector('.location');
     if (!loc) return;
-    dd.innerHTML = buildMapLinks(loc.textContent);
+    var clone = loc.cloneNode(true);
+    clone.querySelectorAll('.map-toggle, .map-dropdown').forEach(function(el) { el.remove() });
+    dd.innerHTML = buildMapLinks(clone.textContent);
     trigger.after(dd);
     dd.classList.add('open');
     return;
@@ -459,7 +480,7 @@ agenda.querySelectorAll('.location').forEach(function(loc) {
   var btn = document.createElement('a');
   btn.href = '#';
   btn.className = 'map-toggle';
-  btn.textContent = '[map]';
+  btn.textContent = '[map options]';
   loc.append(btn);
 });
 
@@ -468,39 +489,109 @@ agenda.querySelectorAll('.link-url a').forEach(function(link) {
   var btn = document.createElement('button');
   btn.className = 'copy-url';
   btn.title = 'Copy URL';
-  btn.addEventListener('click', function(e) {
-    e.preventDefault();
-    navigator.clipboard.writeText(link.href);
-  });
+  btn.setAttribute('aria-label', 'Copy URL');
   link.after(btn);
 });
+
+/* ===================== Copy buttons (delegated) ====================== */
+function flashCopied(btn) {
+  btn.classList.add('copied');
+  setTimeout(function() { btn.classList.remove('copied'); }, 1500);
+}
+agenda.addEventListener('click', function(e) {
+  var btn = e.target.closest('.copy-url');
+  if (btn) {
+    e.preventDefault();
+    var link = btn.previousElementSibling;
+    if (link) navigator.clipboard.writeText(link.href);
+    flashCopied(btn);
+    return;
+  }
+  btn = e.target.closest('.copy-event');
+  if (btn) {
+    e.preventDefault();
+    var details = btn.closest('details');
+    var d = getEventData(details);
+    var date = details.closest('section').querySelector('h2').textContent.trim();
+    navigator.clipboard.writeText(d.title + '\n\n' + date + '\n\n' + d.desc);
+    flashCopied(btn);
+    return;
+  }
+});
+
+/* ===================== Contextual menu (injected on open) ============ */
+agenda.addEventListener('toggle', function(e) {
+  var det = e.target;
+  if (!det.open || det.querySelector('.contextual-menu')) return;
+  var sec = document.createElement('section');
+  sec.className = 'contextual-menu';
+  sec.setAttribute('aria-label', 'Event actions');
+  // var copyBtn = document.createElement('button');
+  // copyBtn.className = 'copy-event';
+  // copyBtn.setAttribute('aria-label', 'Copy event details');
+  // copyBtn.title = 'Copy event details';
+  sec.innerHTML = '<button class="copy-event btn tertiary-btn" aria-label="Copy event details" title="Copy event details"><span class="hidden">Copy Details</span></button>'
+    + '<button class="add-to-cal btn secondary-btn" aria-haspopup="menu" aria-expanded="false">add to calendar</button>';
+  det.appendChild(sec);
+}, true);
 
 /* ===================== Add-to-Calendar dropdown ===================== */
 
 /* One shared dropdown element is moved between events on click,
    keeping the DOM light for pages with 500+ events. */
 var calDropdown = null;
-/* _https avoids a literal // in a string, which the naive minifier
-   would strip as a line comment. See EXPORT.md. */
-var _https = 'https:' + String.fromCharCode(47, 47);
 
 /* Strip dashes/colons for Google/Yahoo/ICS date format (YYYYMMDDTHHmmss) */
 function compactDate(iso) {
   return iso.replace(/[-:]/g, '');
 }
-/* Read event data from <details> data-* attributes and the data-desc paragraph.
+/* Extract clean text from .details, skipping JS-injected elements */
+var JS_INJECTED = '.row-icon, .map-toggle, .map-dropdown, .copy-url, .copy-event, .flyer-img, .flyer-hide';
+
+function getDetailsText(details) {
+  var detailsEl = details.querySelector('.details');
+  if (!detailsEl) return '';
+  var lines = [];
+  for (var i = 0; i < detailsEl.children.length; i++) {
+    var child = detailsEl.children[i];
+    if (child.classList.contains('flyer')) {
+      var flyerLink = child.querySelector('a');
+      if (flyerLink) lines.push('Flyer: ' + flyerLink.href);
+      continue;
+    }
+    var clone = child.cloneNode(true);
+    clone.querySelectorAll(JS_INJECTED).forEach(function(el) { el.remove(); });
+    if (clone.classList.contains('description')) {
+      var pLines = [];
+      for (var j = 0; j < clone.children.length; j++) {
+        var text = clone.children[j].textContent.trim();
+        if (text) pLines.push(text);
+      }
+      if (pLines.length) lines.push(pLines.join('\n\n'));
+    } else {
+      var text = clone.textContent.trim();
+      if (text) lines.push(text);
+    }
+  }
+  return lines.join('\n\n');
+}
+
+/* Read event data from the DOM and data-start/data-end attributes.
    Falls back to end-of-day if no end time is set. */
 function getEventData(details) {
   var ds = details.dataset;
-  var descEl = details.querySelector('[data-desc]');
-  var desc = '';
-  if (descEl) {
-    desc = descEl.innerHTML.replace(/<br\s*\/?>/gi, '\n');
-    var tmp = document.createElement('span');
-    tmp.innerHTML = desc;
-    desc = tmp.textContent;
-  }
-  var d = { title: ds.title || 'Untitled', start: ds.start || '', location: ds.location || '', url: ds.url || '', img: ds.img || '', desc: desc };
+  var summaryText = details.querySelector('.summary-text');
+  var titleEl = summaryText ? summaryText.childNodes[0] : null;
+  var title = titleEl ? titleEl.textContent.trim() : 'Untitled';
+  var locEl = details.querySelector('.location');
+  var location = locEl ? locEl.childNodes[0].textContent.trim() : '';
+  var linkEl = details.querySelector('.link-url a');
+  var url = linkEl ? linkEl.href : '';
+  var flyerEl = details.querySelector('.flyer a');
+  var img = flyerEl ? flyerEl.href : '';
+  var desc = getDetailsText(details);
+  if (desc) desc += '\n\nSee https:' + String.fromCharCode(47, 47) + 'shows.whomtube.com for more.';
+  var d = { title: title, start: ds.start || '', location: location, url: url, img: img, desc: desc };
   if (ds.end) {
     d.end = ds.end;
   } else if (d.start) {
@@ -578,7 +669,6 @@ function closeCal() {
 document.addEventListener('click', function(e) {
   var trigger = e.target.closest('.add-to-cal');
   if (trigger) {
-    e.preventDefault();
     var dd = ensureDropdown();
     var isOpen = dd.classList.contains('open') && trigger.nextElementSibling === dd;
     closeCal();
@@ -586,6 +676,7 @@ document.addEventListener('click', function(e) {
     trigger.after(dd);
     dd.classList.add('open');
     trigger.setAttribute('aria-expanded', 'true');
+    scrollIntoViewSmooth(dd);
     return;
   }
   var calLink = e.target.closest('.cal-dropdown a');

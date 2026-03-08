@@ -2,6 +2,7 @@
 
 import sys
 sys.path.append('./src')
+import paths
 
 import argparse
 from datetime import datetime

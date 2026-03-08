@@ -1,6 +1,0 @@
-# Path to a chromedriver binary. If omitted, chromedriver is auto-detected
-# via webdriver_manager (cached in ~/.wdm/).
-# chromeDriverLocation: './chromedriver-linux64/chromedriver'
-
-# Path to a Chrome/Chromium binary. If omitted, uses the system default.
-# chromeBinaryLocation: '/usr/bin/google-chrome'

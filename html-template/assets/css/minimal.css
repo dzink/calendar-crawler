@@ -1,3 +1,5 @@
+/* ===== Variables ===== */
+
 :root {
   --color-base: #f3f0ea;
   --color-base-shadow: #ebe5da;
@@ -6,22 +8,25 @@
   --color-text-header: #fff;
   --color-border: rgba(0,0,0,0.2);
   --color-hover: #f5f5f5;
-  --color-link: #1a6fb5;
+  --color-link: #49396a;
   --color-link-shade: rgba(255, 255, 255, 0.2);
   --color-detail-bg: #fff;
   --color-add-to-cal-bg: #fff;
   --color-header: #74609f;
+  --color-body: #49396a;
   --color-subheader: #FFD150;
   --color-primary: #c52d43;
   --color-primary-standout: #fff;
   --color-primary-hover: #d94d63;
 
+  --space-xxs: 0.125rem;
   --space-xs: 0.25rem;
   --space-sm: 0.5rem;
   --space-md: 1rem;
   --space-lg: 1.5rem;
   --space-xl: 2rem;
-  --space-xxl: 3rem;
+  --space-xxl: 2.5rem;
+  --space-xxxl: 3rem;
   --content-half-width: 24rem;
   --space-neg-sm: -0.5rem;
   --space-neg-md: -1rem;
@@ -43,31 +48,12 @@
   --icon-sun: url("data:image/svg+xml,<svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'> <path  fill-rule='evenodd'  clip-rule='evenodd'  d='M12 16C14.2091 16 16 14.2091 16 12C16 9.79086 14.2091 8 12 8C9.79086 8 8 9.79086 8 12C8 14.2091 9.79086 16 12 16ZM12 18C15.3137 18 18 15.3137 18 12C18 8.68629 15.3137 6 12 6C8.68629 6 6 8.68629 6 12C6 15.3137 8.68629 18 12 18Z'  fill='white' /> <path  fill-rule='evenodd'  clip-rule='evenodd'  d='M11 0H13V4.06189C12.6724 4.02104 12.3387 4 12 4C11.6613 4 11.3276 4.02104 11 4.06189V0ZM7.0943 5.68018L4.22173 2.80761L2.80752 4.22183L5.6801 7.09441C6.09071 6.56618 6.56608 6.0908 7.0943 5.68018ZM4.06189 11H0V13H4.06189C4.02104 12.6724 4 12.3387 4 12C4 11.6613 4.02104 11.3276 4.06189 11ZM5.6801 16.9056L2.80751 19.7782L4.22173 21.1924L7.0943 18.3198C6.56608 17.9092 6.09071 17.4338 5.6801 16.9056ZM11 19.9381V24H13V19.9381C12.6724 19.979 12.3387 20 12 20C11.6613 20 11.3276 19.979 11 19.9381ZM16.9056 18.3199L19.7781 21.1924L21.1923 19.7782L18.3198 16.9057C17.9092 17.4339 17.4338 17.9093 16.9056 18.3199ZM19.9381 13H24V11H19.9381C19.979 11.3276 20 11.6613 20 12C20 12.3387 19.979 12.6724 19.9381 13ZM18.3198 7.0943L21.1923 4.22183L19.7781 2.80762L16.9056 5.6801C17.4338 6.09071 17.9092 6.56608 18.3198 7.0943Z'  fill='white' /></svg>");
   --icon-link: url("data:image/svg+xml,<svg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'> <path   d='M14.8284 12L16.2426 13.4142L19.071 10.5858C20.6331 9.02365 20.6331 6.49099 19.071 4.9289C17.509 3.3668 14.9763 3.3668 13.4142 4.9289L10.5858 7.75732L12 9.17154L14.8284 6.34311C15.6095 5.56206 16.8758 5.56206 17.6568 6.34311C18.4379 7.12416 18.4379 8.39049 17.6568 9.17154L14.8284 12Z'   fill='white' /> <path   d='M12 14.8285L13.4142 16.2427L10.5858 19.0711C9.02372 20.6332 6.49106 20.6332 4.92896 19.0711C3.36686 17.509 3.36686 14.9764 4.92896 13.4143L7.75739 10.5858L9.1716 12L6.34317 14.8285C5.56212 15.6095 5.56212 16.8758 6.34317 17.6569C7.12422 18.4379 8.39055 18.4379 9.1716 17.6569L12 14.8285Z'   fill='white' /> <path   d='M14.8285 10.5857C15.219 10.1952 15.219 9.56199 14.8285 9.17147C14.4379 8.78094 13.8048 8.78094 13.4142 9.17147L9.1716 13.4141C8.78107 13.8046 8.78107 14.4378 9.1716 14.8283C9.56212 15.2188 10.1953 15.2188 10.5858 14.8283L14.8285 10.5857Z'   fill='white' /></svg>");
   --icon-copy: url("data:image/svg+xml,<svg   width='24'   height='24'   viewBox='0 0 24 24'   fill='none'   xmlns='http://www.w3.org/2000/svg' >   <path d='M13 7H7V5H13V7Z' fill='white' />   <path d='M13 11H7V9H13V11Z' fill='white' />   <path d='M7 15H13V13H7V15Z' fill='white' />   <path     fill-rule='evenodd'     clip-rule='evenodd'     d='M3 19V1H17V5H21V23H7V19H3ZM15 17V3H5V17H15ZM17 7V19H9V21H19V7H17Z'     fill='white'   /> </svg>");
+  --icon-details: url("data:image/svg+xml,<svg  width='24'  height='24'  viewBox='0 0 24 24'  fill='none'  xmlns='http://www.w3.org/2000/svg'>  <path    d='M2 8C2 7.44772 2.44772 7 3 7H21C21.5523 7 22 7.44772 22 8C22 8.55228 21.5523 9 21 9H3C2.44772 9 2 8.55228 2 8Z'    fill='white'  />  <path    d='M2 12C2 11.4477 2.44772 11 3 11H21C21.5523 11 22 11.4477 22 12C22 12.5523 21.5523 13 21 13H3C2.44772 13 2 12.5523 2 12Z'    fill='white'  />  <path    d='M3 15C2.44772 15 2 15.4477 2 16C2 16.5523 2.44772 17 3 17H15C15.5523 17 16 16.5523 16 16C16 15.4477 15.5523 15 15 15H3Z'    fill='white'  /></svg>");
+  --icon-up: url("data:image/svg+xml,<svg  width='24'  height='24'  viewBox='0 0 24 24'  fill='none'  xmlns='http://www.w3.org/2000/svg'>  <path    d='M17.6568 8.96219L16.2393 10.3731L12.9843 7.10285L12.9706 20.7079L10.9706 20.7059L10.9843 7.13806L7.75404 10.3532L6.34314 8.93572L12.0132 3.29211L17.6568 8.96219Z'    fill='white'  /></svg>");
+  --icon-down: url("data:image/svg+xml,<svg  width='24'  height='24'  viewBox='0 0 24 24'  fill='none'  xmlns='http://www.w3.org/2000/svg'>  <path    d='M11.0001 3.67157L13.0001 3.67157L13.0001 16.4999L16.2426 13.2574L17.6568 14.6716L12 20.3284L6.34314 14.6716L7.75735 13.2574L11.0001 16.5001L11.0001 3.67157Z'    fill='white'  /></svg>");
 }
 
-body {
-  /* filter: brightness(0.8) sepia(0.5) hue-rotate(-0deg); */
-}
-
-/* Stage theme (toggled by JS) */
-
-.stage-theme {
-  /* --color-base: #0d0000;
-  --color-text: #f30;
-  --color-text-muted: #a22;
-  --color-text-header: #f30;
-  --color-border: #c00;
-  --color-hover: rgba(255, 50, 0, 0.08);
-  --color-link: #f30;
-  --color-link-shade: rgba(0, 0, 0, 0.2);
-  --color-detail-bg: #300;
-  --color-add-to-cal-bg: #300;
-  --color-header: #300;
-  --color-subheader: #300;
-  --color-primary: #f30;
-  --color-primary-standout: #000;
-  --color-primary-hover: #f00; */
-}
+/* ===== Stage theme ===== */
 
 .stage-theme {
   --color-base: #090101;
@@ -88,6 +74,8 @@ body {
   --color-primary-hover: #9c1c4d;
 }
 
+/* ===== Reset & base ===== */
+
 *,
 *::before,
 *::after {
@@ -95,8 +83,10 @@ body {
 }
 
 body {
-  font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace;
-  /* font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; */
+  /* font-family: 'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace; */
+  /* font-family: 'Gill Sans', 'Optima', 'Calibri', 'Trebuchet MS', sans-serif; */
+  font-family: monospace, sans-serif;
+  /* font-family: sans-serif; */
   background: var(--color-base);
   color: var(--color-text);
   margin: 0;
@@ -105,6 +95,43 @@ body {
   line-height: 1.5;
   overflow-x: hidden;
 }
+
+li, ul, p {
+  line-height: 1.6;
+}
+
+h1,
+nav.date-picker,
+.navigation,
+.details .description,
+.sidebar .details {
+  /* font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif; */
+  font-weight: 400;
+}
+
+/* ===== Utility ===== */
+
+.hidden {
+  display: none;
+}
+
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 0;
+  padding: var(--space-sm);
+  background: var(--color-text);
+  color: var(--color-base);
+  z-index: 100;
+  text-decoration: none;
+}
+
+.skip-link:focus {
+  color: var(--color-text);
+  top: 0;
+}
+
+/* ===== Layout ===== */
 
 div#content {
   width: 100%;
@@ -121,7 +148,7 @@ section.content {
   padding: 0;
 }
 
-/* Header */
+/* ===== Header ===== */
 
 header {
   padding: var(--space-md);
@@ -129,7 +156,6 @@ header {
   background: var(--color-header);
   color: var(--color-text-header);
 }
-
 
 h1 {
   font-size: 1.1em;
@@ -147,16 +173,12 @@ ul.navigation {
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  /* justify-content: space-between; */
   gap: var(--space-md);
 }
 
 ul.navigation li {
   display: inline-block;
 }
-/* ul.navigation li::before {
-  content: '-';
-} */
 
 ul.navigation li a {
   font-size: 0.75em;
@@ -164,10 +186,7 @@ ul.navigation li a {
   text-decoration: underline;
 }
 
-ul.navigation li a:hover {
-}
-
-/* Subheader / subscribe CTA */
+/* ===== Subheader / subscribe CTA ===== */
 
 .subheader {
   padding: var(--space-md);
@@ -185,30 +204,71 @@ ul.navigation li a:hover {
   color: var(--color-text);
 }
 
-a.add-to-cal::before,
-a.subheader-btn::before {
-  -webkit-mask-image: var(--icon-calendar-next);
-  mask-image: var(--icon-calendar-next);
-  background: var(--color-primary-standout);
-}
-
 .subheader-main {
   margin: 0;
 }
 
-body a.primary-btn {
+body .btn {
   display: inline-block;
-  padding: var(--space-xs) var(--space-md);
-  background: var(--color-primary);
-  color: var(--color-primary-standout);
+  padding: var(--space-xs) var(--space-xs);
   text-decoration: none !important;
-  font-weight: 700;
-  border-radius: var(--radius-sm);
+  font-size: inherit;
+  font-family: inherit;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  min-height: var(--space-xl);
+  font-size: 0.85em;
+  border: 1px solid var(--color-primary);
 }
 
-body a.primary-btn:focus,
-body a.primary-btn:hover {
+body details .btn {
+  min-height: var(--space-xxl);
+}
+
+body .btn::before {
+  width: 1.8em;
+  height: 1.4em;
+  top: var(--space-xs);
+}
+
+body .primary-btn {
+  font-weight: 700;
+  background: var(--color-primary);
+  color: var(--color-primary-standout);
+  padding: var(--space-sm) var(--space-xxl);
+}
+
+body .primary-btn:focus,
+body .primary-btn:hover {
   background: var(--color-primary-hover);
+}
+
+body .tertiary-btn,
+body .secondary-btn {
+  color: var(--color-primary);
+  background: var(--color-base);
+  border-color: var(--color-border);
+}
+
+body .tertiary-btn {
+  color: var(--color-text);
+}
+
+body .secondary-btn::before {
+  background: var(--color-primary);
+}
+
+body .tertiary-btn::before {
+  background: var(--color-text-muted);
+}
+
+body .secondary-btn:focus,
+body .secondary-btn:hover,
+body .tertiary-btn:focus,
+body .tertiary-btn:hover {
+  /* color: var(--color-primary); */
+  background: var(--color-primary-standout);
 }
 
 .subheader-desc {
@@ -228,7 +288,35 @@ body a.primary-btn:hover {
   font-size: 1em;
 }
 
-/* Date picker / nav */
+/* ===== Shared icon base ===== */
+.details .description .row-icon::before,
+.add-to-cal::before,
+.copy-event::before,
+a.subheader-btn::before,
+summary::before,
+.details .time .row-icon::before,
+.details .location .row-icon::before,
+.details .link-url .row-icon::before,
+.details > .flyer .row-icon::before,
+.copy-url::before,
+.copy-event::after,
+.icon-up::before,
+.icon-down::after,
+#agenda .details a[target="_blank"]::after {
+  content: ' ';
+  display: inline-block;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-mode: alpha;
+  mask-mode: alpha;
+  top: var(--space-xxs);
+  position: relative;
+
+}
+
+/* ===== Date picker / nav ===== */
 
 nav.date-picker {
   display: flex;
@@ -254,6 +342,107 @@ nav.date-picker {
   flex: 1;
   min-width: 0;
 }
+
+.btnset > * {
+  flex: 1;
+  border-radius: 0;
+  border-right: none;
+}
+
+.btnset > *:first-child {
+  border-top-left-radius: var(--radius-md);
+  border-bottom-left-radius: var(--radius-md);
+}
+
+.btnset > *:last-child {
+  border: 1px solid var(--color-border);
+  border-top-right-radius: var(--radius-md);
+  border-bottom-right-radius: var(--radius-md);
+}
+
+.icon-down::after,
+.icon-up::before {
+  width: 1.1em;
+  height: 1.1em;
+  background-color: var(--color-text-muted);
+}
+
+.icon-up::before {
+  -webkit-mask-image: var(--icon-up);
+  mask-image: var(--icon-up);
+  top: var(--space-xxs);
+}
+
+.icon-down::after {
+  -webkit-mask-image: var(--icon-down);
+  mask-image: var(--icon-down);
+  top: var(--space-xs);
+}
+
+.date-jump-period,
+button,
+#datepicker,
+#theme-toggle,
+#view-toggle {
+  font: inherit;
+  font-size: 0.8em;
+  padding: var(--space-sm) var(--space-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-base);
+  color: var(--color-text);
+  white-space: nowrap;
+  border-radius: var(--radius-sm);
+}
+
+button,
+#datepicker,
+#theme-toggle,
+#view-toggle {
+  cursor: pointer;
+}
+
+.btnset button:hover,
+#datepicker:hover,
+#theme-toggle:hover,
+#view-toggle:hover {
+  background: var(--color-hover);
+}
+
+#datepicker {
+  flex: 0 0 auto;
+}
+
+/* Theme toggle */
+
+#theme-toggle {
+  padding: 0 var(--space-sm);
+  line-height: 1;
+}
+
+#theme-toggle::before {
+  content: ' ';
+  display: inline-block;
+  width: 1.2em;
+  height: 1.2em;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  background-color: var(--color-text);
+  vertical-align: middle;
+}
+
+#theme-toggle.dark::before {
+  -webkit-mask-image: var(--icon-moon);
+  mask-image: var(--icon-moon);
+}
+
+#theme-toggle.light::before {
+  -webkit-mask-image: var(--icon-sun);
+  mask-image: var(--icon-sun);
+}
+
+/* Filter */
 
 .filter-wrap {
   position: relative;
@@ -292,87 +481,15 @@ nav.date-picker {
   color: var(--color-text);
 }
 
-button,
-#datepicker,
-#theme-toggle,
-#view-toggle {
-  font: inherit;
-  font-size: 0.8em;
-  padding: var(--space-sm) var(--space-sm);
-  border: 1px solid var(--color-border);
-  background: var(--color-base);
-  color: var(--color-text);
-  cursor: pointer;
-  white-space: nowrap;
-  border-radius: var(--radius-sm);
-}
-
-#theme-toggle {
-  padding: 0 var(--space-sm);
-  line-height: 1;
-}
-
-#theme-toggle::before {
-  content: ' ';
-  display: inline-block;
-  width: 1.2em;
-  height: 1.2em;
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  background-color: var(--color-text);
-  vertical-align: middle;
-}
-
-#theme-toggle.dark::before {
-  -webkit-mask-image: var(--icon-moon);
-  mask-image: var(--icon-moon);
-}
-
-#theme-toggle.light::before {
-  -webkit-mask-image: var(--icon-sun);
-  mask-image: var(--icon-sun);
-}
-
-.hidden {
+.filter-help {
   display: none;
 }
 
-.btnset button {
-  border-radius: 0;
+.nav-row:has(#event-filter:focus) ~ .filter-help {
+  display: block;
 }
 
-.btnset button:first-child {
-  border-top-left-radius: var(--radius-sm);
-  border-bottom-left-radius: var(--radius-sm);
-}
-
-.btnset button:last-child {
-  border-top-right-radius: var(--radius-sm);
-  border-bottom-right-radius: var(--radius-sm);
-}
-
-.btnset button {
-  flex: 1;
-  border-right: none;
-}
-
-.btnset button:last-child {
-  border: 1px solid var(--color-border);
-}
-
-
-.btnset button:hover,
-#datepicker:hover,
-#theme-toggle:hover,
-#view-toggle:hover {
-  background: var(--color-hover);
-}
-
-#datepicker {
-  flex: 0 0 auto;
-}
+/* Nav subscribe (sticky CTA) */
 
 .nav-subscribe {
   width: 100%;
@@ -397,8 +514,7 @@ button,
   font-size: 0.9em;
 }
 
-
-/* Agenda */
+/* ===== Agenda ===== */
 
 #agenda {
   padding: 0 var(--space-md) 0 var(--space-md);
@@ -408,12 +524,13 @@ button,
 #agenda section,
 #agenda h2,
 #agenda details,
-#agenda summary {
+#agenda summary,
+.flyer-img {
   scroll-margin-top: 9rem;
 }
 
 #agenda h2 {
-  font-size: 0.85em;
+  font-size: 1em;
   font-weight: 600;
   margin: var(--space-md) var(--space-neg-md) var(--space-xs);
   padding-bottom: var(--space-xs);
@@ -422,37 +539,28 @@ button,
   padding-right: var(--space-md);
 }
 
-details {
-  padding: 0;
-  margin-bottom: 1px;
-  margin: var(--space-xs) 0 0;
-}
+/* ===== Details & summary ===== */
 
 details {
+  padding: 0;
+  margin: var(--space-xs) 0 0;
   border: none;
 }
 
 details summary {
-  padding: var(--space-xs) var(--space-md);
-}
-details[open] summary {
-  /* padding: var(--space-xs) var(--space-xl); */
-  margin-left: 0;
-  margin-right: 0;
+  padding: var(--space-sm) var(--space-md);
 }
 
 details[open] {
+  border-top: var(--space-xxs) solid var(--color-primary);
   border-bottom: var(--space-xs) solid var(--color-border);
   background: var(--color-detail-bg);
   margin: var(--space-xs) var(--space-neg-md) var(--space-lg);
 }
 
-details summary:hover {
-  background: var(--color-subheader);
-}
-
-details summary:hover .summary-meta {
-  color: var(--color-text);
+details[open] summary {
+  margin-left: 0;
+  margin-right: 0;
 }
 
 summary {
@@ -472,8 +580,8 @@ summary::before {
   flex-shrink: 0;
   order: 1;
   margin-left: auto;
-  width: 1.3em;
-  height: 1.3em;
+  width: 1em;
+  height: 1em;
   background-color: var(--color-primary);
   -webkit-mask-image: var(--icon-add-r);
   mask-image: var(--icon-add-r);
@@ -484,13 +592,20 @@ details[open] > summary::before {
   mask-image: var(--icon-close-r);
 }
 
+summary:hover {
+  color: var(--color-link);
+}
+
+details summary:hover {
+  background: var(--color-subheader);
+}
+
+details summary:hover .summary-meta {
+  color: var(--color-text);
+}
 
 details[open] .summary-meta {
   display: none;
-}
-
-summary:hover {
-  color: var(--color-link);
 }
 
 .summary-text {
@@ -503,46 +618,85 @@ summary:hover {
   color: var(--color-text);
 }
 
+/* ===== Details content ===== */
+
 .details {
-  padding: var(--space-md) var(--space-lg);
+  margin: var(--space-sm) var(--space-md);
   font-size: 0.9em;
-  /* background: var(--color-detail-bg); */
   animation: slideDown 0.15s ease-out;
   user-select: text;
   -webkit-user-select: text;
 }
 
-.details .time::before,
-.details .location::before,
-.details .link-url::before,
-.details > .flyer::before {
+.details > div {
+  margin: var(--space-sm) 0;
+  line-height: 1.5em;
+}
+
+.details > div.description {
+  margin-top: var(--space-lg);
+}
+
+.details > div.description .row-icon {
+  display: none;
+}
+
+.details .description p {
+  margin: var(--space-sm) 0;
+  line-height: 1.5em;
+}
+
+/* Detail metadata icons (time, location, link, flyer) */
+
+.details .time .row-icon::before,
+.details .location .row-icon::before,
+.details .link-url .row-icon::before,
+.details .description .row-icon::before,
+.details > .flyer .row-icon::before {
   width: var(--space-xl);
   height: 1em;
   background-color: var(--color-text-muted);
 }
 
-.details .time::before {
+.details .time .row-icon::before {
   -webkit-mask-image: var(--icon-time);
   mask-image: var(--icon-time);
 }
 
-.details .location::before {
+.details .location .row-icon::before {
   -webkit-mask-image: var(--icon-pin);
   mask-image: var(--icon-pin);
 }
 
-.details .link-url::before {
+.details .link-url .row-icon::before {
   -webkit-mask-image: var(--icon-link);
   mask-image: var(--icon-link);
 }
 
+.details .description .row-icon::before {
+  -webkit-mask-image: var(--icon-details);
+  mask-image: var(--icon-details);
+  top: var(--space-sm);
+}
+
+.details > .flyer .row-icon::before {
+  -webkit-mask-image: var(--icon-image);
+  mask-image: var(--icon-image);
+}
+
+/* Link URL truncation & copy button */
+
 .details .link-url a {
   display: inline-block;
-  max-width: 50%;
+  max-width: 19em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: bottom;
+}
+
+.details .link-url a::after {
+  display: none;
 }
 
 .copy-url {
@@ -554,28 +708,30 @@ summary:hover {
   vertical-align: bottom;
 }
 
-.copy-url::after {
-  content: ' ';
-  display: inline-block;
-  width: 1em;
-  height: 1em;
+.copy-url::before {
+  width: 1.4em;
+  height: 1.4em;
   -webkit-mask-image: var(--icon-copy);
   mask-image: var(--icon-copy);
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
   background-color: var(--color-text-muted);
 }
 
-.copy-url:hover::after {
+.copy-url:hover::before {
   background-color: var(--color-link);
 }
 
-.details > .flyer::before {
-  -webkit-mask-image: var(--icon-image);
-  mask-image: var(--icon-image);
+.copy-url.copied::before {
+  background-color: var(--color-primary);
+  animation: copyPulse 0.3s ease-out;
 }
+
+@keyframes copyPulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+/* Map links */
 
 .map-toggle {
   margin-left: var(--space-xs);
@@ -597,25 +753,10 @@ summary:hover {
   margin: 0 var(--space-xs);
 }
 
-@keyframes slideDown {
-  from { opacity: 0; transform: translateY(-20%); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+/* Flyer */
 
-.details p {
-  margin: 0 0 var(--space-sm) 0;
-  line-height: 1.2em;;
-}
-
-.details .description  {
-  border-top: 1px solid var(--color-border);
-  margin-top: var(--space-md);
-  padding-top: var(--space-md);
-}
-
-.details .smaller {
-  font-size: 0.85em;
-  color: var(--color-text-muted);
+.details > .flyer {
+  scroll-margin-bottom: 3px;
 }
 
 .flyer a::after,
@@ -632,35 +773,22 @@ summary:hover {
   margin: var(--space-xl) auto;
   display: block;
   animation: slideDown 0.3s ease-out;
+  flex: 0 0 100%;
 }
 
 .description .flyer {
   display: none;
 }
 
-h1,
-nav.date-picker,
-.navigation,
-.details .description,
-.sidebar .details {
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-  font-weight: 400;
+/* Description */
+
+.smaller {
+  font-size: 0.85em;
+  color: var(--color-text-muted);
 }
 
-summary::before,
-.details .time::before,
-.details .location::before,
-.details .link-url::before,
-.details > .flyer::before,
-#agenda .details a[target="_blank"]::after {
-  content: ' ';
-  display: inline-block;
-  -webkit-mask-size: contain;
-  mask-size: contain;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-mode: alpha;
-  mask-mode: alpha;
+#agenda .details .description a {
+  word-break: break-all;
 }
 
 /* External link indicator */
@@ -675,19 +803,65 @@ summary::before,
   text-decoration: none;
 }
 
-/* Add-to-calendar */
-.section--add-to-cal {
+/* ===== Add-to-calendar ===== */
+
+.add-to-cal::before,
+a.subheader-btn::before {
+  -webkit-mask-image: var(--icon-calendar-next);
+  mask-image: var(--icon-calendar-next);
+  background-color: var(--color-primary-standout);
+  width: var(--space-lg);
+  height: 1em;
+}
+
+body .copy-event {
+  padding: var(--space-xs) var(--space-md);
+}
+
+body .copy-event::before {
+  -webkit-mask-image: var(--icon-copy);
+  mask-image: var(--icon-copy);
+  background-color: var(--color-text-muted);
+  height: 1em;
+  width: 1em;
+}
+
+
+
+.contextual-menu {
   text-align: right;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-sm);
+  margin: var(--space-sm) var(--space-md);
+}
+
+.copy-event.copied {
+  animation: copyPulse 0.3s ease-out;
+}
+
+.copy-event.copied::before {
+  background: var(--color-link);
+}
+
+.copy-url.copied::after,
+.copy-event.copied::after {
+  content: 'copied';
+  padding-left: var(--space-xs);
+}
+
+.copy-url.copied::after {
+  content: 'link copied';
 }
 
 .add-to-cal {
-  display: block;
-  margin-top: var(--space-sm);
-  text-decoration: none;
   text-align: right;
 }
 
 .cal-dropdown {
+  flex-basis: 100%;
   display: none;
   flex-direction: row;
   flex-wrap: wrap;
@@ -698,9 +872,6 @@ summary::before,
   display: flex;
   align-items: baseline;
   justify-content: end;
-  background: var(--color-add-to-cal-bg);
-  position: relative;
-  top: var(--space-md);
   margin: var(--space-neg-sm) var(--space-neg-lg) 0;
   padding: var(--space-sm) var(--space-md);
 }
@@ -724,7 +895,7 @@ summary::before,
   background: var(--color-hover);
 }
 
-/* Sidebar */
+/* ===== Sidebar ===== */
 
 aside.sidebar {
   padding: var(--space-md);
@@ -743,7 +914,7 @@ aside.sidebar {
 }
 
 .sidebar .details {
-  padding: var(--space-md);
+  margin: var(--space-sm) var(--space-md);
 }
 
 .back-to-top {
@@ -752,7 +923,7 @@ aside.sidebar {
   margin-top: var(--space-md);
 }
 
-/* Links */
+/* ===== Links ===== */
 
 a {
   color: var(--color-link);
@@ -764,17 +935,16 @@ details a:visited {
   color: var(--color-header);
 }
 
-a:not(.simple-link) {
+a:not(.simple-link, .primary-btn) {
   background: var(--color-link-shade);
 }
 
-a:not(.simple-link):focus,
-a:not(.simple-link):hover {
+a:not(.simple-link, .primary-btn):focus,
+a:not(.simple-link, .primary-btn):hover {
   background: var(--color-base);
-  outline: none;
 }
 
-/* ICS subscribe buttons */
+/* ===== ICS subscribe list ===== */
 
 ul.ics-sources {
   list-style: none;
@@ -814,7 +984,7 @@ ul.ics-sources.subscribe-list li + li::before {
   content: none;
 }
 
-/* Footer */
+/* ===== Footer ===== */
 
 .footer {
   text-align: center;
@@ -828,25 +998,7 @@ hr {
   margin: var(--space-xl) 0;
 }
 
-/* Skip link */
-
-.skip-link {
-  position: absolute;
-  top: -100%;
-  left: 0;
-  padding: var(--space-sm);
-  background: var(--color-text);
-  color: var(--color-base);
-  z-index: 100;
-  text-decoration: none;
-}
-
-.skip-link:focus {
-  color: var(--color-text);
-  top: 0;
-}
-
-/* Focus */
+/* ===== Focus ===== */
 
 a:focus-visible,
 summary:focus-visible {
@@ -860,25 +1012,24 @@ nav.date-picker input:focus-visible {
   outline-offset: 2px;
   z-index: 1;
   position: relative;
-
 }
 
 ::placeholder {
   color: var(--color-text-muted);
+  size: 0.8em;
 }
 
-/* Responsive */
+/* ===== Animations ===== */
 
-li, ul, p {
-  line-height: 1.6;
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-20%); }
+  to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ===== Responsive ===== */
 
 .calendar-wide { display: none; }
 .calendar-narrow { display: block; }
-
-#agenda .details .description a {
-  word-break: break-all;
-}
 
 @media only screen and (min-width: 768px) {
   .calendar-wide { display: block; }
@@ -886,6 +1037,24 @@ li, ul, p {
   .subheader {
     flex-direction: row;
   }
+
+  .details > div {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  .details > div > * {
+    align-items: stretch;
+  }
+
+  .details .link-url a {
+    display: inline-block;
+    max-width: 30em;
+  }
+
+  .details > div.description .row-icon {
+    display: inline;
+  }
+
 }
 
 @media only screen and (min-width: 1024px) {
@@ -916,19 +1085,6 @@ li, ul, p {
     scroll-padding-top: 9em;
   }
 
-  #agenda section {
-    padding: 0 var(--space-sm);
-    min-width: 0;
-    overflow: hidden;
-    border-left: 1px solid var(--color-border);
-    margin-bottom: var(--space-xxl);
-  }
-
-  #agenda section:first-of-type,
-  #agenda section[style*="grid-column:1"] {
-    border-left: none;
-  }
-
   #agenda h2 {
     font-size: 0.75em;
     margin: var(--space-sm) 0 var(--space-xs);
@@ -940,13 +1096,9 @@ li, ul, p {
 
   #agenda .details {
     font-size: 0.7em;
-    padding: var(--space-sm);
+    margin: var(--space-sm) var(--space-md);
     overflow-wrap: break-word;
     word-break: break-word;
-  }
-
-  summary::before {
-    display: none;
   }
 
   .summary-text,
@@ -958,10 +1110,9 @@ li, ul, p {
   .summary-meta {
     font-size: 0.85em;
   }
-
 }
 
-/* View toggle (desktop only) */
+/* ===== View toggle (desktop only) ===== */
 
 #view-toggle {
   display: none;
@@ -972,22 +1123,15 @@ li, ul, p {
     display: block;
   }
 
-  /* In week mode (default), hide day nav buttons */
   body:not(.day-view) .btnset button:nth-child(1),
   body:not(.day-view) .btnset button:nth-child(2) {
     display: none;
   }
 
-  /* In day mode, revert to single-column list */
   .day-view #agenda {
     max-width: 50rem;
     display: block;
     padding: 0 var(--space-md) 0 var(--space-md);
-  }
-
-  .day-view #agenda section {
-    padding: 0;
-    border-left: none;
   }
 
   .day-view #agenda h2 {
@@ -1010,11 +1154,7 @@ li, ul, p {
 
   .day-view #agenda .details {
     font-size: 0.9em;
-    padding: var(--space-md) var(--space-lg);
+    margin: var(--space-sm) var(--space-md);
   }
 
-  .day-view #agenda section {
-    overflow: visible;
-  }
 }
-

@@ -24,13 +24,14 @@ See EXPORT.md for full documentation.
 
 import sys
 sys.path.append('./src')
-sys.path.append('./src/parsers')
+import paths
 
 import os
 import re
 import html
 import yaml
 import shutil
+import subprocess
 import argparse
 from datetime import date
 from collections import OrderedDict
@@ -108,6 +109,31 @@ def buildQuery():
     return parameters
 
 
+def buildIcalEvent(event):
+    """Build a single ICalEvent from an Event, with flyer/link prepended to description."""
+    ical_event = ICalEvent()
+    ical_event.add('uid', str(event.id))
+    ical_event.add('summary', event.summary or '')
+    if event.startDate:
+        ical_event.add('dtstart', event.startDate)
+    if event.endDate:
+        ical_event.add('dtend', event.endDate)
+    if event.location:
+        ical_event.add('location', event.location)
+    desc_parts = []
+    if event.link:
+        desc_parts.append(event.link)
+        ical_event.add('url', event.link)
+    if event.img:
+        desc_parts.append('Flyer: %s' % event.img)
+        ical_event.add('attach', event.img, parameters={'FMTTYPE': 'image/jpeg'})
+    if event.description:
+        desc_parts.append(event.description)
+    desc_parts.append('See https://shows.whomtube.com for more.')
+    ical_event.add('description', '\n\n'.join(desc_parts))
+    return ical_event
+
+
 def buildCalendar(events):
     """Build a single icalendar Calendar containing all events."""
     cal = Calendar()
@@ -116,24 +142,7 @@ def buildCalendar(events):
     cal.add('x-wr-calname', 'Baltimore DIY Calendar Crawler')
 
     for event in events:
-        ical_event = ICalEvent()
-        ical_event.add('uid', str(event.id))
-        ical_event.add('summary', event.summary or '')
-
-        if event.startDate:
-            ical_event.add('dtstart', event.startDate)
-        if event.endDate:
-            ical_event.add('dtend', event.endDate)
-        if event.location:
-            ical_event.add('location', event.location)
-        if event.description:
-            ical_event.add('description', event.description)
-        if event.link:
-            ical_event.add('url', event.link)
-        if event.img:
-            ical_event.add('attach', event.img, parameters={'FMTTYPE': 'image/jpeg'})
-
-        cal.add_component(ical_event)
+        cal.add_component(buildIcalEvent(event))
         logger.info('Added: %s (%s)' % (event.summary, event.startToString('%Y-%m-%d')))
 
     return cal
@@ -200,20 +209,7 @@ def writeSourceCalendars(events, output_dir):
         cal.add('x-wr-calname', 'Baltimore DIY Calendar Crawler - %s' % source_name)
 
         for event in source_events:
-            ical_event = ICalEvent()
-            ical_event.add('uid', str(event.id))
-            ical_event.add('summary', event.summary or '')
-            if event.startDate:
-                ical_event.add('dtstart', event.startDate)
-            if event.endDate:
-                ical_event.add('dtend', event.endDate)
-            if event.location:
-                ical_event.add('location', event.location)
-            if event.description:
-                ical_event.add('description', event.description)
-            if event.link:
-                ical_event.add('url', event.link)
-            cal.add_component(ical_event)
+            cal.add_component(buildIcalEvent(event))
 
         ics_path = os.path.join(output_dir, '%s.ics' % source_key)
         with open(ics_path, 'wb') as f:
@@ -224,17 +220,10 @@ def writeSourceCalendars(events, output_dir):
 def buildDataAttrs(ev):
     """Return a string of data-* attributes for an event's <details> tag."""
     attrs = []
-    attrs.append('data-title="%s"' % html.escape(ev.summary or 'Untitled', quote=True))
     if ev.startDate:
         attrs.append('data-start="%s"' % ev.startDate.strftime('%Y-%m-%dT%H:%M:%S'))
     if ev.endDate:
         attrs.append('data-end="%s"' % ev.endDate.strftime('%Y-%m-%dT%H:%M:%S'))
-    if ev.location:
-        attrs.append('data-location="%s"' % html.escape(ev.location, quote=True))
-    if ev.link:
-        attrs.append('data-url="%s"' % html.escape(ev.link, quote=True))
-    if ev.img:
-        attrs.append('data-img="%s"' % html.escape(ev.img, quote=True))
     return ' '.join(attrs)
 
 
@@ -248,7 +237,7 @@ def linkify(text):
     for i, part in enumerate(parts):
         if _LINK_SPLIT.match(part):
             if 'target=' not in part:
-                parts[i] = _A_OPEN.sub('<a target="_blank" rel="noopener" ', part)
+                parts[i] = _A_OPEN.sub('<a target="_blank" ', part)
         else:
             parts[i] = _BARE_URL.sub(r'<a href="\1" target="_blank" rel="noopener">\1</a>', part)
     return ''.join(parts)
@@ -303,27 +292,24 @@ def buildHtml(events, source_list=None):
             detail_lines = []
             if ev.startDate and ev.endDate:
                 time_range = '%s – %s%s' % (ev.startDate.strftime('%-I:%M %p'), ev.endDate.strftime('%-I:%M %p'), '*' if approx_end else '')
-                detail_lines.append('<p class="time time-range">%s</p>' % html.escape(time_range))
+                detail_lines.append('<div class="time time-range">%s</div>' % html.escape(time_range))
             elif ev.startDate:
-                detail_lines.append('<p class="time">%s</p>' % html.escape(ev.startDate.strftime('%-I:%M %p')))
+                detail_lines.append('<div class="time">%s</div>' % html.escape(ev.startDate.strftime('%-I:%M %p')))
             if location:
-                detail_lines.append('<p class="location">%s</p>' % location)
+                detail_lines.append('<div class="location">%s</div>' % location)
             if link:
-                detail_lines.append(linkify('<p class="link-url"><a href="%s" title="%s">%s</a></p>' % (link, summary, link)))
+                detail_lines.append(linkify('<div class="link-url"><a href="%s" title="%s">%s</a></div>' % (link, summary, link)))
             flyer = ev.flyerHtml()
             if flyer:
                 detail_lines.append(flyer)
             if ev.description:
-                # data-desc marks this paragraph so JS can grab its textContent
+                # data-desc marks this div so JS can grab its textContent
                 # for calendar descriptions
-                desc = ev.description.replace('\n', '<br>')
-                desc = linkify(desc)
-                detail_lines.append('<p data-desc class="description">%s</p>' % desc)
+                paragraphs = re.split(r'\n+', ev.description.strip())
+                desc_html = ''.join('<p>%s</p>' % linkify(p) for p in paragraphs if p.strip())
+                detail_lines.append('<div data-desc class="description">%s</div>' % desc_html)
             # if ev.link:
                 # detail_lines.append('<a href="%s" target="_blank" rel="noopener">Event Link</a>' % html.escape(ev.link))
-            # Per-event add-to-calendar trigger; JS attaches a shared dropdown here
-            detail_lines.append('<div class="section--add-to-cal"><a href="#" class="add-to-cal simple-link primary-btn" role="button" aria-haspopup="menu" aria-expanded="false">+ add to calendar</a></div>')
-
             # data-* attrs on <details> carry event info for client-side calendar URLs
             data_attrs = buildDataAttrs(ev)
             items.append(
@@ -417,8 +403,25 @@ def minifyCss(text):
     text = re.sub(r';}', '}', text)
     return text.strip()
 
+UGLIFYJS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'node_modules/.bin/uglifyjs')
+
 def minifyJs(text):
-    """Naive JS minifier: strip // line comments and /* block comments */,
+    """Minify JS with uglify-js if available, otherwise fall back to naive minifier."""
+    if os.path.isfile(UGLIFYJS):
+        try:
+            result = subprocess.run(
+                [UGLIFYJS, '--compress', '--mangle'],
+                input=text, capture_output=True, text=True, timeout=30
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                return result.stdout
+            logger.warning('uglifyjs failed: %s' % result.stderr.strip())
+        except Exception as e:
+            logger.warning('uglifyjs unavailable: %s' % e)
+    return _naiveMinifyJs(text)
+
+def _naiveMinifyJs(text):
+    """Fallback: strip // line comments and /* block comments */,
     then collapse blank lines. WARNING: this will destroy // inside string
     literals — use String.fromCharCode(47, 47) instead."""
     text = re.sub(r'//.*', '', text)
@@ -436,6 +439,9 @@ def writeHtml(htmlContent, output_path):
     output_dir = os.path.dirname(output_path)
     if output_dir:
         os.makedirs(output_dir, exist_ok=True)
+
+    if not options.dev:
+        htmlContent = re.sub(r'<!--.*?-->', '', htmlContent, flags=re.DOTALL)
 
     with open(output_path, 'w') as f:
         f.write(htmlContent)
