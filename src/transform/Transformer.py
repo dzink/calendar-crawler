@@ -25,6 +25,12 @@ class Transformer:
         return fields
 
     def _dispatch(self, fields, step):
+        skipEmpty = step.get('skipEmpty')
+        if skipEmpty:
+            value = fields.get(skipEmpty if isinstance(skipEmpty, str) else step.get('target', ''), '')
+            if not value or not str(value).strip():
+                return fields
+
         t = step.get('type')
 
         if t == 'nearestYear':
@@ -102,8 +108,8 @@ class Transformer:
 
     def _replace(self, fields, step):
         target = step.get('target')
-        find = step.get('find', '')
-        replace = step.get('replace', '')
+        find = self._interpolate(step.get('find', ''), fields)
+        replace = self._interpolate(step.get('replace', ''), fields)
         value = fields.get(target, '')
         if value:
             if step.get('regex'):

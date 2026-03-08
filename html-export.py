@@ -283,7 +283,7 @@ def buildHtml(events, source_list=None):
             if time_str:
                 meta_parts.append(time_str + ('*' if approx_end else ''))
             if location:
-                meta_parts.append('at ' + location)
+                meta_parts.append(location)
             # if source:
             #     meta_parts.append('from source ' + source)
             meta_line = '<span class="summary-meta">%s</span>' % ' &middot; '.join(meta_parts) if meta_parts else ''

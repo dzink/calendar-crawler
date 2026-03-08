@@ -135,6 +135,7 @@ ottobar:
       link: a@href
       img: img@data-image | img@src
       imgAlt: img@alt
+      ticketLink: .btn-primary@href
   transform:
     - type: collapseWhitespace
       target: title
@@ -143,6 +144,11 @@ ottobar:
       timeField: time
       defaultTime: "20:00"
       defaultEndTime: "23:59"
+    - type: replace
+      target: description
+      find: Tickets
+      replace: "Tickets: {ticketLink}"
+      skipEmpty: ticketLink
     - type: append
       target: description
       text: "\n\n<span class='smaller'>End time is approximate. Crawled from https://theottobar.com/calendar/.</span>"
@@ -219,11 +225,16 @@ blackCat:
       link: h1 a@href
       img: img@data-image | img@src
       imgAlt: img@alt
+      ticketLink: .show-details > a@href
   transform:
     - type: autoDate
       timeField: time
       defaultTime: "19:00"
       defaultEndTime: "23:59"
+    - type: append
+      target: description
+      text: "\n\nTickets: {ticketLink}"
+      skipEmpty: ticketLink
     - type: prefix
       target: img
       text: "https://www.blackcatdc.com"
