@@ -28,7 +28,7 @@
 
 
 <body id="top" class="day-view">
-<a class="skip-link" href="#agenda-controls">Skip to events</a>
+<a class="skip-link" href="#agenda">Skip to events</a>
 
 <main class='content' id='content'>
   <header class='header' >
@@ -69,7 +69,9 @@
             <input type="text" id="event-filter" aria-label="Filter events" placeholder="keyword filter" oninput="filterEvents(this.value)">
             <button id="filter-clear" aria-label="Clear filter" onclick="clearFilter()" hidden>&times;</button>
           </span>
-          <!-- <button id="view-toggle" onclick="toggleView()" aria-label="Toggle week/day view">day</button> -->
+          <span class="location-filter-wrap">
+            <button id="location-filter" aria-label="Filter by venue" title="Filter by venue" aria-haspopup="menu" aria-expanded="false"><span class="hidden">Venues</span></button>
+          </span>
           <input type="date" id="datepicker" aria-label="Jump to date" onchange="goToDate(this.value)">
         </div>
 
