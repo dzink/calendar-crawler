@@ -162,7 +162,7 @@ def writeCalendar(cal, output_path):
 
 def getSourceList(events):
     """Return list of (source_key, source_name, count) without writing files."""
-    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data/sources.yml')) as f:
+    with open(os.path.join(os.getcwd(), 'data/sources.yml')) as f:
         sources = yaml.safe_load(f)
 
     name_to_key = {cfg['name']: key for key, cfg in sources.items()}
@@ -186,7 +186,7 @@ def getSourceList(events):
 def writeSourceCalendars(events, output_dir):
     """Write one ICS file per source (e.g. ottobar.ics, showPlace.ics).
     Source keys come from data/sources.yml."""
-    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data/sources.yml')) as f:
+    with open(os.path.join(os.getcwd(), 'data/sources.yml')) as f:
         sources = yaml.safe_load(f)
 
     name_to_key = {cfg['name']: key for key, cfg in sources.items()}
@@ -297,6 +297,8 @@ def buildHtml(events, source_list=None):
                 detail_lines.append('<div class="time">%s</div>' % html.escape(ev.startDate.strftime('%-I:%M %p')))
             if location:
                 detail_lines.append('<div class="location">%s</div>' % location)
+            else:
+                detail_lines.append('<div class="location no-map">Check event for location</div>')
             if link:
                 detail_lines.append(linkify('<div class="link-url"><a href="%s" title="%s">%s</a></div>' % (link, summary, link)))
             flyer = ev.flyerHtml()
@@ -360,8 +362,8 @@ def buildHtml(events, source_list=None):
     return result
 
 
-ASSETS_SRC = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'html-template/assets')
-TEMPLATE_SRC = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'html-template')
+ASSETS_SRC = os.path.join(os.getcwd(), 'html-template/assets')
+TEMPLATE_SRC = os.path.join(os.getcwd(), 'html-template')
 
 with open(os.path.join(TEMPLATE_SRC, 'index.html')) as f:
     HTML_TEMPLATE = f.read()
@@ -403,7 +405,7 @@ def minifyCss(text):
     text = re.sub(r';}', '}', text)
     return text.strip()
 
-UGLIFYJS = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'node_modules/.bin/uglifyjs')
+UGLIFYJS = os.path.join(os.getcwd(), 'node_modules/.bin/uglifyjs')
 
 def minifyJs(text):
     """Minify JS with uglify-js if available, otherwise fall back to naive minifier."""
