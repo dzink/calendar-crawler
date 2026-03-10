@@ -1,21 +1,20 @@
 /* ===== Variables ===== */
 
 :root {
-  --color-base: #f3f0ea;
+  --color-base: #e6e1d7;
   --color-base-shadow: #ebe5da;
   --color-text: #444;
+  --color-base-hover: #f5f5f5;
   --color-text-muted: #666;
   --color-text-header: #fff;
   --color-border: rgba(0,0,0,0.2);
   --color-border-primary: #c52d4377;
-  --color-hover: #f5f5f5;
   --color-link: #06c;
   --color-link-visited: #74609f;
   --color-link-shade: rgba(255, 255, 255, 0.2);
   --color-detail-bg: #fff;
-  --color-add-to-cal-bg: #fff;
   --color-header: #74609f;
-  --color-body: #49396a;
+  --color-body: #e6e1d7;
   --color-subheader: #FFD150;
   --color-primary: #c52d43;
   --color-primary-standout: #fff;
@@ -53,28 +52,71 @@
   --icon-details: url("data:image/svg+xml,<svg  width='24'  height='24'  viewBox='0 0 24 24'  fill='none'  xmlns='http://www.w3.org/2000/svg'>  <path    d='M2 8C2 7.44772 2.44772 7 3 7H21C21.5523 7 22 7.44772 22 8C22 8.55228 21.5523 9 21 9H3C2.44772 9 2 8.55228 2 8Z'    fill='white'  />  <path    d='M2 12C2 11.4477 2.44772 11 3 11H21C21.5523 11 22 11.4477 22 12C22 12.5523 21.5523 13 21 13H3C2.44772 13 2 12.5523 2 12Z'    fill='white'  />  <path    d='M3 15C2.44772 15 2 15.4477 2 16C2 16.5523 2.44772 17 3 17H15C15.5523 17 16 16.5523 16 16C16 15.4477 15.5523 15 15 15H3Z'    fill='white'  /></svg>");
   --icon-up: url("data:image/svg+xml,<svg  width='24'  height='24'  viewBox='0 0 24 24'  fill='none'  xmlns='http://www.w3.org/2000/svg'>  <path    d='M17.6568 8.96219L16.2393 10.3731L12.9843 7.10285L12.9706 20.7079L10.9706 20.7059L10.9843 7.13806L7.75404 10.3532L6.34314 8.93572L12.0132 3.29211L17.6568 8.96219Z'    fill='white'  /></svg>");
   --icon-down: url("data:image/svg+xml,<svg  width='24'  height='24'  viewBox='0 0 24 24'  fill='none'  xmlns='http://www.w3.org/2000/svg'>  <path    d='M11.0001 3.67157L13.0001 3.67157L13.0001 16.4999L16.2426 13.2574L17.6568 14.6716L12 20.3284L6.34314 14.6716L7.75735 13.2574L11.0001 16.5001L11.0001 3.67157Z'    fill='white'  /></svg>");
+  color-scheme: light;
 }
 
 /* ===== Stage theme ===== */
 
 .stage-theme {
-  --color-base: #090101;
-  --color-base-shadow: #090101;
-  --color-text: #c3bbad;
-  --color-text-muted: #8f897f;
-  --color-text-header: #e1d8c8;
-  --color-border: rgba(225, 216, 200, 0.2);
-  --color-hover: rgba(176, 58, 23, 0.08);
-  --color-link: #ca8a7f;
-  --color-link-visited: #ca8a7f;
-  --color-link-shade: rgba(0, 0, 0, 0.2);
-  --color-detail-bg: #210403;
-  --color-add-to-cal-bg: #210403;
-  --color-header: #210403;
-  --color-subheader: #210403;
-  --color-primary: #b01752;
-  --color-primary-standout: #c3bbad;
-  --color-primary-hover: #9c1c4d;
+
+  --color-body: #181420;
+  --color-base: #26242b;
+  --color-base-shadow: #33303c;
+  --color-base-hover: #584a76;
+  --color-text: #ccc;
+  --color-text-muted: #aaa;
+  --color-text-header: #ccc;
+  --color-border: rgba(255,255,255,0.2);
+  --color-border-primary: #ffd500AA;
+  --color-link: #7eadce;
+  --color-link-visited: #7eadce;
+  --color-link-shade: #00000033;
+  --color-detail-bg: #201d28;
+  --color-header: #04463e;
+  --color-subheader: #16283a;
+  --color-primary: #54b485;
+  --color-primary-standout: #333;
+  --color-primary-hover: #399296;
+
+  /* --color-redshift: #963;
+  --color-body: color-mix(in oklch, #181420 75%, var(--color-redshift));
+  --color-base: color-mix(in oklch, #26242b 75%, var(--color-redshift));
+  --color-base-shadow: color-mix(in oklch, #33303c 75%, var(--color-redshift));
+  --color-base-hover: color-mix(in oklch, #584a76 75%, var(--color-redshift));
+  --color-text: color-mix(in oklch, #ccc 75%, var(--color-redshift));
+  --color-text-muted: color-mix(in oklch, #aaa 75%, var(--color-redshift));
+  --color-text-header: color-mix(in oklch, #ccc 75%, var(--color-redshift));
+  --color-border: color-mix(in oklch, rgba(255,255,255,0.2) 75%, var(--color-redshift));
+  --color-border-primary: color-mix(in oklch, #ffd500AA 75%, var(--color-redshift));
+  --color-link: color-mix(in oklch, #7eadce 75%, var(--color-redshift));
+  --color-link-visited: color-mix(in oklch, #7eadce 75%, var(--color-redshift));
+  --color-link-shade: color-mix(in oklch, #00000033 75%, var(--color-redshift));
+  --color-detail-bg: color-mix(in oklch, #201d28 75%, var(--color-redshift));
+  --color-header: color-mix(in oklch, #04463e 75%, var(--color-redshift));
+  --color-subheader: color-mix(in oklch, #16283a 75%, var(--color-redshift));
+  --color-primary: color-mix(in oklch, #54b485 75%, var(--color-redshift));
+  --color-primary-standout: color-mix(in oklch, #333 75%, var(--color-redshift));
+  --color-primary-hover: color-mix(in oklch, #d94d63 75%, var(--color-redshift)); */
+
+  /* --color-base: #ff3718;
+  --color-base-shadow: #ebe5da;
+  --color-base-hover: #f5f5f5;
+  --color-text: #f60;
+  --color-text-muted: #c30;
+  --color-text-header: #000000;
+  --color-border: rgba(0,0,0,0.2);
+  --color-border-primary: #ff000077;
+  --color-link: #06c;
+  --color-link-visited: #74609f;
+  --color-link-shade: rgba(255, 255, 255, 0.2);
+  --color-detail-bg: #fff;
+  --color-header: #74609f;
+  --color-body: #49396a;
+  --color-subheader: #FFD150;
+  --color-primary: #c52d43;
+  --color-primary-standout: #fff;
+  --color-primary-hover: #d94d63; */
+  color-scheme: dark;
 }
 
 /* ===== Reset & base ===== */
@@ -90,13 +132,16 @@ body {
   /* font-family: 'Gill Sans', 'Optima', 'Calibri', 'Trebuchet MS', sans-serif; */
   /* font-family: monospace, sans-serif; */
   font-family: monospace;
-  background: var(--color-base);
+  background: var(--color-body);
   color: var(--color-text);
   margin: 0;
-  padding: 0;
   font-size: 18px;
   line-height: 1.35;
   overflow-x: hidden;
+}
+
+main {
+  padding: 118px 0 0 0;
 }
 
 h1,
@@ -159,10 +204,6 @@ div#content {
   padding: 0;
 }
 
-main.content {
-  padding: 9rem 0 0;
-}
-
 .section-inner {
   margin: 0;
   padding: 0;
@@ -204,6 +245,10 @@ ul.navigation li a {
   font-size: 0.75em;
   color: var(--color-text-header);
   text-decoration: underline;
+}
+
+ul.navigation li a:focus {
+  outline-color: var(--color-text-header);
 }
 
 /* ===== Subheader / subscribe CTA ===== */
@@ -321,7 +366,11 @@ summary::before,
 .copy-event::after,
 .icon-up::before,
 .icon-down::after,
-#agenda .details a[target="_blank"]::after {
+.icon-yahoo::before,
+.icon-google::before,
+.icon-ics::before,
+#agenda .details a[target="_blank"]:not(.url-truncate)::after,
+.external-icon::before {
   content: ' ';
   display: inline-block;
   -webkit-mask-size: contain;
@@ -332,13 +381,14 @@ summary::before,
   mask-mode: alpha;
   top: var(--space-xxs);
   position: relative;
-
+  height: 1em;
+  width: 1em;
 }
 
 /* ===== Date picker / nav ===== */
 
 nav.date-picker {
-  display: flex;
+  display: none;
   flex-direction: column;
   gap: var(--space-xs);
   padding: var(--space-md);
@@ -352,6 +402,10 @@ nav.date-picker {
   margin: 0 auto;
   left: 0;
   right: 0;
+}
+
+nav.date-picker.ready {
+  display: flex;
 }
 
 .nav-row {
@@ -428,7 +482,7 @@ button,
 #datepicker:hover,
 #theme-toggle:hover,
 #view-toggle:hover {
-  background: var(--color-hover);
+  background: var(--color-base-hover);
 }
 
 #datepicker {
@@ -571,7 +625,7 @@ button,
 }
 
 .location-dropdown a:hover {
-  background: var(--color-hover);
+  background: var(--color-base-hover);
 }
 
 .location-dropdown .location-more {
@@ -765,6 +819,7 @@ details[open] .summary-meta {
   display: block;
   margin-top: var(--space-xs);
   font-size: 0.9em;
+  text-align: center;
 }
 
 /* Detail metadata icons (time, location, link, flyer) */
@@ -807,17 +862,14 @@ details[open] .summary-meta {
 
 /* Link URL truncation & copy button */
 
-.details .link-url a {
+.details a.url-truncate {
   display: inline-block;
-  max-width: 19em;
+  max-width: 15em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: bottom;
-}
-
-.details .link-url a::after {
-  display: none;
+  letter-spacing: -0.06em;
 }
 
 .copy-url {
@@ -923,7 +975,8 @@ details[open] .summary-meta {
 
 /* External link indicator */
 
-#agenda .details a[target="_blank"]::after {
+#agenda .details a[target="_blank"]:not(.url-truncate)::after,
+.external-icon::before {
   width: 1.2em;
   height: 1.2em;
   margin-left: 0.1em;
@@ -1022,7 +1075,7 @@ body .copy-event::before {
 }
 
 .cal-dropdown a:hover {
-  background: var(--color-hover);
+  background: var(--color-base-hover);
 }
 
 /* ===== Sidebar ===== */
@@ -1180,11 +1233,13 @@ nav.date-picker input:focus-visible {
     align-items: stretch;
   }
 
-  .details .link-url a {
-    display: inline-block;
+  .details a.url-truncate {
     max-width: 30em;
   }
 
+  .details > div.description {
+    flex-wrap: nowrap;
+  }
   .details > div.description .row-icon {
     display: inline;
   }

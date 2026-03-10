@@ -26,13 +26,12 @@
 
 </head>
 
-
 <body id="top" class="day-view">
 <a class="skip-link" href="#agenda">Skip to events</a>
 
 <main class='content' id='content'>
   <header class='header' >
-    <nav aria-label="FAQ menu"><ul class='navigation main-menu'>
+    <nav role="toolbar" aria-label="FAQ menu"><ul class='navigation main-menu'>
       <li><a href='#about' class="simple-link">About</a></li>
       <li><a href='#subscribe' class="simple-link" tabindex='-1'>Subscribe</a></li>
       <li><a href='#sources' class="simple-link" tabindex='-1'>Sources</a></li>
@@ -45,10 +44,10 @@
     <div class="subheader">
       <p class="subheader-main"><a class="btn subheader-btn primary-btn" href='{{webcal_ics}}'>Subscribe to<br class="mobile-only"> Calendar</a></p>
       <p class="subheader-desc">Updates automatically. <a href='#google'>BDS-compliant</a>.The preferred way to get these events on your phone or computer. </p>
-      <p class="subheader-alt">If that link doesn't work, your device isn't set up for webcal. That's OK. Also available for <a target='_blank' href='{{google_ics}}'>Google Calendar</a>, <a target='_blank' href='{{outlook_ics}}'>Outlook</a>, <a target='_blank' href='{{office365_ics}}'>Office 365</a>, or as a <a href='assets/ics/events.ics'>raw ICS file</a>.</p>
+      <p class="subheader-alt">If that link doesn't work, your device isn't set up for webcal. That's OK. Also available for <a target='_blank' href='{{google_ics}}'>Google Calendar</a>, <a target='_blank' class='icon-microsoft' href='{{outlook_ics}}'>Outlook</a>, <a target='_blank' href='{{office365_ics}}'>Office 365</a>, or as a <a href='assets/ics/events.ics'>raw ICS file</a>.</p>
     </div>
     <div class="agenda-container" id="agenda-controls" role="group" aria-label="Calendar controls">
-      <nav class="date-picker" aria-label="Event navigation">
+      <nav class="date-picker" role="toolbar" aria-label="Event navigation">
         <!-- <div class="nav-row nav-subscribe">
           <a class="nav-subscribe-btn primary-btn" href='{{webcal_ics}}'>Add to Calendar</a> <span>updates automatically</span>
         </div> -->
@@ -61,7 +60,7 @@
             <button onclick="go(-1,'month')" aria-label="Previous month" title="Previous month" class="icon-up">mo</button>
             <button onclick="go(1,'month')" aria-label="Next month" title="Next month" class="icon-down">mo</button>
           </div>
-          <button id="theme-toggle" class="dark" onclick="toggleTheme()" aria-label="Toggle theme"><span class="hidden">Switch to light theme</span></button>
+          <button id="theme-toggle" class="dark icon-btn" onclick="toggleTheme()" aria-label="Toggle theme"><span class="hidden">Switch to light theme</span></button>
 
         </div>
         <div class="nav-row">
@@ -70,7 +69,7 @@
             <button id="filter-clear" aria-label="Clear filter" onclick="clearFilter()" hidden>&times;</button>
           </span>
           <span class="location-filter-wrap">
-            <button id="location-filter" aria-label="Filter by venue" title="Filter by venue" aria-haspopup="menu" aria-expanded="false"><span class="hidden">Venues</span></button>
+            <button id="location-filter" aria-label="Filter by venue" title="Filter by venue" aria-haspopup="menu" aria-expanded="false" class="icon-btn"><span class="hidden">Venues</span></button>
           </span>
           <input type="date" id="datepicker" aria-label="Jump to date" onchange="goToDate(this.value)">
         </div>
@@ -125,7 +124,7 @@
           <li><a target='_blank' href='https://www.redroom.org'>The Red Room at Normal's</a></li>
           <li><a target='_blank' href='https://www.rhizomedc.org/'>Rhizome DC</a></li>
         </ul>
-        <p>You can also subscribe to individual sources - please note, the de-duplicator removes some events from some calendars so they don't show up twice, so each calendar may not reflect what is on the source website. This feature is experimental and may never be as reliable as the full list:</p>
+        <p>You can also subscribe to individual sources - please note, the de-duplicator removes some events from some calendars so they don't show up twice, so each calendar may not reflect what is on the source website. <strong>This feature is experimental and may never be as reliable as the full list</strong>:</p>
         <ul>
           {{source_ics_links}}
         </ul>
