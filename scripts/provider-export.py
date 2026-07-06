@@ -14,20 +14,21 @@ import sys
 sys.path.append('./src')
 import paths
 
-import yaml
 import argparse
 from Factory import CalendarFactory
 from CalendarProvider import CalendarProvider
+from Config import Config
 from CalendarLogger import logger, addLoggerArgsToParser, buildLogger
 
 
 def main():
-    config = loadConfig('./data/options.yml')
+    cfg = Config()
+    config = cfg.loadOptions()
     options = parseArguments(config)
     buildLogger(options)
 
-    calendarConfigs = loadConfig('./data/calendars.yml')
-    secrets = loadConfig('./data/secrets.yml')
+    calendarConfigs = cfg.loadCalendars()
+    secrets = cfg.loadSecrets()
     factory = CalendarFactory(options, config, secrets)
 
     for calendarKey in calendarConfigs:
@@ -60,14 +61,6 @@ def parseArguments(config):
     parser.add_argument('-n', '--limit', help='Maximum number of events to sync per provider.', type=int, default=None)
     parser.add_argument('-a', '--after', help='Only sync events starting after this date (YYYY-MM-DD).', default=None)
     return parser.parse_args()
-
-
-def loadConfig(filename):
-    try:
-        with open(filename, 'r') as file:
-            return yaml.safe_load(file) or {}
-    except FileNotFoundError:
-        return {}
 
 
 if __name__ == '__main__':

@@ -79,6 +79,13 @@ class Parser:
         text = re.sub(r'[^\S\n]{2,}', ' ', text)
         return text.strip()
 
+    def _getTextWithBr(self, target):
+        """Extract text, replacing <br> with spaces and collapsing whitespace."""
+        target = copy.copy(target)
+        for br in target.find_all('br'):
+            br.replace_with(' ')
+        return re.sub(r' {2,}', ' ', target.get_text().strip())
+
     # --- Field extraction ---
 
     def _select(self, soup, selector):
@@ -104,7 +111,8 @@ class Parser:
                 return defn.get('default')
             extract = defn.get('extract', 'text')
             parts = [self._extractValue(t, extract) for t in targets]
-            return separator.join(p for p in parts if p)
+            join = '\n\n' if extract == 'paragraphs' else separator
+            return join.join(p for p in parts if p)
 
         index = defn.get('index')
         if index is not None and selector:
@@ -152,12 +160,12 @@ class Parser:
         if target is None:
             return None
 
-        return target.get_text().strip()
+        return self._getTextWithBr(target)
 
     def _extractValue(self, target, extract):
         """Extract a value from an element based on extract type."""
         if extract == 'text':
-            return target.get_text().strip()
+            return self._getTextWithBr(target)
         if extract == 'paragraphs':
             return self.getDescriptionText(target)
         if extract.startswith('attr:'):

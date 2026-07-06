@@ -4,10 +4,10 @@ import sys
 sys.path.append('./src')
 import paths
 
-import yaml
 import argparse
 from EventList import EventList
 from Factory import CalendarFactory
+from Config import Config
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -23,9 +23,10 @@ def main():
         global factory
         options = parseArguments()
         buildLogger(options)
-        sourceConfigs = loadConfig('./data/sources.yml')
-        secrets = loadConfig('./data/secrets.yml')
-        calendarConfigs = loadConfig('./data/calendars.yml')
+        cfg = Config()
+        sourceConfigs = cfg.loadSources()
+        secrets = cfg.loadSecrets()
+        calendarConfigs = cfg.loadCalendars()
         factory = CalendarFactory(options, {}, secrets)
 
         deadline = False
@@ -45,11 +46,12 @@ def main():
             else:
                 event.delete()
 
-        for calendarKey in calendarConfigs.keys():
-            calendarConfig = calendarConfigs.get(calendarKey)
-            providers = factory.providers(calendarKey, calendarConfig)
-            for provider in providers:
-                provider.syncPending(dryRun=options.dry_run)
+        # Sync is handled separately by ./cc sync
+        # for calendarKey in calendarConfigs.keys():
+        #     calendarConfig = calendarConfigs.get(calendarKey)
+        #     providers = factory.providers(calendarKey, calendarConfig)
+        #     for provider in providers:
+        #         provider.syncPending(dryRun=options.dry_run)
 
     except Exception as e:
         logger.exception("Exception occurred")
@@ -65,11 +67,6 @@ def parseArguments():
 
 
     return parser.parse_args()
-
-def loadConfig(filename):
-    with open(filename, 'r') as file:
-        config = yaml.safe_load(file)
-        return config
 
 def get_expired_from_calendars(calendarConfig, sourceConfigs, deadline):
     events = EventList()

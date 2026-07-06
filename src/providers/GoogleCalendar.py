@@ -8,6 +8,7 @@ from googleapiclient.errors import HttpError
 
 from CalendarProvider import CalendarProvider
 from CalendarLogger import logger
+from Config import Config
 
 class GoogleCalendar(CalendarProvider):
     port = 34242
@@ -31,7 +32,7 @@ class GoogleCalendar(CalendarProvider):
         super().__init__(providerId, config)
         self.serviceObject = None
         self.googleCalendarId = config.get('googleCalendarId') if config else None
-        self.tokenFile = config.get('tokenFile', 'data/token.json') if config else 'data/token.json'
+        self.tokenFile = config.get('tokenFile', Config().pathTo('token.json')) if config else Config().pathTo('token.json')
         self.scopes = config.get('scopes', ['https://www.googleapis.com/auth/calendar.events']) if config else ['https://www.googleapis.com/auth/calendar.events']
         self.applicationCredentials = config.get('applicationCredentials') if config else None
 
@@ -49,10 +50,18 @@ class GoogleCalendar(CalendarProvider):
         return gEvent['id']
 
     def updateEvent(self, event, externalId):
-        """Update an existing event on Google Calendar."""
+        """Update an existing event on Google Calendar. Falls back to insert if update fails with 403/404."""
         eventData = self.getDictionaryFromEvent(event)
         logger.info('Updating event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
-        self.service().events().update(calendarId=self.googleCalendarId, eventId=externalId, body=eventData).execute()
+        try:
+            self.service().events().update(calendarId=self.googleCalendarId, eventId=externalId, body=eventData).execute()
+        except HttpError as e:
+            if e.resp.status in (403, 404):
+                logger.warning('Update failed (%s) for "%s" — reinserting' % (e.resp.status, event.summary))
+                gEvent = self.service().events().insert(calendarId=self.googleCalendarId, body=eventData).execute()
+                self.markSynced(event.id, gEvent['id'])
+            else:
+                raise
 
     def deleteEvent(self, externalId):
         """Delete an event from Google Calendar."""
@@ -60,6 +69,7 @@ class GoogleCalendar(CalendarProvider):
         logger.info('Deleted event %s from Google Calendar' % externalId)
 
     def getDictionaryFromEvent(self, event):
+        estimated = getattr(event, 'timeIsEstimated', False)
         eventData = {}
         eventData['summary'] = event.summary or 'Event'
         eventData['description'] = event.description or ''
@@ -71,7 +81,13 @@ class GoogleCalendar(CalendarProvider):
         if (event.color != None):
             eventData['colorId'] = self.mapColor(event.color) or 0
 
-        eventData['description'] += "\n\nAdministrative note: this Google Calendar is deprecated in favor of a more open source approach that will support many calendar types (including a direct Google Calendar replacement). Support for this calendar may end without notice. Sorry for the hassle. See https://shows.whomtube.com to get the new calendar."
+        if estimated:
+            eventData['description'] += '\n\n* Time may be estimated based on typical source data; be sure to confirm before heading out.'
+        if event.urlTicket:
+            eventData['description'] += '\n\nTicket link: %s' % event.urlTicket
+        if event.urlRsvp:
+            eventData['description'] += '\n\nRSVP link: %s' % event.urlRsvp
+        eventData['description'] += "\n\nAdministrative note: this Google Calendar is deprecated in favor of a more open source approach that will support many calendar types (including a direct Google Calendar replacement). Support for this calendar may end without notice. Sorry for the hassle. See https://shows.whomtube.com to get the new calendar, then you can delete this one."
         return eventData
 
     def getCreds(self):

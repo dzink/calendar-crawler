@@ -27,8 +27,49 @@ class Transformer:
     def _dispatch(self, fields, step):
         skipEmpty = step.get('skipEmpty')
         if skipEmpty:
-            value = fields.get(skipEmpty if isinstance(skipEmpty, str) else step.get('target', ''), '')
+            value = fields.get(skipEmpty if isinstance(skipEmpty, str) else step.get('field', step.get('target', '')), '')
             if not value or not str(value).strip():
+                return fields
+
+        for cond_key in ('onlyIf', 'unless'):
+            condition = step.get(cond_key)
+            if not condition:
+                continue
+            negate = cond_key == 'unless'
+            if isinstance(condition, str):
+                value = str(fields.get(step.get('field', step.get('target', '')), '') or '')
+                passed = bool(re.search(condition, value))
+            else:
+                field = condition.get('field') or condition.get('target')
+                value = str(fields.get(field, '') or '') if field else self._interpolate(condition.get('value', ''), fields)
+                operation = condition.get('operation')
+                search = self._interpolate(condition.get('contains') or condition.get('value', ''), fields)
+                matches = condition.get('matches')
+                exact = condition.get('exact')
+                if operation == 'exact':
+                    passed = value == self._interpolate(exact, fields)
+                elif operation == 'matches':
+                    passed = bool(re.search(matches, value))
+                elif operation == 'search':
+                    passed = search.lower() in value.lower()
+                else:
+                    passed = bool(value.strip())
+            if negate:
+                passed = not passed
+            if not passed:
+                return fields
+
+        for cond_key, want_empty in (('onlyIfEmpty', True), ('onlyIfNotEmpty', False)):
+            field = step.get(cond_key)
+            if not field:
+                continue
+            if isinstance(field, dict):
+                field = field.get('field', '')
+            if not field or not isinstance(field, str):
+                logger.warning('Transformer: %s expects a field name string' % cond_key)
+                continue
+            is_empty = not str(fields.get(field, '') or '').strip()
+            if want_empty != is_empty:
                 return fields
 
         t = step.get('type')
@@ -59,6 +100,8 @@ class Transformer:
             return self._set(fields, step)
         if t == 'autoDate':
             return self._autoDate(fields, step)
+        if t == 'autoNotaflof':
+            return self._autoNotaflof(fields, step)
 
         logger.warning('Unknown transform type: %s' % t)
         return fields
@@ -67,6 +110,8 @@ class Transformer:
 
     def _interpolate(self, text, fields):
         """Replace {fieldName} placeholders with field values."""
+        if not isinstance(text, str):
+            return text
         def replacer(match):
             key = match.group(1)
             return str(fields.get(key, ''))
@@ -75,7 +120,7 @@ class Transformer:
     # --- Transform types ---
 
     def _nearestYear(self, fields, step):
-        target = step.get('target', 'date')
+        target = step.get('field', step.get('target', 'date'))
         fmt = step.get('format', '%A %B %d')
         value = fields.get(target, '')
         if not value:
@@ -89,7 +134,7 @@ class Transformer:
         """Extract or transform a field with a regex.
         If the pattern doesn't match, 'default' provides a fallback.
         Use {fieldName} in default to reference another field's value."""
-        target = step.get('target')
+        target = step.get('field', step.get('target'))
         pattern = step.get('pattern')
         group = step.get('group', 0)
         store = step.get('store', target)
@@ -107,7 +152,7 @@ class Transformer:
         return fields
 
     def _replace(self, fields, step):
-        target = step.get('target')
+        target = step.get('field', step.get('target'))
         find = self._interpolate(step.get('find', ''), fields)
         replace = self._interpolate(step.get('replace', ''), fields)
         value = fields.get(target, '')
@@ -119,7 +164,7 @@ class Transformer:
         return fields
 
     def _prefix(self, fields, step):
-        target = step.get('target')
+        target = step.get('field', step.get('target'))
         text = self._interpolate(step.get('text', ''), fields)
         unless = step.get('unless')
         value = fields.get(target, '')
@@ -128,14 +173,14 @@ class Transformer:
         return fields
 
     def _removeOrdinals(self, fields, step):
-        target = step.get('target')
+        target = step.get('field', step.get('target'))
         value = fields.get(target, '')
         if value:
             fields[target] = StringUtils.removeOrdinalsFromNumbersInString(value)
         return fields
 
     def _collapseWhitespace(self, fields, step):
-        target = step.get('target')
+        target = step.get('field', step.get('target'))
         value = fields.get(target, '')
         if not value:
             return fields
@@ -147,7 +192,7 @@ class Transformer:
         return fields
 
     def _collapseParagraphs(self, fields, step):
-        target = step.get('target')
+        target = step.get('field', step.get('target'))
         value = fields.get(target, '')
         if value:
             value = re.sub(r'[^\S\n]*\n[^\S\n]*', '\n', value)
@@ -157,7 +202,7 @@ class Transformer:
         return fields
 
     def _cut(self, fields, step):
-        target = step.get('target')
+        target = step.get('field', step.get('target'))
         pattern = step.get('pattern')
         value = fields.get(target, '')
         if value:
@@ -165,7 +210,7 @@ class Transformer:
         return fields
 
     def _copy(self, fields, step):
-        target = step.get('target')
+        target = step.get('field', step.get('target'))
         store = step.get('store')
         value = fields.get(target, '')
         if value:
@@ -181,7 +226,7 @@ class Transformer:
         return fields
 
     def _append(self, fields, step):
-        target = step.get('target')
+        target = step.get('field', step.get('target'))
         text = step.get('text', '')
         targetVal = fields.get(target, '')
         fields[target] = (targetVal or '') + self._interpolate(text, fields)
@@ -189,9 +234,17 @@ class Transformer:
 
     def _set(self, fields, step):
         """Set a field to a value. Use {fieldName} to reference other fields."""
-        target = step.get('target')
+        target = step.get('field', step.get('target'))
         value = step.get('value', '')
-        fields[target] = self._interpolate(value, fields)
+        fields[target] = self._interpolate(value, fields) if isinstance(value, str) else value
+        return fields
+
+    def _autoNotaflof(self, fields, step):
+        """Set isNotaflof if 'notaflof' appears in summary or description."""
+        for field in ('title', 'description'):
+            if re.search(r'notaflof', fields.get(field, '') or '', re.IGNORECASE):
+                fields['isNotaflof'] = True
+                return fields
         return fields
 
     # --- autoDate ---
@@ -202,7 +255,7 @@ class Transformer:
 
     def _autoDate(self, fields, step):
         """Parse date automatically using dateparser with fuzzy time extraction."""
-        target = step.get('target', 'date')
+        target = step.get('field', step.get('target', 'date'))
         timeField = step.get('timeField')
         startTimeField = step.get('startTimeField')
         endTimeField = step.get('endTimeField')
@@ -247,6 +300,7 @@ class Transformer:
             elif defaultTime:
                 h, m = defaultTime.split(':')
                 dt = dt.replace(hour=int(h), minute=int(m))
+                fields['timeIsEstimated'] = True
 
         fields['start'] = dt.strftime('%Y-%m-%d %H:%M')
         fields['startFormat'] = '%Y-%m-%d %H:%M'
@@ -259,9 +313,11 @@ class Transformer:
         elif defaultDuration:
             h, m = defaultDuration.split(':')
             endDt = dt + timedelta(hours=int(h), minutes=int(m))
+            fields['timeIsEstimated'] = True
         elif defaultEndTime:
             h, m = defaultEndTime.split(':')
             endDt = dt.replace(hour=int(h), minute=int(m))
+            fields['timeIsEstimated'] = True
 
         if endDt:
             if endDt <= dt:

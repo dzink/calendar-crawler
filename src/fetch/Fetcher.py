@@ -4,6 +4,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import TimeoutException, WebDriverException
 from webdriver_manager.chrome import ChromeDriverManager
 from time import sleep
 from CalendarLogger import logger
@@ -46,31 +47,50 @@ class Fetcher:
         logger.debug('retrieved static page source for ' + self.url)
         return html
 
-    def getDynamicHtml(self):
+    def getDynamicHtml(self, retries=2, pageLoadTimeout=30):
         driver = self.getDriver()
-        wait = WebDriverWait(driver, 2)
-        driver.get(self.url)
-        get_url = driver.current_url
-        wait.until(EC.url_to_be(self.url))
+        driver.set_page_load_timeout(pageLoadTimeout)
 
-        if self.waitFor:
-            WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, self.waitFor))
-            )
+        last_error = None
+        for attempt in range(1, retries + 2):
+            try:
+                wait = WebDriverWait(driver, 2)
+                driver.get(self.url)
+                get_url = driver.current_url
+                wait.until(EC.url_to_be(self.url))
 
-        self.scrollPage(driver)
+                if self.waitFor:
+                    WebDriverWait(driver, 10).until(
+                        EC.presence_of_element_located((By.CSS_SELECTOR, self.waitFor))
+                    )
 
-        if get_url == self.url:
-            page_source = driver.page_source
+                self.scrollPage(driver)
 
-        with open(self.cacheFilename(), 'w') as f:
-            f.write(page_source)
+                if get_url == self.url:
+                    page_source = driver.page_source
 
-        logger.debug('retrieved dynamic page source for ' + self.url)
-        return page_source
+                with open(self.cacheFilename(), 'w') as f:
+                    f.write(page_source)
+
+                logger.debug('retrieved dynamic page source for ' + self.url)
+                return page_source
+
+            except (TimeoutException, WebDriverException) as e:
+                last_error = e
+                if attempt <= retries:
+                    logger.warning('Attempt %d timed out for %s, retrying...' % (attempt, self.url))
+                    Fetcher.quitDriver()
+                    driver = self.getDriver()
+                    driver.set_page_load_timeout(pageLoadTimeout)
+
+        raise last_error
 
     def getLocalHtml(self):
-        with open(self.cacheFilename(), 'r') as f:
+        path = self.cacheFilename()
+        if not os.path.isfile(path):
+            raise FileNotFoundError(
+                'No cached HTML for "%s". Run without -l first to fetch it.' % self.sourceId)
+        with open(path, 'r') as f:
             page_source = f.read()
         logger.debug('retrieved local page source for ' + self.url)
         return page_source

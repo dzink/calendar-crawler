@@ -63,6 +63,14 @@ class CalendarFactory:
                 event.setDescription(fields['description'])
             if fields.get('link'):
                 event.setLink(fields['link'])
+            if fields.get('urlTicket'):
+                event.setUrlTicket(fields['urlTicket'])
+            if fields.get('urlRsvp'):
+                event.setUrlRsvp(fields['urlRsvp'])
+            if fields.get('isFree'):
+                event.setIsFree(fields['isFree'])
+            if fields.get('isNotaflof'):
+                event.setIsNotaflof(fields['isNotaflof'])
             if fields.get('location'):
                 event.setLocation(fields['location'])
             if fields.get('img'):
@@ -71,7 +79,13 @@ class CalendarFactory:
                 event.setStartString(fields['start'], fields.get('startFormat', '%Y-%m-%d %H:%M'))
             if fields.get('end'):
                 event.setEndString(fields['end'], fields.get('endFormat', '%Y-%m-%d %H:%M'))
-            events.add(event)
+            if fields.get('timeIsEstimated'):
+                event.timeIsEstimated = True
+            try:
+                event.validate()
+                events.add(event)
+            except ValueError as e:
+                logger.warning('Skipping invalid event: %s' % e)
         return events
 
     def providers(self, calendarKey, calendarConfig):

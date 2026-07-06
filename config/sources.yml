@@ -2,6 +2,7 @@ showPlace:
   name: ShowPlace
   fetch:
     url: https://baltshowplace.tumblr.com/
+    method: static
   parse:
     class: ShowPlaceParser
     container: div.post-content
@@ -11,23 +12,30 @@ showPlace:
         extract: paragraphs
   transform:
     - type: collapseWhitespace
-      target: text
+      field: text
       separator: " "
     - type: copy
-      target: text
+      field: text
       store: description
+    - type: set
+      field: isFree
+      value: true
+      onlyIf:
+        field: description
+        operation: search
+        contains: '$Free'
     - type: regex
-      target: text
+      field: text
       pattern: '(.*)\s*@\s*([^@]*)\s*$'
       group: 2
       store: location
     - type: regex
-      target: text
+      field: text
       pattern: '(.*)\s*@\s*([^@]*)\s*$'
       group: 1
       store: titleTime
     - type: regex
-      target: titleTime
+      field: titleTime
       pattern: '\s*(.*)\.\s*([^.]*)\s*$'
       group: 1
       store: title
@@ -37,56 +45,87 @@ showPlace:
       defaultTime: "19:00"
       defaultEndTime: "23:59"
     - type: append
-      target: description
-      text: "\n\n<span class='smaller'>End time is approximate. Crawled from https://baltshowplace.tumblr.com/.</span>"
+      field: description
+      text: "\n\n<span class='smaller'>Crawled from https://baltshowplace.tumblr.com/.</span>"
     - type: set
-      target: color
+      field: color
       value: default
   process:
     - type: rejectEvents
       pattern:
-        location: ((Ottobar)|(Red Emma)|(Current Space)|(2640)|(Joe Squared)|(Black Cat)|(Rhizome)|(Metro))
+        location: ((Ottobar)|(Red Emma)|(Current Space)|(2640)|(Joe Squared)|(Black Cat)|(Rhizome)|(Metro)|(Wax Atlas))
 
 
 redEmmas:
   name: Red Emma's
   fetch:
-    url: https://withfriends.co/red_emmas/events
-    scrollCount: 4
+    url: https://redemmas.org/events/
   parse:
-    class: Parser
-    container: li.wf-event
+    container: 'h1 + div:not(.bg-slate-100) > div:not(.bg-slate-100) > div:not(.bg-slate-100) > div:not(.bg-slate-100), h3 ~ div'
+    require: h2
     fields:
-      title: h4
-      date:
-        selector: "[data-type='Date_Time'][data-kind='Item']"
-      description:
-        extract: paragraphs
-        removeTag: script
+      title: h2
       link: a@href
-      img: img@data-image | img@src
-      imgAlt: img@alt
+      description:
+        selector: div.font-text
+        extract: paragraphs
+        select: all
+      date:
+        selector: div.font-subhed
+        index: 0
+      time:
+        selector: div.font-subhed
+        index: 1
+      location:
+        selector: div.font-subhed
+        index: 2
+      img:
+        selector: source[type="image/webp"]
+        extract: attr:srcset
+      urlRsvp: a.rounded-full@href
   transform:
     - type: autoDate
+      field: date
+      timeField: time
       defaultDuration: "2:00"
+    - type: regex
+      field: img
+      pattern: ',([^,]+)\s+\d+w$'
+      group: 1
     - type: prefix
-      target: link
-      text: "https://withfriends.co"
+      field: img
+      text: "https://redemmas.org"
+      unless: "^https?://"
+    - type: prefix
+      field: link
+      text: "https://redemmas.org"
       unless: "^https?://"
     - type: set
-      target: location
-      value: "Red Emma's"
-    - type: append
-      target: description
-      text: "\n\n<span class='smaller'>End time is approximate. Crawled from https://withfriends.co/red_emmas/events.</span>"
+      field: isFree
+      value: true
+      unless:
+        field: description
+        operation: search
+        contains: 'ticketed event'
     - type: set
-      target: color
-      value: default
+      field: location
+      value: "Red Emma's"
+      onlyIfEmpty: location
+    - type: append
+      field: location
+      text: " at Red Emma's"
+      onlyIf:
+        field: location
+        operation: search
+        contains: Free School
+    - type: append
+      field: description
+      text: "\n\n<span class='smaller'>Crawled from https://redemmas.org/events.</span>"
 
 currentSpace:
   name: Current Space
   fetch:
-    url: https://withfriends.events/o/current_space/upcoming/
+    url: https://pools.events/o/current_space/upcoming/
     scrollCount: 4
   parse:
     class: Parser
@@ -101,20 +140,27 @@ currentSpace:
       img: img@data-image | img@src
       imgAlt: img@alt
   transform:
+    - type: set
+      field: isFree
+      value: true
+      onlyIf:
+        field: description
+        operation: matches
+        matches: '(?i)\bFree\s*$'
     - type: autoDate
       defaultEndTime: "22:30"
     - type: prefix
-      target: link
-      text: "https://withfriends.co"
+      field: link
+      text: "https://withfriends.events"
       unless: "^https?://"
     - type: set
-      target: location
+      field: location
       value: Current Space
     - type: append
-      target: description
-      text: "\n\n<span class='smaller'>End time is approximate. Crawled from https://withfriends.co/current_space/events.</span>"
+      field: description
+      text: "\n\n<span class='smaller'>Crawled from https://withfriends.co/current_space/events.</span>"
     - type: set
-      target: color
+      field: color
       value: default
 
 ottobar:
@@ -124,7 +170,7 @@ ottobar:
   parse:
     class: Parser
     container: div.eventWrapper
-    require: a.btn-primary
+    # require: a.btn-primary
     fields:
       title: h2
       date: div.eventDateList
@@ -135,30 +181,34 @@ ottobar:
       link: a@href
       img: img@data-image | img@src
       imgAlt: img@alt
-      ticketLink: .btn-primary@href
+      urlTicket: .btn-primary@href
   transform:
     - type: collapseWhitespace
-      target: title
+      field: title
       separator: " | "
     - type: autoDate
       timeField: time
       defaultTime: "20:00"
       defaultEndTime: "23:59"
     - type: replace
-      target: description
+      field: description
       find: Tickets
-      replace: "Tickets: {ticketLink}"
-      skipEmpty: ticketLink
+      replace: ""
+      skipEmpty: urlTicket
     - type: append
-      target: description
-      text: "\n\n<span class='smaller'>End time is approximate. Crawled from https://theottobar.com/calendar/.</span>"
+      field: description
+      text: "\n\n<span class='smaller'>Crawled from https://theottobar.com/calendar/.</span>"
     - type: set
-      target: color
+      field: color
       value: default
+    - type: set
+      field: isFree
+      value: true
+      onlyIfEmpty: urlTicket
   process:
     - type: rejectEvents
       pattern:
-        location: (Current Space|Joe Squared|Upstairs @ Ottobar)
+        location: (Current Space|Joe Squared)
     - type: rejectEvents
       pattern:
         summary: (Taylor Swift .*|ALL KILLER.*|K-POP.*)
@@ -175,29 +225,29 @@ metroGallery:
     fields:
       title: h3.listing__title
       date: span.listing-date-time__date
-      ticketsLink: a.JS--buyTicketsButton@href
+      urlTicket: a.JS--buyTicketsButton@href
       link: a.plotButton--secondary@href
       img: img@data-image | img@src
       imgAlt: img@alt
   transform:
     - type: collapseWhitespace
-      target: title
+      field: title
       separator: " "
     - type: autoDate
       defaultTime: "19:00"
       defaultEndTime: "22:00"
     - type: join
-      fields: [link, ticketsLink]
+      fields: [link, urlTicket]
       store: description
       separator: " , tickets: "
     - type: set
-      target: location
+      field: location
       value: Metro Gallery
     - type: append
-      target: description
-      text: "\n\n<span class='smaller'>End time is approximate. Crawled from https://metrobmore.com/events/.</span>"
+      field: description
+      text: "\n\n<span class='smaller'>Crawled from https://metrobmore.com/events/.</span>"
     - type: set
-      target: color
+      field: color
       value: default
   process:
     - type: rejectEvents
@@ -225,29 +275,31 @@ blackCat:
       link: h1 a@href
       img: img@data-image | img@src
       imgAlt: img@alt
-      ticketLink: .show-details > a@href
+      urlTicket: .show-details > a@href
   transform:
     - type: autoDate
       timeField: time
       defaultTime: "19:00"
       defaultEndTime: "23:59"
-    - type: append
-      target: description
-      text: "\n\nTickets: {ticketLink}"
-      skipEmpty: ticketLink
     - type: prefix
-      target: img
+      field: img
       text: "https://www.blackcatdc.com"
       unless: "^https?://"
     - type: set
-      target: location
+      field: location
       value: Black Cat DC
     - type: append
-      target: description
-      text: "\n\n<span class='smaller'>End time is approximate. Crawled from https://www.blackcatdc.com/schedule.html.</span>"
+      field: description
+      text: "\n\n<span class='smaller'>Crawled from https://www.blackcatdc.com/schedule.html.</span>"
     - type: set
-      target: color
+      field: color
       value: default
+    - type: autoNotaflof
+    - type: set
+      field: isFree
+      value: true
+      onlyIfEmpty:
+        field: urlTicket
 
 space2640:
   name: 2640 Space
@@ -272,14 +324,14 @@ space2640:
       imgAlt: img@alt
   transform:
     - type: collapseWhitespace
-      target: location
+      field: location
     - type: collapseParagraphs
-      target: description
+      field: description
     - type: append
-      target: title
+      field: title
       text: "."
     - type: prefix
-      target: link
+      field: link
       text: https://www.2640space.net
       unless: "^https?://"
     - type: autoDate
@@ -288,10 +340,17 @@ space2640:
       defaultTime: "19:00"
       defaultDuration: "3:00"
     - type: append
-      target: description
+      field: description
       text: "\n\n<span class='smaller'>Crawled from https://www.2640space.net/.</span>"
     - type: set
-      target: color
+      field: isFree
+      value: true
+      onlyIf:
+        field: description
+        operation: matches
+        matches: '(?im)(^Free!$|this free event|free entry)'
+    - type: set
+      field: color
       value: default
 
 rhizome:
@@ -317,30 +376,44 @@ rhizome:
       link: a@href
       img: img@data-image | img@src
       imgAlt: img@alt
+      urlTicket:
+        selector: 'a:not([class])[href^="https://withfriends.events/event"]'
+        extract: attr:href
   transform:
     - type: collapseWhitespace
-      target: title
+      field: title
       separator: " "
+    - type: set
+      field: isFree
+      value: true
+      onlyIf:
+        field: time
+        operation: matches
+        matches: '(?i)\bfree\b'
+      unless:
+        field: time
+        operation: matches
+        matches: '\$\d'
     - type: autoDate
       timeField: time
       defaultTime: "19:00"
       defaultEndTime: "22:00"
     - type: prefix
-      target: link
+      field: link
       text: "https://www.rhizomedc.org"
       unless: "^https?://"
     - type: prefix
-      target: img
+      field: img
       text: "https://www.rhizomedc.org"
       unless: "^https?://"
     - type: set
-      target: location
+      field: location
       value: Rhizome Washington DC
     - type: append
-      target: description
+      field: description
       text: "\n\n<span class='smaller'>Crawled from https://www.rhizomedc.org/.</span>"
     - type: set
-      target: color
+      field: color
       value: default
 
 greedyReads:
@@ -360,21 +433,78 @@ greedyReads:
         selector: div.bm-txt-0
         index: 1
         extract: paragraphs
-      link: div.bm-txt-0 a@href
+      # link: div.bm-txt-0 a@href
+      link: a@href
       img: img@data-image | img@src
       imgAlt: img@alt
+      urlRsvp:
+        selector: 'a[href^="https://www.eventbrite"]'
+        extract: attr:href
   transform:
+    - type: set
+      field: isFree
+      value: true
+      onlyIf:
+        field: description
+        operation: matches
+        matches: '(?i)\bfree to attend\b'
     - type: autoDate
       defaultTime: "19:00"
       defaultDuration: "2:00"
     - type: set
-      target: location
-      value: Greedy Reads (see description for store location)
-    - type: append
-      target: description
-      text: "\n\n<span class='smaller'>End time is approximate. Crawled from https://greedyreads.com/events.</span>"
+      field: location
+      value: Greedy Reads - Hampden
+      onlyIf: {field: description, value: Hampden}
     - type: set
-      target: color
+      field: location
+      value: Greedy Reads - Fells Point
+      onlyIf: {field: description, value: Fells}
+    - type: set
+      field: location
+      value: Greedy Reads - Remington
+      onlyIf: {field: description, value: Remington}
+    - type: append
+      field: description
+      text: "\n\n<span class='smaller'>Crawled from https://greedyreads.com/events.</span>"
+    - type: set
+      field: color
+      value: default
+
+waxAtlas:
+  name: Wax Atlas
+  fetch:
+    url: https://shows.waxatlas.com/see-full-calandar/
+    method: static
+  parse:
+    class: Parser
+    container: div.event-space
+    fields:
+      title: div.event-title h4
+      description:
+        extract: paragraphs
+      date: div.event-date p
+      link: div.event-title a@href
+      img: img@src
+      priceInfo: div.event-title p
+  transform:
+    - type: autoDate
+      defaultTime: "19:00"
+      defaultEndTime: "23:59"
+    - type: set
+      field: isFree
+      value: true
+      onlyIf:
+        field: priceInfo
+        operation: matches
+        matches: '(?i)(^FREE\b|^\$free|\$0\b)'
+    - type: set
+      field: location
+      value: Wax Atlas
+    - type: append
+      field: description
+      text: "\n\n<span class='smaller'>Crawled from https://shows.waxatlas.com/see-full-calandar/.</span>"
+    - type: set
+      field: color
       value: default
 
 redRoom:
@@ -392,38 +522,46 @@ redRoom:
       link: a@href
       img: img@data-image | img@src
       imgAlt: img@alt
+      linkText: a
   transform:
+    - type: set
+      field: isFree
+      value: true
+      onlyIf:
+        field: linkText
+        operation: matches
+        matches: '(?i)\bfree\b'
     - type: collapseWhitespace
-      target: title
+      field: title
     # Original format: "Day Month DD, YYYY | TIME | PRICE"
     # Keep day and time, strip the price portion
     - type: replace
-      target: date
+      field: date
       find: '(.*?)\s*\|\s*(.*?)\s*\|.*'
       replace: '\1 \2'
       regex: true
     # Fallback: if only one pipe (no time), just strip it
     - type: cut
-      target: date
+      field: date
       pattern: '\s*\|.*'
     - type: autoDate
       defaultTime: "20:00"
-      defaultDuration: "4:00"
+      defaultDuration: "3:00"
     - type: collapseWhitespace
-      target: descriptionRaw
+      field: descriptionRaw
     - type: cut
-      target: descriptionRaw
+      field: descriptionRaw
       pattern: '>> MORE'
     - type: join
       fields: [title, date, descriptionRaw]
       store: description
       separator: "\n\n"
     - type: set
-      target: location
-      value: See link for location of Red Room events
+      field: location
+      value: The Red Room at Normal's
     - type: append
-      target: description
-      text: "\n\n<span class='smaller'>End time is approximate. Crawled from https://redroom.org.</span>"
+      field: description
+      text: "\n\n<span class='smaller'>Crawled from https://redroom.org.</span>"
     - type: set
-      target: color
+      field: color
       value: default

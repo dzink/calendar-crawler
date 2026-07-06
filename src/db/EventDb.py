@@ -9,6 +9,7 @@ This is useful for:
 
 from tinydb import TinyDB, where, Query
 from CalendarLogger import logger
+from difflib import SequenceMatcher
 import re
 
 class EventDb:
@@ -58,7 +59,7 @@ class EventDb:
         results = table.search((where('location') == data['location']) & (where('start') == data['start']) & (where('id') != data['id']))
         if (results):
             logger.debug('matched via location and datetime')
-            return results[0]
+            return self._bestMatch(data, results)
 
         # Match event and day
         datePatten = '^' + data['start'][0:10]
@@ -68,6 +69,21 @@ class EventDb:
             return results[0]
 
         return None
+
+    def _bestMatch(self, data, results):
+        """When multiple candidates match, pick the one with the most similar summary."""
+        if len(results) == 1:
+            return results[0]
+        summary = (data.get('summary') or '').lower()
+        best = None
+        best_score = -1
+        for r in results:
+            score = SequenceMatcher(None, summary, (r.get('summary') or '').lower()).ratio()
+            if score > best_score:
+                best_score = score
+                best = r
+        logger.debug('best match score %.2f: %s' % (best_score, best.get('summary')))
+        return best
 
     """
     @TODO rotate out old events to keep the tinydb tiny.

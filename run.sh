@@ -4,7 +4,7 @@ cd "$(dirname "$0")"
 notify-send "Calendar Crawler" "Starting crawl..."
 
 logfile=$(mktemp)
-nice -n 19 .venv/bin/python calendar-crawler.py "$@" 2>&1 | tee "$logfile"
+nice -n 19 ./cc crawl "$@" 2>&1 | tee "$logfile"
 exit_code=${PIPESTATUS[0]}
 
 summary=$(grep "^Done\." "$logfile")

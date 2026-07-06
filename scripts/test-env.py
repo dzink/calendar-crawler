@@ -78,18 +78,14 @@ for mod in internal_modules:
 check('data/ directory exists', os.path.isdir('data'))
 
 # Config files
-import yaml
-configs = ['data/sources.yml', 'data/calendars.yml']
-for cfg in configs:
-    if os.path.isfile(cfg):
-        try:
-            with open(cfg) as f:
-                yaml.safe_load(f)
-            check('parse %s' % cfg, True)
-        except Exception as e:
-            check('parse %s' % cfg, False, str(e))
-    else:
-        check('parse %s' % cfg, False, 'file not found')
+from Config import Config
+cfg = Config()
+for name, loader in [('sources.yml', cfg.loadSources), ('calendars.yml', cfg.loadCalendars)]:
+    try:
+        data = loader()
+        check('parse config/%s' % name, bool(data), 'file not found or empty')
+    except Exception as e:
+        check('parse config/%s' % name, False, str(e))
 
 # Summary
 print('\n%d passed, %d failed' % (passed, failed))

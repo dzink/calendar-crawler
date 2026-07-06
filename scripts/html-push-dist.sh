@@ -11,7 +11,7 @@ if [[ "${1:-}" != "-y" ]]; then
   fi
 fi
 
-./cc export -v
+./cc export
 
 cd "$(dirname "$0")/../dist/prod"
 

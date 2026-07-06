@@ -13,6 +13,7 @@ fi
 
 rebuild() {
   ./cc export --dev
+  echo "Rebuilt!"
 }
 
 echo "Watching $DIR for changes... (press Enter to rebuild manually)"

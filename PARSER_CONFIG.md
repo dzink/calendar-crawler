@@ -207,10 +207,10 @@ Several transform types support `{fieldName}` placeholders in their text/value p
 
 ```yaml
 - type: set
-  target: description
+  field: description
   value: "{title} at {location}"
 - type: regex
-  target: titleTime
+  field: titleTime
   pattern: '...'
   default: "{titleTime}"    # use field value as fallback
 ```
@@ -222,7 +222,7 @@ Defined at the source level under `transform:`. The default class is `Transforme
 transform:
   - type: autoDate
   - type: set
-    target: location
+    field: location
     value: My Venue
 
 # Custom class form:
@@ -240,7 +240,7 @@ Time is resolved in priority order: explicit time fields > fuzzy-extracted times
 
 ```yaml
 - type: autoDate
-  target: date               # field containing the date text (default: "date")
+  field: date               # field containing the date text (default: "date")
   timeField: time            # field with fuzzy time text (e.g. "Doors at 7 | $10")
   startTimeField: startTime  # field with explicit start time (e.g. "7:30 PM")
   endTimeField: endTime      # field with explicit end time (e.g. "9:30 PM")
@@ -251,7 +251,7 @@ Time is resolved in priority order: explicit time fields > fuzzy-extracted times
 
 | Property | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `target` | no | `"date"` | Field containing the date text to parse |
+| `field` | no | `"date"` | Field containing the date text to parse |
 | `timeField` | no | — | Field with fuzzy time text. Times are extracted via regex before the date is parsed. |
 | `startTimeField` | no | — | Field with an explicit start time string (e.g. from a dedicated `<time>` element) |
 | `endTimeField` | no | — | Field with an explicit end time string |
@@ -271,14 +271,14 @@ Append the nearest year to a date field. Useful for dates like "Saturday March 1
 
 ```yaml
 - type: nearestYear
-  target: date                      # field to modify (default: "date")
+  field: date                      # field to modify (default: "date")
   format: "%A %B %d"               # strptime format of the current value
   separator: " "                    # between date and year (default: "")
 ```
 
 | Property | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `target` | no | `"date"` | Field to modify |
+| `field` | no | `"date"` | Field to modify |
 | `format` | no | `"%A %B %d"` | `strptime` format of the field's current value |
 | `separator` | no | `""` | String between the existing value and the appended year |
 
@@ -288,7 +288,7 @@ Extract a capture group from a field using a regex.
 
 ```yaml
 - type: regex
-  target: text                      # field to search
+  field: text                      # field to search
   pattern: '(.*)\s*@\s*([^@]*)'    # regex pattern
   group: 1                          # capture group to extract (default: 0 = full match)
   store: title                      # field to store result (default: same as target)
@@ -297,7 +297,7 @@ Extract a capture group from a field using a regex.
 
 | Property | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `target` | yes | — | Field to search |
+| `field` | yes | — | Field to search |
 | `pattern` | yes | — | Regex pattern. Use single quotes in YAML to avoid escaping. |
 | `group` | no | `0` | Capture group index (0 = full match) |
 | `store` | no | same as `target` | Field to store the result |
@@ -309,7 +309,7 @@ Find and replace within a field.
 
 ```yaml
 - type: replace
-  target: date
+  field: date
   find: "Sept "
   replace: "Sep "
 ```
@@ -317,7 +317,7 @@ Find and replace within a field.
 With regex:
 ```yaml
 - type: replace
-  target: price
+  field: price
   find: "\\$"
   replace: ""
   regex: true
@@ -325,7 +325,7 @@ With regex:
 
 | Property | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `target` | yes | — | Field to modify |
+| `field` | yes | — | Field to modify |
 | `find` | yes | — | String or regex pattern to find |
 | `replace` | no | `""` | Replacement string |
 | `regex` | no | `false` | If true, `find` is treated as a regex pattern |
@@ -336,14 +336,14 @@ Prepend text to a field, with an optional guard to skip values that already matc
 
 ```yaml
 - type: prefix
-  target: link
+  field: link
   text: "https://example.com"
   unless: "^https?://"
 ```
 
 | Property | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `target` | yes | — | Field to modify |
+| `field` | yes | — | Field to modify |
 | `text` | yes | — | Text to prepend |
 | `unless` | no | — | Regex pattern. If the field's value matches, the prefix is skipped. |
 
@@ -354,18 +354,18 @@ Append text to a field. Supports `{fieldName}` interpolation.
 ```yaml
 # Append literal text:
 - type: append
-  target: description
+  field: description
   text: "\n\n<span class='smaller'>Crawled from example.com.</span>"
 
 # Append another field's value:
 - type: append
-  target: title
+  field: title
   text: ", {support}"
 ```
 
 | Property | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `target` | yes | — | Field to modify |
+| `field` | yes | — | Field to modify |
 | `text` | yes | — | Text to append. Supports `{fieldName}` interpolation. |
 
 ### set
@@ -374,17 +374,17 @@ Set a field to a value. Supports `{fieldName}` interpolation.
 
 ```yaml
 - type: set
-  target: location
+  field: location
   value: Metro Gallery
 
 - type: set
-  target: description
+  field: description
   value: "{title} at {location}"
 ```
 
 | Property | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `target` | yes | — | Field to set |
+| `field` | yes | — | Field to set |
 | `value` | yes | — | Value to assign. Supports `{fieldName}` interpolation. |
 
 ### copy
@@ -393,13 +393,13 @@ Copy one field's value to another field.
 
 ```yaml
 - type: copy
-  target: text
+  field: text
   store: description
 ```
 
 | Property | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `target` | yes | — | Field to copy from |
+| `field` | yes | — | Field to copy from |
 | `store` | yes | — | Field to copy to |
 
 ### join
@@ -425,13 +425,13 @@ Remove all occurrences of a regex pattern from a field.
 
 ```yaml
 - type: cut
-  target: date
+  field: date
   pattern: '\s*\|.*'
 ```
 
 | Property | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `target` | yes | — | Field to modify |
+| `field` | yes | — | Field to modify |
 | `pattern` | yes | — | Regex pattern to remove |
 
 ### removeOrdinals
@@ -440,12 +440,12 @@ Strip ordinal suffixes (1st, 2nd, 3rd, 4th) from numbers in a field.
 
 ```yaml
 - type: removeOrdinals
-  target: date
+  field: date
 ```
 
 | Property | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `target` | yes | — | Field to modify |
+| `field` | yes | — | Field to modify |
 
 ### collapseWhitespace
 
@@ -454,22 +454,22 @@ Collapse whitespace in a field. Three modes based on which options are set:
 ```yaml
 # Collapse all whitespace to nothing:
 - type: collapseWhitespace
-  target: location
+  field: location
 
 # Collapse to a separator string:
 - type: collapseWhitespace
-  target: title
+  field: title
   separator: " | "
 
 # Trim only (leading/trailing whitespace):
 - type: collapseWhitespace
-  target: title
+  field: title
   trim: true
 ```
 
 | Property | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `target` | yes | — | Field to modify |
+| `field` | yes | — | Field to modify |
 | `separator` | no | `""` | Replace whitespace runs with this string |
 | `trim` | no | `false` | If true (and no separator), only strip leading/trailing whitespace |
 
@@ -479,12 +479,12 @@ Normalize whitespace while preserving paragraph structure. Horizontal whitespace
 
 ```yaml
 - type: collapseParagraphs
-  target: description
+  field: description
 ```
 
 | Property | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `target` | yes | — | Field to modify |
+| `field` | yes | — | Field to modify |
 
 ## Process pipeline
 

@@ -1,0 +1,68 @@
+name: crawler
+recipe: lamp
+config:
+  webroot: ./dist/dev
+
+proxy:
+  appserver:
+    - prod.crawler.lndo.site
+
+services:
+  appserver:
+    build_as_root:
+      - apt-get update -y && apt-get install -y python3 python3-venv python3-pip
+    build:
+      - cd /app && python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
+    overrides:
+      volumes:
+        - ./lando/apache/prod-vhost.conf:/etc/apache2/sites-enabled/prod-vhost.conf
+
+tooling:
+  crawl:
+    service: appserver
+    cmd: ./cc crawl
+    description: Scrape event pages and sync to database
+  clean:
+    service: appserver
+    cmd: ./cc clean
+    description: Delete events matching criteria
+  export:
+    service: appserver
+    cmd: ./cc export
+    description: Build HTML agenda and ICS files
+  sync:
+    service: appserver
+    cmd: ./cc sync
+    description: Sync pending events to calendar providers
+  find:
+    service: appserver
+    cmd: ./cc find
+    description: Search events in the database
+  migrate:
+    service: appserver
+    cmd: ./cc migrate
+    description: Run calendar-items migration
+  watch-dev:
+    service: appserver
+    cmd: ./cc watch-dev
+    description: Watch html-template/ and rebuild on changes
+  push-dist:
+    service: appserver
+    cmd: ./cc push-dist
+    description: Export, commit, and push dist/prod to origin
+  install:
+    service: appserver
+    cmd: ./cc install
+    description: Install systemd user service and timer
+  update-driver:
+    service: appserver
+    cmd: ./cc update-driver
+    description: Update chromedriver to match installed Chrome
+  nightly:
+    service: appserver
+    cmd: ./cc nightly
+    description: Run full nightly - crawl, sync, export, push
+  test:
+    service: appserver
+    cmd: ./cc test
+    description: Verify the environment is set up correctly

@@ -4,11 +4,11 @@ import sys
 sys.path.append('./src')
 import paths
 
-import yaml
 import argparse
 from EventList import EventList
 from Factory import CalendarFactory
 from Pipeline import CalendarPipeline
+from Config import Config
 from datetime import datetime
 
 from CalendarLogger import logger, addLoggerArgsToParser, buildLogger
@@ -17,15 +17,26 @@ from Fetcher import Fetcher
 def main():
     print('Running Calendar Crawler at ' + datetime.today().strftime('%Y-%m-%d %H:%M:%S'))
     try:
-        config = loadConfig('./data/options.yml')
-        sourceConfigs = loadConfig('./data/sources.yml')
-        calendarConfigs = loadConfig('./data/calendars.yml')
-        secrets = loadConfig('./data/secrets.yml')
+        cfg = Config()
+        config = cfg.loadOptions()
+        sourceConfigs = cfg.loadSources()
+        calendarConfigs = cfg.loadCalendars()
+        secrets = cfg.loadSecrets()
         options = parseArguments(config)
         buildLogger(options)
 
         factory = CalendarFactory(options, config, secrets)
         pipeline = CalendarPipeline(factory, options)
+
+        if options.source:
+            allCalendarSources = set()
+            for cc in calendarConfigs.values():
+                allCalendarSources.update(cc.get('sources', []))
+            missing = [s for s in options.source if s not in allCalendarSources]
+            if missing:
+                print('Warning: source(s) not found in any calendar: %s' % ', '.join(missing))
+                print('Add them to calendars.yml or check the source name.')
+                return
 
         for calendarKey in calendarConfigs:
             calendarConfig = calendarConfigs.get(calendarKey)
@@ -37,6 +48,9 @@ def main():
 
             for sourceKey in sourceKeys:
                 events = events.merge(pipeline.getEvents(sourceKey, sourceConfigs.get(sourceKey)))
+
+            if options.after:
+                events = EventList([e for e in events if e.startToString()[:10] >= options.after])
 
             inserted, updated, skipped = pipeline.sync(events, calendarKey)
 
@@ -56,15 +70,10 @@ def parseArguments(config):
     parser.add_argument('-u', '--force-update', help='Whether to force Google Calendar updates, even if there\'s nothing to update.', action='store_true', default=config.get('forceUpdate', False))
     parser.add_argument('-d', '--dry-run', help='Run the parser but do not write to the calendar or database.', action='store_true', default=False)
     parser.add_argument('-s', '--source', help='Only crawl the given source(s).', action='append', default=None)
+    parser.add_argument('-a', '--after', help='Only include events starting on or after this date (YYYY-MM-DD).', default=None)
+    parser.add_argument('-n', '--limit', help='Maximum number of events to add or update.', type=int, default=None)
     parser.add_argument('--show-skips', help='In a dry run, ignore the skips.', action='store_false', default=True)
     return parser.parse_args()
-
-def loadConfig(filename):
-    try:
-        with open(filename, 'r') as file:
-            return yaml.safe_load(file) or {}
-    except FileNotFoundError:
-        return {}
 
 if __name__ == '__main__':
     main()

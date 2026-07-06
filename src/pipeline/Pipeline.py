@@ -29,7 +29,15 @@ class CalendarPipeline:
 
             # Parse
             parser = self.factory.parser(sourceId, sourceConfig)
-            fieldsList = list(parser.parseFields(html))
+            limit = getattr(self.options, 'limit', None)
+            if limit:
+                fieldsList = []
+                for fields in parser.parseFields(html):
+                    fieldsList.append(fields)
+                    if len(fieldsList) >= limit:
+                        break
+            else:
+                fieldsList = list(parser.parseFields(html))
 
             # Transform
             transformer, transformSteps = self.factory.transformer(sourceConfig)
@@ -39,6 +47,8 @@ class CalendarPipeline:
             # Build
             events = self.factory.buildEvents(fieldsList, name)
             logger.info('%d events found in %s' % (len(events.events), name))
+            for event in events:
+                logger.debug('\n\t%s' % event)
 
             # Process
             processor, processSteps = self.factory.processor(sourceConfig)
@@ -72,7 +82,8 @@ class CalendarPipeline:
                     inserted += 1
                 if not self.options.dry_run:
                     event.write()
-                    logger.info('Written: %s' % event.summary)
+                action = 'Updated' if event.isDuplicate else 'Inserted'
+                logger.info('%s: %s' % (action, event.summary))
 
         if not self.options.dry_run:
             self.calendarItemsDb.upsertSyncStatus(events, calendarId)

@@ -21,12 +21,17 @@ class Event:
         self.calendarId = None
         self.id = None
         self.link = None
+        self.urlTicket = None
+        self.urlRsvp = None
+        self.isFree = False
+        self.isNotaflof = False
         self.sourceTitle = None
         self.img = None
         self.imgAlt = None
         self.skipSync = None
         self.isDuplicate = False
         self.color = 'default'
+        self.timeIsEstimated = False
         self.buildId()
 
     def buildId(self):
@@ -52,6 +57,22 @@ class Event:
         self.link = link
         return self
 
+    def setUrlTicket(self, url):
+        self.urlTicket = url
+        return self
+
+    def setUrlRsvp(self, url):
+        self.urlRsvp = url
+        return self
+
+    def setIsFree(self, isFree):
+        self.isFree = bool(isFree)
+        return self
+
+    def setIsNotaflof(self, isNotaflof):
+        self.isNotaflof = bool(isNotaflof)
+        return self
+
     def setSourceTitle(self, sourceTitle):
         self.sourceTitle = sourceTitle
         return self
@@ -65,8 +86,9 @@ class Event:
     def flyerHtml(self):
         if not self.img:
             return None
+        src = self.img.replace("'", '&#39;')
         alt = (self.imgAlt or self.summary or '').replace("'", '&#39;')
-        return "<div class='flyer'><button class='flyer-toggle' data-src='%s' data-alt='%s' aria-expanded='false'>See Flyer</button></div>" % (self.img, alt)
+        return "<div class='flyer'><button class='flyer-toggle' data-src='%s' data-alt='%s' aria-expanded='false'>See Flyer</button></div>" % (src, alt)
 
     def setCalendarId(self, calendarId):
         self.calendarId = calendarId
@@ -162,11 +184,16 @@ class Event:
             'calendarId': self.calendarId,
             'color': self.color,
             'link': self.link,
+            'urlTicket': self.urlTicket,
+            'urlRsvp': self.urlRsvp,
+            'isFree': self.isFree,
+            'isNotaflof': self.isNotaflof,
             'img': self.img,
             'imgAlt': self.imgAlt,
             'sourceTitle': self.sourceTitle,
             'start': self.startToString(),
             'end': self.endToString(),
+            'timeIsEstimated': self.timeIsEstimated,
         }
         return data
 
@@ -181,11 +208,16 @@ class Event:
         self.setLocation(data.get('location') or self.location)
         self.setDescription(data.get('description') or self.description)
         self.setLink(data.get('link') or self.link)
+        self.setUrlTicket(data.get('urlTicket') or self.urlTicket)
+        self.setUrlRsvp(data.get('urlRsvp') or self.urlRsvp)
+        self.isFree = data.get('isFree', self.isFree)
+        self.isNotaflof = data.get('isNotaflof', self.isNotaflof)
         self.setImg(data.get('img') or self.img, data.get('imgAlt') or self.imgAlt)
         self.setCalendarId(data.get('calendarId') or self.calendarId)
         self.setColor(data.get('color') or self.color)
         self.setStartString(data.get('start') or self.startToString())
         self.setEndString(data.get('end') or self.endToString())
+        self.timeIsEstimated = data.get('timeIsEstimated', self.timeIsEstimated)
         return self
 
     """
@@ -216,11 +248,36 @@ class Event:
                     return False
         return True
 
+    def validate(self):
+        missing = []
+        invalid = []
+        if not self.summary:
+            missing.append('summary')
+        if not self.description:
+            missing.append('description')
+        if not self.startDate:
+            missing.append('start')
+        elif not isinstance(self.startDate, datetime):
+            invalid.append('start (got %s)' % type(self.startDate).__name__)
+        if not self.endDate:
+            missing.append('end')
+        elif not isinstance(self.endDate, datetime):
+            invalid.append('end (got %s)' % type(self.endDate).__name__)
+        errors = []
+        if missing:
+            errors.append('missing: %s' % ', '.join(missing))
+        if invalid:
+            errors.append('invalid: %s' % ', '.join(invalid))
+        if errors:
+            raise ValueError('Event "%s" has %s' % (self.summary or '(no title)', '; '.join(errors)))
+
     def write(self):
+        self.validate()
         EventDb().upsert(self)
         return self
 
     def writeUpdate(self):
+        self.validate()
         EventDb().update(self)
         return self
 
@@ -292,5 +349,28 @@ class Event:
             self.description = ''.join([linkText, self.description])
 
     def __str__(self):
-        string = "ID: %s\n\tSummary: %s\n\tStart: %s\n\tEnd: %s\n\tLocation: %s\n\tDescription: %s\n\tLink: %s\n\tSource: %s\n\tcalendarId: %s\n\tcolor: %s" %(self.id, self.summary, self.startToString(), self.endToString(), self.location, self.description, self.link, self.sourceTitle, self.calendarId, self.color)
-        return string
+        lines = [
+            'ID: %s' % self.id,
+            'Summary: %s' % self.summary,
+            'Start: %s' % self.startToString(),
+            'End: %s' % self.endToString(),
+            'Location: %s' % self.location,
+            'Link: %s' % self.link,
+        ]
+        if self.urlTicket:
+            lines.append('Ticket: %s' % self.urlTicket)
+        if self.urlRsvp:
+            lines.append('RSVP: %s' % self.urlRsvp)
+        if self.isFree:
+            lines.append('Free: yes')
+        if self.isNotaflof:
+            lines.append('NOTAFLOF: yes')
+        if self.timeIsEstimated:
+            lines.append('Time estimated: yes')
+        if self.img:
+            lines.append('Image: %s' % self.img)
+        if self.description:
+            desc = self.description
+            lines.append('Description: %s' % desc)
+        lines.append('Source: %s' % self.sourceTitle)
+        return '\n\t'.join(lines)
