@@ -1,0 +1,376 @@
+import re
+import sys
+import pytz
+from datetime import datetime, timedelta
+from EventDb import EventDb
+from CalendarItemsDb import CalendarItemsDb
+import random
+from copy import copy
+from CalendarLogger import logger
+
+class Event:
+
+    timeZone = 'America/New_York'
+
+    def __init__(self):
+        self.summary = None
+        self.location = None
+        self.description = None
+        self.startDate = None
+        self.endDate = None
+        self.calendarId = None
+        self.id = None
+        self.link = None
+        self.urlTicket = None
+        self.urlRsvp = None
+        self.isFree = False
+        self.isNotaflof = False
+        self.sourceTitle = None
+        self.img = None
+        self.imgAlt = None
+        self.skipSync = None
+        self.isDuplicate = False
+        self.color = 'default'
+        self.timeIsEstimated = False
+        self.buildId()
+
+    def buildId(self):
+        self.id = random.getrandbits(128)
+
+    def setId(self, id):
+        self.id = id
+        return self
+
+    def setSummary(self, summary):
+        self.summary = summary
+        return self
+
+    def setLocation(self, location):
+        self.location = location
+        return self
+
+    def setDescription(self, description):
+        self.description = description
+        return self
+
+    def setLink(self, link):
+        self.link = link
+        return self
+
+    def setUrlTicket(self, url):
+        self.urlTicket = url
+        return self
+
+    def setUrlRsvp(self, url):
+        self.urlRsvp = url
+        return self
+
+    def setIsFree(self, isFree):
+        self.isFree = bool(isFree)
+        return self
+
+    def setIsNotaflof(self, isNotaflof):
+        self.isNotaflof = bool(isNotaflof)
+        return self
+
+    def setSourceTitle(self, sourceTitle):
+        self.sourceTitle = sourceTitle
+        return self
+
+    def setImg(self, img, imgAlt=None):
+        self.img = img
+        if imgAlt is not None:
+            self.imgAlt = imgAlt
+        return self
+
+    def flyerHtml(self):
+        if not self.img:
+            return None
+        src = self.img.replace("'", '&#39;')
+        alt = (self.imgAlt or self.summary or '').replace("'", '&#39;')
+        return "<div class='flyer'><button class='flyer-toggle' data-src='%s' data-alt='%s' aria-expanded='false'>See Flyer</button></div>" % (src, alt)
+
+    def setCalendarId(self, calendarId):
+        self.calendarId = calendarId
+        return self
+
+    def setColor(self, color):
+        self.color = color
+        return self
+
+    def setStart(self, startDate):
+        self.startDate = startDate
+        return self
+
+    def setEnd(self, endDate):
+        self.endDate = endDate
+        return self
+
+    def setStartDate(self, date):
+        self.date = date
+        return self
+
+    """
+    A few methods for printing out timestamps.
+    """
+    def startToString(self, pattern = '%Y-%m-%dT%H:%M:%S%z'):
+        if (self.startDate is None):
+            return 'None'
+        return self.dateToString(self.startDate, pattern)
+
+    def endToString(self, pattern = '%Y-%m-%dT%H:%M:%S%z'):
+        if (self.endDate is None):
+            return 'None'
+        return self.dateToString(self.endDate, pattern)
+
+    def dateToString(self, date, pattern = '%Y-%m-%dT%H:%M:%S%z'):
+        return date.strftime(pattern)
+
+    def setStartString(self, date, pattern = '%Y-%m-%dT%H:%M:%S%z'):
+        self.startDate = self.parseDateString(date, pattern)
+        return self
+
+    """
+    A few methods for converting strings into timestamps.
+    """
+    def setEndString(self, date, pattern = '%Y-%m-%dT%H:%M:%S%z'):
+        self.endDate = self.parseDateString(date, pattern)
+        return self
+
+    def parseDateString(self, date, pattern = '%Y-%m-%dT%H:%M:%S%z'):
+        dt = datetime.strptime(date, pattern)
+        return self.localizeDate(dt)
+
+    def localizeDate(self, date):
+        if (date.tzinfo == None):
+            tz = pytz.timezone(self.timeZone)
+            date = tz.localize(date)
+        return date
+
+    @classmethod
+    def getNearestYear(cls, date, pattern='%A %B %d'):
+        """Find the nearest year for a date string that lacks a year.
+        Can be called as Event.getNearestYear() without instantiation."""
+        patternWithYear = pattern + ' %Y'
+        tz = pytz.timezone(cls.timeZone)
+        now = tz.localize(datetime.now())
+        shortestYear = None
+        shortestDifference = None
+        for year in [now.year - 1, now.year, now.year + 1]:
+            try:
+                dt = datetime.strptime(' '.join([date, str(year)]), patternWithYear)
+                dt = tz.localize(dt)
+                difference = abs((now - dt).total_seconds())
+                if shortestDifference is None or difference < shortestDifference:
+                    shortestYear = year
+                    shortestDifference = difference
+            except ValueError:
+                # Feb 29 doesn't exist in every year
+                logger.debug('Could not parse the date for the year %d' % year)
+
+        assert shortestYear is not None, "Unable to determine the nearest year"
+
+        return shortestYear
+
+    """
+    Create a JSON object from this event.
+    """
+    def toJson(self):
+        data = {
+            'id': self.id,
+            'summary': self.summary,
+            'location': self.location,
+            'description': self.description,
+            'calendarId': self.calendarId,
+            'color': self.color,
+            'link': self.link,
+            'urlTicket': self.urlTicket,
+            'urlRsvp': self.urlRsvp,
+            'isFree': self.isFree,
+            'isNotaflof': self.isNotaflof,
+            'img': self.img,
+            'imgAlt': self.imgAlt,
+            'sourceTitle': self.sourceTitle,
+            'start': self.startToString(),
+            'end': self.endToString(),
+            'timeIsEstimated': self.timeIsEstimated,
+        }
+        return data
+
+    """
+    Set event values from a JSON object. Any empty values will not be
+    overwritten.
+    """
+    def fromJson(self, data):
+        self.setId(data.get('id') or self.id)
+        self.setSummary(data.get('summary') or self.summary)
+        self.setSourceTitle(data.get('sourceTitle') or self.sourceTitle)
+        self.setLocation(data.get('location') or self.location)
+        self.setDescription(data.get('description') or self.description)
+        self.setLink(data.get('link') or self.link)
+        self.setUrlTicket(data.get('urlTicket') or self.urlTicket)
+        self.setUrlRsvp(data.get('urlRsvp') or self.urlRsvp)
+        self.isFree = data.get('isFree', self.isFree)
+        self.isNotaflof = data.get('isNotaflof', self.isNotaflof)
+        self.setImg(data.get('img') or self.img, data.get('imgAlt') or self.imgAlt)
+        self.setCalendarId(data.get('calendarId') or self.calendarId)
+        self.setColor(data.get('color') or self.color)
+        self.setStartString(data.get('start') or self.startToString())
+        self.setEndString(data.get('end') or self.endToString())
+        self.timeIsEstimated = data.get('timeIsEstimated', self.timeIsEstimated)
+        return self
+
+    """
+    Determines whether this event matches a pattern. The criteria is an object
+    where any property is a property on the event to search. The pattern should
+    be a regex pattern.
+
+    Sample criteria:
+    {
+        "location": "\\s*Horrible venue\\s*",
+        "summary": "\\s*Bad Band I don't want to see\\s*",
+    }
+
+    @param data is a hash, in case we don't need to regenerate the data.
+    """
+    def matches(self, criteria, data = None, regex = True):
+        if (not data):
+            data = self.toJson()
+        for property, pattern in criteria.items():
+            value = data[property]
+            if (regex and isinstance(value, str)):
+                matches = re.search(pattern, value or '', re.IGNORECASE)
+                if (matches == None):
+                    return False
+            else:
+                if (pattern != data[property]):
+                    logger.debug('%s not a match: "%s" :: "%s"' % (property, pattern, data[property]))
+                    return False
+        return True
+
+    def validate(self):
+        missing = []
+        invalid = []
+        if not self.summary:
+            missing.append('summary')
+        if not self.description:
+            missing.append('description')
+        if not self.startDate:
+            missing.append('start')
+        elif not isinstance(self.startDate, datetime):
+            invalid.append('start (got %s)' % type(self.startDate).__name__)
+        if not self.endDate:
+            missing.append('end')
+        elif not isinstance(self.endDate, datetime):
+            invalid.append('end (got %s)' % type(self.endDate).__name__)
+        errors = []
+        if missing:
+            errors.append('missing: %s' % ', '.join(missing))
+        if invalid:
+            errors.append('invalid: %s' % ', '.join(invalid))
+        if errors:
+            raise ValueError('Event "%s" has %s' % (self.summary or '(no title)', '; '.join(errors)))
+
+    def write(self):
+        self.validate()
+        EventDb().upsert(self)
+        return self
+
+    def writeUpdate(self):
+        self.validate()
+        EventDb().update(self)
+        return self
+
+    def delete(self):
+        CalendarItemsDb().markDeleted(self.id)
+        EventDb().delete(self)
+        return self
+
+    """
+    If there are any duplicates in the database, find them and take their
+    id and calendarId.
+    """
+    def deduplicate(self, forceUpdateIfMatched = False):
+        data = self.toJson()
+        logger.debug('searching for duplicate: ' + str(data))
+        dupe = EventDb().findDuplicate(data)
+        if (dupe):
+            logger.debug('found duplicate: ' + str(dupe))
+            self.isDuplicate = True
+            self.updateFromDuplicate(dupe)
+            data['id'] = dupe['id']
+            data['calendarId'] = dupe['calendarId']
+            if (not self.needsToUpdate(data, dupe)):
+                if (not forceUpdateIfMatched):
+                    self.skipSync = True
+        return self
+
+    """
+    Takes data and a potential duplicate, and determines whether they need to
+    be updated.
+    """
+    def needsToUpdate(self, data, dupe):
+        all_keys = set(data.keys()) | set(dupe.keys())
+        for key in all_keys:
+            a = data.get(key)
+            b = dupe.get(key)
+            if a or b:
+                if a != b:
+                    return True
+        return False
+
+    """
+    Merge the properties that one would want to keep from a dupe.
+    """
+    def updateFromDuplicate(self, data):
+        self.setId(data['id'] or self.id)
+        self.setCalendarId(data['calendarId'] or self.calendarId)
+
+    """
+    Sets an absolute end time on the same day as the start time.
+    """
+    def setAbsoluteEndDateTime(self, hour = 23, minute = 59):
+        dt = copy(self.startDate)
+        dt = dt.replace(hour = hour, minute = minute)
+        self.setEnd(dt)
+
+    """
+    Sets an absolute end time on the same day as the start time.
+    """
+    def setDefaultTimeLength(self, hour = 2, minute = 0):
+        if (self.endDate is None):
+            dt = copy(self.startDate)
+            dt = dt + timedelta(hours=hour, minutes=minute)
+            self.setEnd(dt)
+
+    def prefixDescriptionWithLink(self):
+        if self.link:
+            linkText = '<span class="hidden"><a href=\'%s\'>%s</a>\\n\\n</span>' % (self.link, self.link)
+            self.description = ''.join([linkText, self.description])
+
+    def __str__(self):
+        lines = [
+            'ID: %s' % self.id,
+            'Summary: %s' % self.summary,
+            'Start: %s' % self.startToString(),
+            'End: %s' % self.endToString(),
+            'Location: %s' % self.location,
+            'Link: %s' % self.link,
+        ]
+        if self.urlTicket:
+            lines.append('Ticket: %s' % self.urlTicket)
+        if self.urlRsvp:
+            lines.append('RSVP: %s' % self.urlRsvp)
+        if self.isFree:
+            lines.append('Free: yes')
+        if self.isNotaflof:
+            lines.append('NOTAFLOF: yes')
+        if self.timeIsEstimated:
+            lines.append('Time estimated: yes')
+        if self.img:
+            lines.append('Image: %s' % self.img)
+        if self.description:
+            desc = self.description
+            lines.append('Description: %s' % desc)
+        lines.append('Source: %s' % self.sourceTitle)
+        return '\n\t'.join(lines)

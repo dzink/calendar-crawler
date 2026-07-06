@@ -2,9 +2,9 @@ source_html/*.html
 
 data/events-db.json
 data/*calendarid.txt
-data/secrets.yml
-data/credentials.json
-data/token.json
+config/secrets.yml
+config/credentials.json
+config/token.json
 data/*.log
 data/.backups
 

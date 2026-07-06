@@ -34,8 +34,8 @@ python3 -m venv .venv
 
 Copy the example config files in `data/` and fill in real values:
 
-- `data/options.yml` (from `data/example.options.yml`) — Chrome binary path and other options
-- `data/secrets.yml` (from `data/example.secrets.yml`) — Google Calendar API credentials and calendar ID. The credentials data comes straight from your Google Calendar app JSON (paste as-is, since JSON is valid YAML). The calendar ID comes from Google Calendar settings.
+- `data/options.yml` (from `example-data/example.options.yml`) — Chrome binary path and other options
+- `data/secrets.yml` (from `example-data/example.secrets.yml`) — Google Calendar API credentials and calendar ID. The credentials data comes straight from your Google Calendar app JSON (paste as-is, since JSON is valid YAML). The calendar ID comes from Google Calendar settings.
 
 ### Chrome
 
@@ -74,7 +74,7 @@ journalctl --user -u calendar-crawler.service     # view logs
 systemctl --user start calendar-crawler.service   # run manually
 ```
 
-You can customize the schedule by editing `~/.config/systemd/user/calendar-crawler.timer`. See `data/example.calendar-crawler.service` and `data/example.calendar-crawler.timer` for reference.
+You can customize the schedule by editing `~/.config/systemd/user/calendar-crawler.timer`. See `example-data/example.calendar-crawler.service` and `example-data/example.calendar-crawler.timer` for reference.
 
 ## Troubleshooting
 

@@ -1,0 +1,149 @@
+dzShowCrawler:
+  providers:
+    - type: google
+      googleCalendarId: {secret: dzShowCrawlerCalendarId}
+      applicationCredentials: {secret: dzShowCrawlerApplicationCredentials}
+      tokenFile: config/token.json
+      scopes:
+        - https://www.googleapis.com/auth/calendar.events
+  sources:
+    - showPlace
+    - redEmmas
+    - currentSpace
+    - ottobar
+    - blackCat
+    - space2640
+    - rhizome
+    - metroGallery
+    - greedyReads
+    - redRoom
+    - waxAtlas
+  exports:
+    html:
+      type: html
+      colors:
+        backgrounds:
+          light: "#f3f3f3"
+          dark: '#203743'
+          dark-gray: '#292727'
+          medium-gray: '#888'
+          dark-details: '#134'
+          light-details: '#eee'
+          safety-orange: "#fc0"
+          danger-orange: "#eee"
+          eggplant: "#61223e"
+          mauve: '#711238'
+          base-light: '#fff'
+          base-dark: '#242222'
+
+        foregrounds:
+          base-hover:
+            colors:
+              # - "#f3f3f3"
+              # - "#504161"
+              # - '#005599'
+              # - '#336699'
+              # - '#cec5d5'
+              # # - '#524d55'
+              # - '#ffcc99'
+              - "#ffffff"
+              - "#000"
+            minimum-contrast: A
+          text:
+            colors:
+              - "#ccc"
+              - "#333"
+              - "#fff"
+              - "#000"
+          highlighted-text:
+            colors:
+              - '#fff'
+              - '#000'
+          muted-text:
+            colors:
+              - '#999'
+              - '#ccc'
+              - '#666'
+              - '#333'
+              - '#fff'
+              - '#000'
+          border:
+            colors:
+              - 'rgba(0, 0, 0, 0.2)'
+              - 'rgba(255, 255, 255, 0.2)'
+          link:
+            colors:
+              - '#936'
+              - '#fc0'
+              # - '#904151'
+              # - '#4af'
+              - '#fff'
+              - '#000'
+          link-visited:
+            colors:
+              # - '#058'
+              # - '#b80'
+              # - '#403151'
+              # - '#39e'
+              # - '#eb0'
+              - '#ccc'
+              - '#eee'
+              - '#111'
+              - '#fff'
+              - '#000'
+          focus:
+            colors:
+              - '#fff'
+              - '#000'
+            minimum-contrast: 5.5
+          primary:
+            colors:
+              - '#936'
+              - '#fc0'
+              - '#714'
+              - '#da0'
+              - '#503'
+              - '#b80'
+            minimum-contrast: 3.5
+          cancel:
+            colors:
+              - '#f00'
+              - '#900'
+              - '#900'
+              - '#c00'
+              - '#600'
+              - '#f30'
+              - '#f33'
+              - '#f66'
+              - '#f99'
+              - '#f90'
+              - '#fff'
+              - '#000'
+            minimum-contrast: 2
+
+
+
+      template: ../html-template
+      target: ../dist/dev
+      css:
+        files:
+          - ../scss/minimal.scss
+        minify: false
+      js:
+        files:
+          - '../js/navigation.js'
+          - '../js/filter.js'
+          - '../js/events.js'
+          - '../js/calendar.js'
+          - '../js/theme.js'
+          - '../js/init.js'
+      environment:
+        dev:
+          base-url: https://shows.lndo.site
+          minifyCss: false
+          minifyJs: false
+        prod:
+          base-url: https://shows.lndo.site
+          minifyCss: true
+          minifyJs: true
+

@@ -1,0 +1,105 @@
+#!/usr/bin/python
+
+import sys
+sys.path.append('./src')
+import paths
+
+import argparse
+from EventList import EventList
+from Factory import CalendarFactory
+from Config import Config
+
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+
+from CalendarLogger import logger, addLoggerArgsToParser, buildLogger
+
+options = None
+factory = None
+
+def main():
+    try:
+        global options
+        global factory
+        options = parseArguments()
+        buildLogger(options)
+        cfg = Config()
+        sourceConfigs = cfg.loadSources()
+        secrets = cfg.loadSecrets()
+        calendarConfigs = cfg.loadCalendars()
+        factory = CalendarFactory(options, {}, secrets)
+
+        deadline = False
+
+        if (not options.clean_all):
+            deadline = datetime.now() - relativedelta(days=int(90))
+            deadline = deadline.strftime('%Y-%m-%d')
+
+        if (options.id is not None):
+            events = get_events_by_ids(options.id)
+        else:
+            events = get_expired_from_calendars(calendarConfigs['dzShowCrawler'], sourceConfigs, deadline)
+
+        for event in events:
+            if options.dry_run:
+                logger.info('Dry run - Deleting event \"%s\" from source \"%s\"' % (event.summary, event.sourceTitle))
+            else:
+                event.delete()
+
+        # Sync is handled separately by ./cc sync
+        # for calendarKey in calendarConfigs.keys():
+        #     calendarConfig = calendarConfigs.get(calendarKey)
+        #     providers = factory.providers(calendarKey, calendarConfig)
+        #     for provider in providers:
+        #         provider.syncPending(dryRun=options.dry_run)
+
+    except Exception as e:
+        logger.exception("Exception occurred")
+
+
+def parseArguments():
+    parser = argparse.ArgumentParser(description='Clean old events from the calendar')
+    addLoggerArgsToParser(parser, {})
+    parser.add_argument('-d', '--dry-run', help = 'Run the cleaner but do not write to the calendar or database.', action = 'store_true', default = False)
+    parser.add_argument('--clean-all', help = 'Clean all events', action = 'store_true', default = False)
+    parser.add_argument('-s', '--source', help = 'Only crawl the given source(s).', action = 'append', default = None)
+    parser.add_argument('-i', '--id', help = 'Delete the given id. Can be added multiple times.', action = 'append', default = None)
+
+
+    return parser.parse_args()
+
+def get_expired_from_calendars(calendarConfig, sourceConfigs, deadline):
+    events = EventList()
+    sourceKeys = calendarConfig.get('sources', [])
+
+    if (options.source):
+        sourceKeys = list(filter(lambda x: x in sourceKeys, options.source))
+
+    # Iterate through sources in calendar config
+    for sourceKey in sourceKeys:
+        sourceConfig = sourceConfigs.get(sourceKey)
+        # logger.info(sourceConfig)
+        deadEvents = getExpiredEvents(deadline, sourceConfig['name'])
+        events = events.merge(deadEvents)
+
+    return events
+
+def getExpiredEvents(deadline, sourceConfigName = None):
+    parameters = {}
+    if (deadline):
+        parameters['before'] = deadline
+    if (sourceConfigName):
+        parameters['sourceTitle'] = sourceConfigName
+    deadEvents = EventList().find(parameters)
+    logger.info('Found %d expired events for %s' % (len(deadEvents.events), sourceConfigName))
+    return deadEvents
+
+def get_events_by_ids(ids):
+    events = EventList()
+    for event_id in ids:
+        matched_events = EventList().find({'id': event_id})
+        events = events.merge(matched_events)
+    return events
+
+if __name__ == '__main__':
+    main()
